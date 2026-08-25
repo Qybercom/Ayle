@@ -446,7 +446,7 @@
 (function () {
 	function initFullExample () {
 		var configElement = document.querySelector('script[type="application/json"][data-ayle="mainMovie"]');
-		var config = PlayerEmbed.ParseConfig(configElement);
+		var config = AyleEmbed.ParseConfig(configElement);
 
 		/*
 		 * The original mse-time-streaming example persists these values.
@@ -464,7 +464,7 @@
 		config.Player.Shortcuts.Fullscreen = localStorage.getItem('player.shortcuts.Fullscreen') !== 'false';
 		config.Player.Shortcuts.PictureInPicture = localStorage.getItem('player.shortcuts.PictureInPicture') !== 'false';
 
-		var instance = PlayerEmbed.InitConfig(configElement, config);
+		var instance = AyleEmbed.InitConfig(configElement, config);
 		var player = instance.Player;
 		var ui = instance.UI;
 
@@ -620,7 +620,7 @@
 		});
 	}
 
-	if (window.PlayerEmbed)
+	if (window.AyleEmbed)
 		initFullExample();
 	else
 		document.addEventListener('playerBootstrapReady', initFullExample, { once: true });

@@ -461,7 +461,7 @@
 
 		mediaConfig.File = AyleHTTP.GetQueryParameter('file') || mediaConfig.File || 'example.mkv';
 
-		var instance = PlayerEmbed.InitSplit(
+		var instance = AyleEmbed.InitSplit(
 			'#mainMovie',
 			playerConfig,
 			mediaConfig
@@ -621,7 +621,7 @@
 		});
 	}
 
-	if (window.PlayerEmbed)
+	if (window.AyleEmbed)
 		initFullSplitExample();
 	else
 		document.addEventListener(

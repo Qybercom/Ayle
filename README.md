@@ -645,9 +645,8 @@ AyleMSEMediaDriver
 
 `ayle-bootstrap.js` additionally exports `AyleBootstrap`.
 
-The current bootstrap also exposes `PlayerEmbed` and `PlayerInstances`. Those
-two names are retained by the current runtime API and examples document them
-as-is.
+The current bootstrap exposes `AyleEmbed` and `AyleInstances` as the global
+bootstrap instance and instance collection used by declarative examples.
 
 ## Events API
 
@@ -1020,11 +1019,8 @@ example asset at `../../img/channel-avatar.png` when running those examples.
 
 ### Center Play visibility and narrow menus
 
-The center Play button uses a translucent dark background, a dark outline, a
-strong dark shadow, and a subtle light outer ring so that it remains readable
-over both bright and dark video frames.
-These values are themeable through `--ayle-center-play-background`,
-`--ayle-center-play-border`, and `--ayle-center-play-shadow`.
+The center Play/Pause control keeps the button itself visually neutral. Contrast is applied directly to the rendered SVG `<use>` element with `filter: drop-shadow(...)`, so the Play/Pause glyph remains readable over bright video frames without drawing a visible circle around the button.
+These values are themeable through `--ayle-center-icon-shadow`.
 
 When the Player enters its narrow-controls layout, open popovers are clamped to
 the **actual Player width**, not the browser viewport. If menu content is wider

@@ -45,10 +45,10 @@
 			}
 		};
 
-		PlayerEmbed.InitAt('#movie-player', movieConfig);
+		AyleEmbed.InitAt('#movie-player', movieConfig);
 
 		/* Batch form for multiple externally supplied configs. */
-		PlayerEmbed.InitTargets([
+		AyleEmbed.InitTargets([
 			{
 				Target: '#second-player',
 				Config: {
@@ -74,12 +74,12 @@
 				return response.json();
 			})
 			.then(function (config) {
-				PlayerEmbed.InitAt('#movie-player', config);
+				AyleEmbed.InitAt('#movie-player', config);
 			});
 		*/
 	}
 
-	if (window.PlayerEmbed)
+	if (window.AyleEmbed)
 		initExternalExamples();
 	else
 		document.addEventListener('playerBootstrapReady', initExternalExamples, { once: true });

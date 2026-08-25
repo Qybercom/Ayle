@@ -85,7 +85,7 @@
 		var playerConfig = readJSON('#ayle-config');
 		var mediaConfig = readJSON('#media-config');
 
-		var instance = PlayerEmbed.InitSplit(
+		var instance = AyleEmbed.InitSplit(
 			'#movie-player',
 			playerConfig,
 			mediaConfig
@@ -95,7 +95,7 @@
 		console.log('Effective config:', instance.Config);
 	}
 
-	if (window.PlayerEmbed)
+	if (window.AyleEmbed)
 		init();
 	else
 		document.addEventListener(
