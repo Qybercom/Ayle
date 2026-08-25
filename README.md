@@ -1093,3 +1093,116 @@ The current package was checked for:
 The HTML5 driver follows the browser's normal `HTMLMediaElement` capabilities.
 The MSE driver additionally requires Media Source Extensions and a supported
 container/codec combination. Runtime codec detection is authoritative.
+
+
+## npm package and core build
+
+The repository root is the source of the framework-independent
+`@qybercom/ayle` npm package. Source files remain directly at the repository
+root; generated files are written to `dist/` and are not committed.
+
+```text
+<root>/
+├── examples/
+├── icons/
+├── bindings/
+│   ├── angular/
+│   └── react/
+├── scripts/
+├── ayle.js
+├── ayle-bootstrap.js
+├── ayle.css
+├── ayle-icons.svg
+├── package.json
+└── dist/                  # generated
+```
+
+Install build dependencies and build the core package:
+
+```bash
+npm install
+npm run build
+npm run check
+```
+
+The core build produces:
+
+```text
+dist/
+├── ayle.js
+├── ayle.min.js
+├── ayle.esm.js
+├── ayle-bootstrap.js
+├── ayle-bootstrap.min.js
+├── ayle.css
+├── ayle.min.css
+├── ayle-icons.svg
+├── README.md
+└── LICENSE                # copied when present
+```
+
+`ayle.js`, `ayle-bootstrap.js`, and `ayle.css` remain the canonical readable
+browser sources. Their `.min.*` counterparts are production minified builds.
+`ayle.esm.js` exposes the core public API as ES module exports without changing
+the standalone source format:
+
+```js
+import {
+    Ayle,
+    AyleHTTP,
+    AyleUI,
+    AyleMSEMediaDriver
+} from '@qybercom/ayle';
+```
+
+CSS can be consumed through the package export:
+
+```js
+import '@qybercom/ayle/css';
+```
+
+The standalone/browser integration remains available through the normal
+`ayle.js` and `ayle-bootstrap.js` builds.
+
+### Package validation
+
+Before publishing, run:
+
+```bash
+npm run build
+npm run check
+npm pack --dry-run
+```
+
+`npm run check` verifies the expected distribution files and the ESM exports.
+`npm pack --dry-run` shows exactly what npm would include without publishing
+the package.
+
+### CI and npm publishing
+
+`.github/workflows/build.yml` validates pushes and pull requests.
+
+`.github/workflows/publish.yml` publishes a production release when a `v*` Git
+tag is pushed. The workflow derives the npm version from the tag, so tag
+`v1.2.3` publishes package version `1.2.3`.
+
+The publish workflow is prepared for npm Trusted Publishing through GitHub
+Actions OIDC and therefore requests `id-token: write`. npm can configure a
+Trusted Publisher only for a package that already exists, so the very first
+package release must create `@qybercom/ayle` on npm. After that, configure its
+Trusted Publisher for this repository and the `publish.yml` workflow. Add the
+final GitHub repository URL as `repository.url` in `package.json` before
+enabling Trusted Publishing; npm requires it to match the publishing
+repository exactly. No repository URL is guessed in this template.
+
+The `bindings/angular/` and `bindings/react/` directories are intentionally
+reserved at this stage. They will become separate npm packages consuming the
+core ESM API.
+
+
+### Minified bootstrap
+
+`dist/ayle-bootstrap.min.js` is built with its resource names rewritten to
+`ayle.min.js` and `ayle.min.css`, so the production bootstrap does not
+accidentally load the readable development assets. The readable
+`dist/ayle-bootstrap.js` continues to load `ayle.js` and `ayle.css`.

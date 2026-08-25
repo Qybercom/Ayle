@@ -1,0 +1,43 @@
+{
+	"name": "@qybercom/ayle",
+	"version": "0.0.0-development",
+	"description": "Ayle framework-independent media player",
+	"type": "module",
+	"sideEffects": [
+		"./dist/ayle.css",
+		"./dist/ayle.js",
+		"./dist/ayle-bootstrap.js"
+	],
+	"files": [
+		"dist/",
+		"README.md",
+		"LICENSE"
+	],
+	"exports": {
+		".": "./dist/ayle.esm.js",
+		"./browser": "./dist/ayle.js",
+		"./browser/min": "./dist/ayle.min.js",
+		"./bootstrap": "./dist/ayle-bootstrap.js",
+		"./bootstrap/min": "./dist/ayle-bootstrap.min.js",
+		"./css": "./dist/ayle.css",
+		"./css/min": "./dist/ayle.min.css",
+		"./icons": "./dist/ayle-icons.svg",
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"clean": "node scripts/build.mjs --clean",
+		"build": "node scripts/build.mjs",
+		"check": "node scripts/check.mjs",
+		"pack:check": "npm pack --dry-run",
+		"prepack": "npm run build && npm run check"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"engines": {
+		"node": ">=22.14.0"
+	},
+	"devDependencies": {
+		"esbuild": "^0.25.0"
+	}
+}
