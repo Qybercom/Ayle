@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Embedded Ayle Example</title>
+
+	<!-- Loads ayle.css and ayle.js automatically from ayle-bootstrap.js. -->
+	<script data-ayle-driver="mse"
+	src="../ayle-bootstrap.js"
+	data-ayle-loader
+	data-ayle-localization="ru"
+	data-ayle-auto-focus>
+</script>
+
+	<style>
+		body {
+			margin: 0;
+			padding: 30px;
+			background: #1b1b1b;
+		}
+	</style>
+</head>
+<body>
+
+<script type="application/json" data-ayle="mainMovie">
+{
+	"File": "example.mkv",
+	"Player": {
+		"AutoPlay": false,
+		"FontFamily": "Calibri, sans-serif"
+	},
+	"HTTP": {
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+		"Stream": {
+			"SkipInit": true
+		}
+	}
+}
+</script>
+
+<script>
+document.addEventListener('playerReady', function (event) {
+	if (event.detail.ID !== 'mainMovie')
+		return;
+
+	console.log('Embedded player is ready:', event.detail);
+	console.log('Same instance:', PlayerInstances.mainMovie);
+});
+
+document.addEventListener('playerError', function (event) {
+	console.error('Embedded player error:', event.detail.Error);
+});
+</script>
+
+</body>
+</html>

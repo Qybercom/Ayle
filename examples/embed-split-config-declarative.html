@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Ayle Media Player — declarative split config</title>
+
+	<script data-ayle-driver="mse" src="../ayle-bootstrap.js" data-ayle-loader data-ayle-localization="ru"></script>
+
+	<style>
+		body {
+			margin: 0;
+			padding: 30px;
+			background: #1b1b1b;
+		}
+	</style>
+</head>
+<body>
+
+<script type="application/json" data-ayle="movie">
+{
+	"PlayerConfig": {
+		"Driver": {
+			"Type": "mse"
+		},
+		"Player": {
+			"AutoFocus": true,
+			"FontFamily": "Calibri, sans-serif"
+		},
+		"HTTP": {
+			"MetadataURL": "../../server/metadata.php?file={file}",
+			"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+			"Stream": {
+				"SkipInit": true
+			}
+		}
+	},
+
+	"MediaConfig": {
+		"File": "example.mkv",
+		"Hints": [
+			{
+				"ID": "split-info",
+				"Type": "info",
+				"Position": "top-right",
+				"Start": 5,
+				"Duration": 8,
+				"Title": "Split config",
+				"Text": "PlayerConfig и MediaConfig были объединены bootstrap-слоем."
+			}
+		]
+	}
+}
+</script>
+
+</body>
+</html>

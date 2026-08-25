@@ -1,0 +1,2868 @@
+/* Ayle UI default custom properties. */
+:root {
+	--ayle-audio-visual-min-height: 240px;
+	--ayle-button-bg: transparent;
+	--ayle-button-hover-bg: rgba(255,255,255,.14);
+	--ayle-button-radius: 9px;
+	--ayle-button-size: 38px;
+	--ayle-font-family: Arial, sans-serif;
+	--ayle-hint-safe-bottom: 16px;
+	--ayle-hint-safe-center-x: 50%;
+	--ayle-hint-safe-center-y: 50%;
+	--ayle-hint-safe-left: 16px;
+	--ayle-hint-safe-right: 16px;
+	--ayle-hint-safe-top: 16px;
+	--ayle-icon-color: #eaeaea;
+	--ayle-icon-hover-color: #fff;
+	--ayle-minimal-subtitle-stack: 0px;
+	--ayle-subtitle-background: rgba(0, 0, 0, .72);
+	--ayle-subtitle-border-radius: 8px;
+	--ayle-subtitle-bottom: 64px;
+	--ayle-subtitle-color: #fff;
+	--ayle-subtitle-font-family: Arial, sans-serif;
+	--ayle-subtitle-font-size: 1.15em;
+	--ayle-subtitle-font-weight: 400;
+	--ayle-subtitle-letter-spacing: normal;
+	--ayle-subtitle-line-height: 1.25;
+	--ayle-subtitle-max-width: 90%;
+	--ayle-subtitle-padding: 8px;
+	--ayle-subtitle-text-shadow: none;
+}
+
+.ayle {
+	position: relative;
+	width: 960px;
+	font-family: var(--ayle-font-family), sans-serif;
+	--ayle-scrollbar-size: 8px;
+	--ayle-scrollbar-track: transparent;
+	--ayle-scrollbar-thumb: rgba(255, 255, 255, .22);
+	--ayle-scrollbar-thumb-hover: rgba(255, 255, 255, .38);
+	--ayle-scrollbar-thumb-active: rgba(255, 255, 255, .52);
+	max-width: 100%;
+	aspect-ratio: 16 / 9;
+	background: #000;
+	overflow: hidden;
+	outline: none;
+	user-select: none;
+}
+
+.ayle > .ayle-video {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100% !important;
+	height: 100% !important;
+	min-width: 0;
+	min-height: 0;
+	max-width: 100%;
+	max-height: 100%;
+	box-sizing: border-box;
+	object-fit: contain !important;
+	object-position: 50% 50% !important;
+}
+
+.ayle-surface {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 1;
+}
+
+.ayle-loading {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	z-index: 5;
+	transform: translate(-50%, -50%);
+	display: none;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+}
+
+.ayle-loading.is-visible {
+	display: flex;
+}
+
+.ayle-loading-icon {
+	display: block;
+	width: 48px;
+	height: 48px;
+}
+
+.ayle-center-play {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	z-index: 6;
+	transform: translate(-50%, -50%);
+	width: 64px;
+	height: 64px;
+	flex-basis: 64px;
+	border-radius: 50%;
+	opacity: 1;
+	transition: opacity .2s ease, transform .12s ease;
+}
+
+.ayle-center-play:active {
+	transform: translate(-50%, -50%) scale(.94);
+}
+
+.ayle-center-play .ayle-icon {
+	width: 30px;
+	height: 30px;
+}
+
+.ayle.controls-hidden .ayle-center-play {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ayle.is-loading .ayle-center-play {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ayle-header {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	z-index: 10;
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	padding: 16px;
+	box-sizing: border-box;
+	background: linear-gradient(to bottom, rgba(0, 0, 0, .72), rgba(0, 0, 0, 0));
+	color: #fff;
+	pointer-events: none;
+	opacity: 1;
+	transition: opacity .2s ease;
+}
+
+.ayle-channel {
+	display: none;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+	pointer-events: auto;
+}
+
+.ayle-channel.is-visible {
+	display: flex;
+}
+
+.ayle-channel.is-visible:after {
+	content: '';
+	display: block;
+	width: 1px;
+	height: 32px;
+	margin-left: 8px;
+	background: rgba(255, 255, 255, .28);
+	flex: 0 0 1px;
+}
+
+.ayle-channel-avatar {
+	display: block;
+	width: 42px;
+	height: 42px;
+	flex: 0 0 42px;
+	border-radius: 8px;
+	object-fit: cover;
+}
+
+.ayle-channel-info {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+}
+
+.ayle-channel-name {
+	max-width: 180px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: #fff;
+}
+
+.ayle-channel-profile {
+	max-width: 180px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.2;
+	color: rgba(255, 255, 255, .72);
+	text-decoration: none;
+}
+
+.ayle-channel-profile:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+
+.ayle-title {
+	display: flex;
+	min-width: 0;
+	flex: 1 1 auto;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+}
+
+.ayle-title-media {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-family: Arial, sans-serif;
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.ayle-title-chapter {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-family: Arial, sans-serif;
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.2;
+	color: rgba(255, 255, 255, .72);
+}
+
+.ayle.controls-hidden .ayle-header {
+	opacity: 0;
+}
+
+.ayle.controls-hidden .ayle-channel {
+	pointer-events: none;
+}
+
+.ayle-controls {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px;
+	box-sizing: border-box;
+	background: rgba(0, 0, 0, .68);
+	opacity: 1;
+	transition: opacity .2s ease;
+}
+
+.ayle-primary-left {
+	display: contents;
+}
+
+/*
+ * Preserve the original wide-screen order even though Play and Time now live
+ * inside a structural wrapper used by the narrow layout.
+ */
+.ayle-controls > * {
+	order: 3;
+}
+
+.ayle-primary-left > .ayle-play {
+	order: 0;
+}
+
+.ayle-controls > .ayle-timeline {
+	order: 1;
+}
+
+.ayle-primary-left > .ayle-time {
+	order: 2;
+}
+
+.ayle.controls-hidden {
+	cursor: none;
+}
+
+.ayle.controls-hidden .ayle-controls {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ayle button,
+.ayle select,
+.ayle input {
+	font: inherit;
+}
+
+.ayle button {
+	gap: 4px;
+}
+
+.ayle button,
+.ayle select {
+	min-height: 30px;
+}
+
+.ayle-time {
+	color: #fff;
+	font-family: monospace;
+	white-space: nowrap;
+}
+
+.ayle-timeline {
+	position: relative;
+	flex: 1;
+	height: 20px;
+	min-width: 100px;
+	margin: 0 8px 0 4px;
+	cursor: pointer;
+	touch-action: none;
+}
+
+.ayle-timeline:before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 50%;
+	height: 6px;
+	transform: translateY(-50%);
+	background: rgba(255, 255, 255, .15);
+	z-index: 1;
+}
+
+.ayle-buffered {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	height: 6px;
+	width: 0;
+	transform: translateY(-50%);
+	background: rgba(255, 255, 255, .35);
+	z-index: 2;
+	pointer-events: none;
+}
+
+.ayle-progress {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	height: 6px;
+	transform: translateY(-50%);
+	background: #fff;
+	width: 0;
+	z-index: 3;
+	pointer-events: none;
+}
+
+.ayle-handle {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: #fff;
+	transform: translate(-50%, -50%);
+	z-index: 4;
+	pointer-events: none;
+}
+
+.ayle-preview {
+	position: absolute;
+	bottom: 28px;
+	left: 0;
+	transform: translateX(-50%);
+	display: none;
+	padding: 5px 8px;
+	background: rgba(0, 0, 0, .85);
+	color: #fff;
+	font-family: monospace;
+	pointer-events: none;
+	white-space: nowrap;
+}
+
+.ayle-volume {
+	--ayle-volume-percent: 100%;
+	--ayle-volume-track-height: 4px;
+	--ayle-volume-thumb-size: 12px;
+
+	width: 100px;
+	height: 20px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	background:
+		linear-gradient(
+			to right,
+			rgba(255, 255, 255, .92) 0,
+			rgba(255, 255, 255, .92) var(--ayle-volume-percent),
+			rgba(255, 255, 255, .24) var(--ayle-volume-percent),
+			rgba(255, 255, 255, .24) 100%
+		)
+		center / 100% var(--ayle-volume-track-height) no-repeat;
+	cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+/* Chromium / Safari / Edge */
+.ayle-volume::-webkit-slider-runnable-track {
+	width: 100%;
+	height: var(--ayle-volume-track-height);
+	border: 0;
+	border-radius: 999px;
+	background: transparent;
+}
+
+.ayle-volume::-webkit-slider-thumb {
+	width: var(--ayle-volume-thumb-size);
+	height: var(--ayle-volume-thumb-size);
+	margin-top: calc(
+		(var(--ayle-volume-track-height) - var(--ayle-volume-thumb-size)) / 2
+	);
+	border: 0;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .45);
+	cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+/* Firefox */
+.ayle-volume::-moz-range-track {
+	width: 100%;
+	height: var(--ayle-volume-track-height);
+	border: 0;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, .24);
+}
+
+.ayle-volume::-moz-range-progress {
+	height: var(--ayle-volume-track-height);
+	border: 0;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, .92);
+}
+
+.ayle-volume::-moz-range-thumb {
+	width: var(--ayle-volume-thumb-size);
+	height: var(--ayle-volume-thumb-size);
+	border: 0;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .45);
+	cursor: pointer;
+}
+
+/* Remove Firefox's extra focus border. */
+.ayle-volume::-moz-focus-outer {
+	border: 0;
+}
+
+.ayle-volume:focus-visible {
+	filter: drop-shadow(0 0 2px rgba(255, 255, 255, .9));
+}
+
+/* -------------------------------------------------------------------------
+ * Narrow two-row controls layout
+ *
+ * Timeline
+ * [Play/Pause Time] ------- [Mute] [Volume] [Settings]
+ * [Variant] -------------- [Chapters] [PiP] [FullScreen]
+ *
+ * Play + Time intentionally live in one nested flex group. This prevents the
+ * width of Variant on the second row from affecting the distance between them.
+ * ---------------------------------------------------------------------- */
+
+.ayle-controls-narrow .ayle-controls {
+	display: grid;
+	grid-template-columns:
+		auto
+		minmax(0, 1fr)
+		auto
+		auto
+		auto;
+	align-items: center;
+	gap: 4px;
+	padding: 4px;
+}
+
+.ayle-controls-narrow .ayle-timeline {
+	grid-column: 1 / -1;
+	grid-row: 1;
+	width: auto;
+	min-width: 0;
+	margin: 0 10px 2px 10px;
+}
+
+.ayle-controls-narrow .ayle-primary-left {
+	grid-column: 1;
+	grid-row: 2;
+	display: flex;
+	align-items: center;
+	justify-self: start;
+	gap: 2px;
+	min-width: 0;
+	margin: 0;
+}
+
+.ayle-controls-narrow .ayle-play {
+	margin: 0;
+	flex: 0 0 auto;
+}
+
+.ayle-controls-narrow .ayle-time {
+	margin: 0;
+	flex: 0 0 auto;
+}
+
+.ayle-controls-narrow .ayle-volume-control {
+	display: contents;
+}
+
+.ayle-controls-narrow .ayle-mute {
+	grid-column: 3;
+	grid-row: 2;
+	justify-self: end;
+}
+
+.ayle-controls-narrow .ayle-volume {
+	grid-column: 4;
+	grid-row: 2;
+	justify-self: end;
+	width: 80px;
+}
+
+.ayle-controls-narrow .ayle-settings-control {
+	grid-column: 5;
+	grid-row: 2;
+	justify-self: end;
+	margin: 0;
+}
+
+.ayle-controls-narrow .ayle-quality-control {
+	grid-column: 1;
+	grid-row: 3;
+	justify-self: start;
+	margin: 0;
+}
+
+.ayle-controls-narrow .ayle-chapters-control {
+	grid-column: 3;
+	grid-row: 3;
+	justify-self: end;
+	margin: 0;
+}
+
+.ayle-controls-narrow .ayle-pip {
+	grid-column: 4;
+	grid-row: 3;
+	justify-self: end;
+	margin: 0;
+}
+
+.ayle-controls-narrow .ayle-fullscreen {
+	grid-column: 5;
+	grid-row: 3;
+	justify-self: end;
+	margin: 0;
+}
+
+/* Audio Play/Pause stays physically at the far left of the nested group. */
+.ayle-media-audio.ayle-controls-narrow .ayle-primary-left {
+	justify-self: start !important;
+	margin-left: 0 !important;
+}
+
+.ayle-media-audio.ayle-controls-narrow .ayle-play {
+	order: 0;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+.ayle-media-audio.ayle-controls-narrow .ayle-time {
+	order: 1;
+}
+
+.ayle-controls-very-narrow .ayle-volume {
+	width: 56px;
+}
+
+/* Native WebVTT subtitle rendering. Override through Player SubtitleStyle or these variables. */
+.ayle-video::cue {
+	color: var(--ayle-subtitle-color);
+	background: var(--ayle-subtitle-background);
+	font-family: var(--ayle-subtitle-font-family), sans-serif;
+	font-size: var(--ayle-subtitle-font-size);
+	font-weight: var(--ayle-subtitle-font-weight);
+	line-height: var(--ayle-subtitle-line-height);
+	text-shadow: var(--ayle-subtitle-text-shadow);
+}
+
+
+/* HTML subtitle renderer (default). TextTrack stays hidden and only provides timing. */
+
+.ayle-hints {
+	position: absolute;
+	inset: 0;
+	z-index: 8;
+	pointer-events: none;
+}
+
+
+.ayle-hint {
+	--ayle-hint-offset-x: 0px;
+	--ayle-hint-offset-y: 0px;
+	position: absolute;
+	width: min(360px, 100%);
+	max-width: 100%;
+	transform: translate(var(--ayle-hint-offset-x), var(--ayle-hint-offset-y));
+}
+
+.ayle-hint[data-hint-position='top-left'] {
+	top: var(--ayle-hint-safe-top);
+	left: var(--ayle-hint-safe-left);
+}
+
+.ayle-hint[data-hint-position='top-center'] {
+	top: var(--ayle-hint-safe-top);
+	left: var(--ayle-hint-safe-center-x);
+	transform: translate(calc(-50% + var(--ayle-hint-offset-x)), var(--ayle-hint-offset-y));
+}
+
+.ayle-hint[data-hint-position='top-right'] {
+	top: var(--ayle-hint-safe-top);
+	right: var(--ayle-hint-safe-right);
+}
+
+.ayle-hint[data-hint-position='center-left'] {
+	top: var(--ayle-hint-safe-center-y);
+	left: var(--ayle-hint-safe-left);
+	transform: translate(var(--ayle-hint-offset-x), calc(-50% + var(--ayle-hint-offset-y)));
+}
+
+.ayle-hint[data-hint-position='center'] {
+	top: var(--ayle-hint-safe-center-y);
+	left: var(--ayle-hint-safe-center-x);
+	transform: translate(calc(-50% + var(--ayle-hint-offset-x)), calc(-50% + var(--ayle-hint-offset-y)));
+}
+
+.ayle-hint[data-hint-position='center-right'] {
+	top: var(--ayle-hint-safe-center-y);
+	right: var(--ayle-hint-safe-right);
+	transform: translate(var(--ayle-hint-offset-x), calc(-50% + var(--ayle-hint-offset-y)));
+}
+
+.ayle-hint[data-hint-position='bottom-left'] {
+	bottom: var(--ayle-hint-safe-bottom);
+	left: var(--ayle-hint-safe-left);
+}
+
+.ayle-hint[data-hint-position='bottom-center'] {
+	bottom: var(--ayle-hint-safe-bottom);
+	left: var(--ayle-hint-safe-center-x);
+	transform: translate(calc(-50% + var(--ayle-hint-offset-x)), var(--ayle-hint-offset-y));
+}
+
+.ayle-hint[data-hint-position='bottom-right'] {
+	right: var(--ayle-hint-safe-right);
+	bottom: var(--ayle-hint-safe-bottom);
+}
+
+.ayle-hint {
+	position: absolute;
+	display: flex;
+	min-width: 0;
+	gap: 10px;
+	padding: 12px;
+	border: 1px solid rgba(255, 255, 255, .14);
+	border-radius: 10px;
+	box-sizing: border-box;
+	background: rgba(18, 18, 20, .94);
+	box-shadow: 0 8px 28px rgba(0, 0, 0, .32);
+	color: #fff;
+	font-family: inherit;
+	pointer-events: auto;
+	backdrop-filter: blur(8px);
+}
+
+.ayle-hint-image {
+	display: block;
+	width: 80px;
+	height: 80px;
+	flex: 0 0 80px;
+	border-radius: 8px;
+	object-fit: cover;
+}
+
+.ayle-hint-body {
+	display: flex;
+	min-width: 0;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.ayle-hint-title {
+	padding-right: 22px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.ayle-hint-text {
+	color: rgba(255, 255, 255, .78);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.35;
+}
+
+.ayle-hint-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 4px;
+}
+
+.ayle .ayle-hint-action {
+	min-height: 28px;
+	padding: 4px 9px;
+	border: 0;
+	border-radius: 6px;
+	background: rgba(255, 255, 255, .12);
+	color: #fff;
+	cursor: pointer;
+}
+
+.ayle .ayle-hint-action:hover {
+	background: rgba(255, 255, 255, .2);
+}
+
+.ayle .ayle-hint-close {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	width: 26px;
+	height: 26px;
+	min-height: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: rgba(255, 255, 255, .72);
+	font-size: 20px;
+	line-height: 26px;
+	cursor: pointer;
+}
+
+.ayle .ayle-hint-close:hover {
+	background: rgba(255, 255, 255, .1);
+	color: #fff;
+}
+
+.ayle-hint-type-info {
+	border-left: 3px solid rgba(255, 255, 255, .7);
+}
+
+.ayle-hint-type-media .ayle-hint-image,
+.ayle-hint-type-card .ayle-hint-image {
+	width: 96px;
+	flex-basis: 96px;
+}
+
+.ayle-subtitle-overlay {
+	position: absolute;
+	left: 50%;
+	bottom: var(--ayle-subtitle-bottom);
+	z-index: 7;
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	width: var(--ayle-subtitle-max-width);
+	max-width: var(--ayle-subtitle-max-width);
+	transform: translateX(-50%);
+	pointer-events: none;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.ayle-subtitle-cue {
+	display: inline-block;
+	max-width: 100%;
+	box-sizing: border-box;
+	padding: var(--ayle-subtitle-padding);
+	border-radius: var(--ayle-subtitle-border-radius);
+	color: var(--ayle-subtitle-color);
+	background: var(--ayle-subtitle-background);
+	font-family: var(--ayle-subtitle-font-family), sans-serif;
+	font-size: var(--ayle-subtitle-font-size);
+	font-weight: var(--ayle-subtitle-font-weight);
+	line-height: var(--ayle-subtitle-line-height);
+	letter-spacing: var(--ayle-subtitle-letter-spacing);
+	text-shadow: var(--ayle-subtitle-text-shadow);
+	white-space: pre-line;
+	overflow-wrap: break-word;
+}
+
+
+/* -------------------------------------------------------------------------
+ * SVG control bar
+ *
+ * The icons use currentColor. Override these variables on .ayle or on any
+ * individual button, e.g. .ayle-settings-button { --ayle-icon-color:#6cf; }
+ * ---------------------------------------------------------------------- */
+.ayle {
+	--ayle-icon-size: 20px;
+	--ayle-icon-color: #fff;
+	--ayle-icon-hover-color: #fff;
+	--ayle-button-size: 36px;
+	--ayle-button-radius: 8px;
+	--ayle-button-bg: transparent;
+	--ayle-button-hover-bg: rgba(255, 255, 255, .13);
+	--ayle-button-active-bg: rgba(255, 255, 255, .18);
+	--ayle-panel-bg: rgba(20, 20, 22, .97);
+	--ayle-panel-border: rgba(255, 255, 255, .12);
+	--ayle-panel-color: #fff;
+	--ayle-panel-radius: 10px;
+	--ayle-accent: #fff;
+}
+
+.ayle-controls {
+	gap: 4px;
+	padding: 4px;
+	background: linear-gradient(to top, rgba(0,0,0,.88), rgba(0,0,0,.58));
+}
+
+.ayle-icon-button {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 var(--ayle-button-size);
+	width: var(--ayle-button-size);
+	height: var(--ayle-button-size);
+	min-height: 0 !important;
+	padding: 0;
+	border: 0;
+	border-radius: var(--ayle-button-radius);
+	background: var(--ayle-button-bg);
+	color: var(--ayle-icon-color);
+	cursor: pointer;
+	transition: background .15s ease, color .15s ease, transform .12s ease, opacity .15s ease;
+}
+
+.ayle-icon-button:hover,
+.ayle-icon-button:focus-visible {
+	background: var(--ayle-button-hover-bg);
+	color: var(--ayle-icon-hover-color);
+	outline: none;
+}
+
+.ayle-icon-button:active {
+	background: var(--ayle-button-active-bg);
+	transform: scale(.94);
+}
+
+.ayle-icon {
+	display: block;
+	width: var(--ayle-icon-size);
+	height: var(--ayle-icon-size);
+	color: inherit;
+	overflow: visible;
+	pointer-events: none;
+}
+
+.ayle-play .ayle-icon-pause,
+.ayle-center-play .ayle-icon-pause { display: none; }
+.ayle-play.is-playing .ayle-icon-play,
+.ayle-center-play.is-playing .ayle-icon-play { display: none; }
+.ayle-play.is-playing .ayle-icon-pause,
+.ayle-center-play.is-playing .ayle-icon-pause { display: block; }
+
+.ayle-mute.is-muted { opacity: .62; }
+.ayle-mute.is-muted:after {
+	content: "";
+	position: absolute;
+	width: 22px;
+	height: 2px;
+	border-radius: 2px;
+	background: currentColor;
+	transform: rotate(-45deg);
+	pointer-events: none;
+}
+
+.ayle-volume-control {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.ayle-volume {
+	width: 86px;
+	height: 4px;
+	accent-color: var(--ayle-accent);
+}
+
+.ayle-popover-container {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.ayle-popover {
+	position: absolute;
+	right: 0;
+	bottom: calc(100% + 12px);
+	z-index: 30;
+	display: none;
+	min-width: 250px;
+	padding: 12px;
+	box-sizing: border-box;
+	border: 1px solid var(--ayle-panel-border);
+	border-radius: var(--ayle-panel-radius);
+	background: var(--ayle-panel-bg);
+	color: var(--ayle-panel-color);
+	box-shadow: 0 10px 32px rgba(0, 0, 0, .38);
+	backdrop-filter: blur(10px);
+}
+
+.ayle-popover.is-open { display: block; }
+.ayle-chapters-popover { min-width: 300px; }
+
+.ayle-field {
+	display: block;
+	margin: 0 0 10px;
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	color: rgba(255,255,255,.72);
+}
+.ayle-field:last-child { margin-bottom: 0; }
+.ayle-field > span { display:block; margin-bottom:6px; }
+.ayle-field select {
+	display: block;
+	width: 100%;
+	height: 34px;
+	min-height: 34px;
+	box-sizing: border-box;
+	padding: 0 9px;
+	border: 1px solid rgba(255,255,255,.15);
+	border-radius: 7px;
+	background: #29292d;
+	color: #fff;
+	outline: none;
+}
+.ayle-field select:focus { border-color: rgba(255,255,255,.4); }
+
+.ayle-settings-button[aria-expanded="true"],
+.ayle-chapters-button[aria-expanded="true"] {
+	background: var(--ayle-button-active-bg);
+}
+
+@media (max-width: 760px) {
+	.ayle-controls { gap: 4px; padding: 7px; }
+	.ayle-volume-control .ayle-volume { width: 64px; }
+
+	/*
+	 * Keep menus inside the Player stacking/layout context on mobile.
+	 * They remain anchored to their control instead of the viewport bottom.
+	 */
+	.ayle-popover {
+		position: absolute;
+		left: auto;
+		right: 0;
+		bottom: calc(100% + 8px);
+		min-width: 0;
+		width: min(320px, calc(100vw - 24px));
+	}
+
+	.ayle-chapters-popover { min-width: 0; }
+}
+
+
+/* Fullscreen / Picture-in-Picture SVG states */
+.ayle-fullscreen .ayle-icon-fullscreen-exit { display: none; }
+.ayle-fullscreen.is-fullscreen .ayle-icon-fullscreen-enter { display: none; }
+.ayle-fullscreen.is-fullscreen .ayle-icon-fullscreen-exit { display: block; }
+.ayle-pip.is-active { background: var(--ayle-button-active-bg); }
+
+/* Custom scrollbar shared by scrollable player menus. */
+.ayle-popover,
+.ayle-settings-popover,
+.ayle-chapters-popover {
+	scrollbar-width: thin;
+	scrollbar-color: var(--ayle-scrollbar-thumb) var(--ayle-scrollbar-track);
+}
+
+.ayle-popover::-webkit-scrollbar,
+.ayle-settings-popover::-webkit-scrollbar,
+.ayle-chapters-popover::-webkit-scrollbar {
+	width: var(--ayle-scrollbar-size);
+	height: var(--ayle-scrollbar-size);
+}
+
+.ayle-popover::-webkit-scrollbar-track,
+.ayle-settings-popover::-webkit-scrollbar-track,
+.ayle-chapters-popover::-webkit-scrollbar-track {
+	background: var(--ayle-scrollbar-track);
+}
+
+.ayle-popover::-webkit-scrollbar-thumb,
+.ayle-settings-popover::-webkit-scrollbar-thumb,
+.ayle-chapters-popover::-webkit-scrollbar-thumb {
+	min-height: 28px;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	background: var(--ayle-scrollbar-thumb);
+	background-clip: padding-box;
+}
+
+.ayle-popover::-webkit-scrollbar-thumb:hover,
+.ayle-settings-popover::-webkit-scrollbar-thumb:hover,
+.ayle-chapters-popover::-webkit-scrollbar-thumb:hover {
+	background: var(--ayle-scrollbar-thumb-hover);
+	background-clip: padding-box;
+}
+
+.ayle-popover::-webkit-scrollbar-thumb:active,
+.ayle-settings-popover::-webkit-scrollbar-thumb:active,
+.ayle-chapters-popover::-webkit-scrollbar-thumb:active {
+	background: var(--ayle-scrollbar-thumb-active);
+	background-clip: padding-box;
+}
+
+.ayle-popover::-webkit-scrollbar-corner,
+.ayle-settings-popover::-webkit-scrollbar-corner,
+.ayle-chapters-popover::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+/* Direct chapter menu: the chapters button opens this list immediately. */
+.ayle-chapters-popover {
+	padding: 6px;
+	max-height: min(55vh, 420px);
+	overflow-y: auto;
+}
+.ayle-chapters-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.ayle-chapter-item {
+	display: grid;
+	grid-template-columns: 54px minmax(0, 1fr);
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 36px;
+	padding: 7px 9px;
+	box-sizing: border-box;
+	border: 0;
+	border-radius: 7px;
+	background: transparent;
+	color: var(--ayle-panel-color);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+.ayle-chapter-item:hover,
+.ayle-chapter-item:focus-visible {
+	background: var(--ayle-button-hover-bg);
+	outline: none;
+}
+.ayle-chapter-item.is-active {
+	background: var(--ayle-button-active-bg);
+}
+.ayle-chapter-time {
+	font-size: 11px;
+	font-variant-numeric: tabular-nums;
+	color: rgba(255,255,255,.62);
+}
+.ayle-chapter-title {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 13px;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Video quality list
+ * ---------------------------------------------------------------------- */
+.ayle-quality-native {
+	display: none !important;
+}
+.ayle-quality-list {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+.ayle-quality-option {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 18px;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 44px;
+	padding: 7px 9px;
+	box-sizing: border-box;
+	border: 0;
+	border-radius: 8px;
+	background: transparent;
+	color: var(--ayle-panel-color);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition: background .15s ease, opacity .15s ease;
+}
+.ayle-quality-option:hover,
+.ayle-quality-option:focus-visible {
+	background: var(--ayle-button-hover-bg);
+	outline: none;
+}
+.ayle-quality-option.is-active {
+	background: var(--ayle-button-active-bg);
+}
+.ayle-quality-option:disabled {
+	cursor: default;
+	opacity: .55;
+}
+.ayle-quality-text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	gap: 2px;
+}
+.ayle-quality-name-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+}
+.ayle-quality-list-badge {
+	flex: 0 0 auto;
+}
+.ayle-quality-name {
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: var(--ayle-panel-color);
+}
+.ayle-quality-meta {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 10px;
+	line-height: 1.2;
+	color: rgba(255,255,255,.56);
+}
+.ayle-quality-indicator {
+	position: relative;
+	display: block;
+	width: 14px;
+	height: 14px;
+	box-sizing: border-box;
+	border: 1.5px solid rgba(255,255,255,.42);
+	border-radius: 50%;
+}
+.ayle-quality-option.is-active .ayle-quality-indicator {
+	border-color: var(--ayle-accent);
+}
+.ayle-quality-option.is-active .ayle-quality-indicator:after {
+	content: "";
+	position: absolute;
+	left: 3px;
+	top: 3px;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--ayle-accent);
+}
+
+/* -------------------------------------------------------------------------
+ * YouTube-style quality control
+ * ---------------------------------------------------------------------- */
+.ayle-quality-control {
+	position: relative;
+}
+.ayle-quality-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	min-width: 54px;
+	height: var(--ayle-button-size);
+	min-height: var(--ayle-button-size) !important;
+	padding: 0 9px;
+	box-sizing: border-box;
+	border: 0;
+	border-radius: var(--ayle-button-radius);
+	background: var(--ayle-button-bg);
+	color: var(--ayle-icon-color);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background .15s ease, color .15s ease, opacity .15s ease;
+}
+.ayle-quality-button:hover,
+.ayle-quality-button:focus-visible,
+.ayle-quality-control:has(.ayle-quality-popover.is-open) .ayle-quality-button {
+	background: var(--ayle-button-hover-bg);
+	color: var(--ayle-icon-hover-color);
+	outline: none;
+}
+.ayle-quality-button:disabled {
+	opacity: .55;
+	cursor: default;
+}
+.ayle-quality-button-name {
+	display: block;
+	max-width: 74px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.ayle-quality-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 13px;
+	padding: 0 3px;
+	box-sizing: border-box;
+	border: 0;
+	border-radius: 3px;
+	background: rgb(255, 70, 0);
+	color: #fff;
+	font-size: 8px;
+	font-weight: 800;
+	line-height: 1;
+	letter-spacing: .25px;
+}
+.ayle-quality-badge.is-4k {
+	min-width: 20px;
+}
+.ayle-quality-popover {
+	min-width: 250px;
+	max-width: min(330px, calc(100vw - 24px));
+}
+
+/* -------------------------------------------------------------------------
+ * Settings: direct audio/subtitle lists and subtitle mode toggles
+ * ---------------------------------------------------------------------- */
+.ayle-settings-popover {
+	padding: 6px;
+	min-width: 300px;
+	max-height: min(65vh, 520px);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	box-sizing: border-box;
+}
+.ayle-settings-section {
+	padding: 4px 0 8px;
+	border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.ayle-settings-section:last-child {
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+.ayle-settings-title {
+	padding: 5px 9px 6px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: rgba(255,255,255,.55);
+}
+.ayle-settings-native-select {
+	display: none !important;
+}
+.ayle-settings-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.ayle-settings-list-item {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 18px;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 36px;
+	padding: 7px 9px;
+	box-sizing: border-box;
+	border: 0;
+	border-radius: 7px;
+	background: transparent;
+	color: var(--ayle-panel-color);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+.ayle-settings-list-item:hover,
+.ayle-settings-list-item:focus-visible {
+	background: var(--ayle-button-hover-bg);
+	outline: none;
+}
+.ayle-settings-list-item.is-active {
+	background: var(--ayle-button-active-bg);
+}
+.ayle-settings-list-title {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 13px;
+}
+.ayle-settings-list-indicator {
+	position: relative;
+	width: 18px;
+	height: 18px;
+}
+.ayle-settings-list-item.is-active .ayle-settings-list-indicator::after {
+	content: '';
+	position: absolute;
+	left: 5px;
+	top: 2px;
+	width: 5px;
+	height: 9px;
+	border-right: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	transform: rotate(45deg);
+}
+.ayle-subtitle-mode-settings {
+	padding-top: 8px;
+}
+.ayle-settings-toggle {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 12px;
+	min-height: 38px;
+	padding: 5px 9px;
+	box-sizing: border-box;
+	border-radius: 7px;
+	font-size: 13px;
+	color: var(--ayle-panel-color);
+	cursor: pointer;
+}
+.ayle-settings-toggle:hover {
+	background: var(--ayle-button-hover-bg);
+}
+.ayle-settings-toggle input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+.ayle-toggle-switch {
+	position: relative;
+	width: 34px;
+	height: 18px;
+	border-radius: 999px;
+	background: rgba(255,255,255,.22);
+	transition: background .15s ease;
+}
+.ayle-toggle-switch::after {
+	content: '';
+	position: absolute;
+	left: 2px;
+	top: 2px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: #fff;
+	transition: transform .15s ease;
+}
+.ayle-settings-toggle input:checked + .ayle-toggle-switch {
+	background: rgb(255, 70, 0);
+}
+.ayle-settings-toggle input:checked + .ayle-toggle-switch::after {
+	transform: translateX(16px);
+}
+.ayle-settings-toggle input:focus-visible + .ayle-toggle-switch {
+	outline: 2px solid rgba(255,255,255,.75);
+	outline-offset: 2px;
+}
+
+/* Center play/pause overlay must override the generic .ayle-icon-button rules. */
+.ayle .ayle-center-play {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	z-index: 6;
+	transform: translate(-50%, -50%);
+	width: 64px;
+	height: 64px;
+	flex: none;
+	border-radius: 50%;
+}
+
+.ayle .ayle-center-play:active {
+	transform: translate(-50%, -50%) scale(.94);
+}
+
+
+/* Settings submenu navigation. */
+.ayle-settings-page {
+	display: none;
+}
+
+.ayle-settings-page.is-active {
+	display: block;
+}
+
+.ayle-settings-submenu-item {
+	display: grid;
+	grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 40px;
+	padding: 6px 9px;
+	border: 0;
+	border-radius: 7px;
+	background: transparent;
+	color: var(--ayle-panel-color);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+
+.ayle-settings-submenu-item.has-submenu,
+.ayle-audio-submenu-button,
+.ayle-subtitles-submenu-button,
+.ayle-debug-submenu-button,
+.ayle-shortcuts-submenu-button {
+	grid-template-columns: minmax(0, auto) minmax(0, 1fr) 18px;
+}
+
+.ayle-settings-submenu-item:hover,
+.ayle-settings-submenu-item:focus-visible {
+	background: var(--ayle-button-hover-bg);
+	outline: none;
+}
+
+.ayle-settings-submenu-label {
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.ayle-settings-submenu-value {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: rgba(255, 255, 255, .62);
+	font-size: 12px;
+	text-align: right;
+}
+
+.ayle-settings-submenu-arrow {
+	color: rgba(255, 255, 255, .62);
+	font-size: 22px;
+	line-height: 1;
+	text-align: right;
+}
+
+.ayle-settings-submenu-header {
+	display: grid;
+	grid-template-columns: 32px minmax(0, 1fr) 32px;
+	align-items: center;
+	min-height: 42px;
+	margin: -2px 0 4px;
+	border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.ayle .ayle-settings-back {
+	width: 32px;
+	height: 32px;
+	min-height: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 7px;
+	background: transparent;
+	color: #fff;
+	font-size: 26px;
+	line-height: 32px;
+	cursor: pointer;
+}
+
+.ayle .ayle-settings-back:hover,
+.ayle .ayle-settings-back:focus-visible {
+	background: var(--ayle-button-hover-bg);
+	outline: none;
+}
+
+.ayle-settings-submenu-title {
+	grid-column: 2;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 14px;
+	font-weight: 600;
+	text-align: center;
+}
+
+.ayle-settings-page[data-settings-page='audio'] .ayle-settings-section,
+.ayle-settings-page[data-settings-page='subtitles'] .ayle-settings-section {
+	padding-top: 0;
+	border-bottom: 0;
+}
+
+
+
+.ayle-integration-settings-list,
+.ayle-integration-settings-page-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.ayle-integration-settings-page-list {
+	padding-top: 0;
+	border-bottom: 0;
+}
+
+.ayle-integration-settings-item.is-disabled,
+.ayle-integration-settings-item:disabled {
+	opacity: .45;
+	cursor: default;
+}
+
+.ayle-integration-settings-item.is-disabled:hover,
+.ayle-integration-settings-item:disabled:hover {
+	background: transparent;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Built-in Hint renderers
+ * Every built-in renderer is registered through Player.RegisterHintRenderer()
+ * and can therefore be replaced by an integration.
+ * ---------------------------------------------------------------------- */
+
+.ayle-hint {
+	--ayle-hint-accent: rgba(255, 255, 255, .72);
+	--ayle-hint-accent-soft: rgba(255, 255, 255, .10);
+}
+
+.ayle-hint-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	align-self: flex-start;
+	min-width: 24px;
+	height: 24px;
+	margin-bottom: 2px;
+	border-radius: 50%;
+	background: var(--ayle-hint-accent-soft);
+	color: var(--ayle-hint-accent);
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.ayle-hint-type-info,
+.ayle-hint-type-correction,
+.ayle-hint-type-warning,
+.ayle-hint-type-source {
+	box-shadow:
+		inset 3px 0 0 var(--ayle-hint-accent),
+		0 8px 28px rgba(0, 0, 0, .32);
+}
+
+.ayle-hint-type-info {
+	--ayle-hint-accent: rgb(100, 181, 246);
+	--ayle-hint-accent-soft: rgba(100, 181, 246, .15);
+}
+
+.ayle-hint-type-correction {
+	--ayle-hint-accent: rgb(186, 104, 200);
+	--ayle-hint-accent-soft: rgba(186, 104, 200, .15);
+}
+
+.ayle-hint-type-warning {
+	--ayle-hint-accent: rgb(255, 183, 77);
+	--ayle-hint-accent-soft: rgba(255, 183, 77, .16);
+	background:
+		linear-gradient(90deg, rgba(255, 183, 77, .08), transparent 45%),
+		rgba(18, 18, 20, .94);
+}
+
+.ayle-hint-type-source {
+	--ayle-hint-accent: rgb(77, 208, 225);
+	--ayle-hint-accent-soft: rgba(77, 208, 225, .15);
+}
+
+.ayle-hint-type-definition {
+	--ayle-hint-accent: rgb(129, 199, 132);
+	--ayle-hint-accent-soft: rgba(129, 199, 132, .14);
+	padding-top: 14px;
+}
+
+.ayle-hint-type-definition .ayle-hint-icon {
+	border-radius: 7px;
+	font-family: Georgia, serif;
+}
+
+.ayle-hint-definition-term {
+	padding-right: 22px;
+	font-family: Georgia, serif;
+	font-size: 19px;
+	font-weight: 600;
+	letter-spacing: .01em;
+}
+
+.ayle-hint-type-card,
+.ayle-hint-type-media,
+.ayle-hint-type-product {
+	align-items: stretch;
+	padding: 0;
+	overflow: hidden;
+}
+
+.ayle-hint-type-card .ayle-hint-image {
+	width: 116px;
+	height: auto;
+	min-height: 106px;
+	flex: 0 0 116px;
+	border-radius: 0;
+}
+
+.ayle-hint-type-media {
+	width: min(400px, 100%);
+}
+
+.ayle-hint-type-media .ayle-hint-image {
+	width: 148px;
+	height: auto;
+	min-height: 100px;
+	flex: 0 0 148px;
+	border-radius: 0;
+}
+
+.ayle-hint-type-product .ayle-hint-image {
+	width: 108px;
+	height: 108px;
+	margin: 10px;
+	flex: 0 0 108px;
+	border-radius: 9px;
+}
+
+.ayle-hint-type-card .ayle-hint-body,
+.ayle-hint-type-media .ayle-hint-body,
+.ayle-hint-type-product .ayle-hint-body {
+	padding: 12px;
+}
+
+.ayle-hint-type-product .ayle-hint-body {
+	padding-left: 0;
+}
+
+.ayle-hint-card-actions {
+	margin-top: auto;
+}
+
+.ayle-hint-type-action,
+.ayle-hint-type-cta,
+.ayle-hint-type-share {
+	--ayle-hint-accent: rgb(255, 112, 67);
+	--ayle-hint-accent-soft: rgba(255, 112, 67, .16);
+}
+
+.ayle-hint-type-cta {
+	width: min(380px, 100%);
+	background:
+		linear-gradient(135deg, rgba(255, 112, 67, .16), rgba(18, 18, 20, .94) 55%);
+}
+
+.ayle-hint-primary-actions {
+	margin-top: 8px;
+}
+
+.ayle .ayle-hint-primary-actions .ayle-hint-action {
+	min-height: 34px;
+	padding: 7px 12px;
+	background: var(--ayle-hint-accent);
+	color: #111;
+	font-weight: 600;
+}
+
+.ayle .ayle-hint-primary-actions .ayle-hint-action:hover {
+	filter: brightness(1.08);
+}
+
+.ayle-hint-type-share {
+	width: min(310px, 100%);
+	padding: 10px 12px;
+	border-radius: 999px;
+}
+
+.ayle-hint-type-share .ayle-hint-body {
+	flex-direction: row;
+	align-items: center;
+	gap: 8px;
+}
+
+.ayle-hint-type-share .ayle-hint-text {
+	display: none;
+}
+
+.ayle-hint-type-share .ayle-hint-actions {
+	margin: 0 28px 0 auto;
+}
+
+.ayle-hint-type-navigation {
+	--ayle-hint-accent: rgb(144, 202, 249);
+	--ayle-hint-accent-soft: rgba(144, 202, 249, .14);
+	width: min(330px, 100%);
+}
+
+.ayle-hint-navigation-time {
+	align-self: flex-start;
+	margin-top: 3px;
+	padding: 3px 7px;
+	border-radius: 5px;
+	background: var(--ayle-hint-accent-soft);
+	color: var(--ayle-hint-accent);
+	font-family: Consolas, monospace;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.ayle-hint-navigation-actions .ayle-hint-action:after {
+	content: ' \2192';
+}
+
+.ayle-hint-type-poll,
+.ayle-hint-type-quiz,
+.ayle-hint-type-rating {
+	width: min(420px, 100%);
+	padding: 16px;
+}
+
+.ayle-hint-type-poll {
+	--ayle-hint-accent: rgb(126, 87, 194);
+	--ayle-hint-accent-soft: rgba(126, 87, 194, .16);
+}
+
+.ayle-hint-type-quiz {
+	--ayle-hint-accent: rgb(66, 165, 245);
+	--ayle-hint-accent-soft: rgba(66, 165, 245, .16);
+}
+
+.ayle-hint-type-rating {
+	--ayle-hint-accent: rgb(255, 202, 40);
+	--ayle-hint-accent-soft: rgba(255, 202, 40, .16);
+}
+
+.ayle-hint-choices {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.ayle .ayle-hint-choice {
+	position: relative;
+	display: block;
+	width: 100%;
+	min-height: 38px;
+	padding: 8px 12px 8px 36px;
+	border: 1px solid rgba(255, 255, 255, .11);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, .055);
+	color: #fff;
+	font: inherit;
+	font-size: 13px;
+	text-align: left;
+	cursor: pointer;
+	transition: border-color .14s ease, background .14s ease, transform .12s ease;
+}
+
+.ayle .ayle-hint-choice:before {
+	content: '';
+	position: absolute;
+	left: 13px;
+	top: 50%;
+	width: 10px;
+	height: 10px;
+	border: 2px solid rgba(255, 255, 255, .55);
+	border-radius: 50%;
+	transform: translateY(-50%);
+}
+
+.ayle .ayle-hint-choice:hover {
+	border-color: var(--ayle-hint-accent);
+	background: var(--ayle-hint-accent-soft);
+}
+
+.ayle .ayle-hint-choice.is-selected {
+	border-color: var(--ayle-hint-accent);
+	background: var(--ayle-hint-accent-soft);
+}
+
+.ayle .ayle-hint-choice.is-selected:before {
+	border-color: var(--ayle-hint-accent);
+	background: var(--ayle-hint-accent);
+	box-shadow: inset 0 0 0 2px rgba(18, 18, 20, .9);
+}
+
+.ayle .ayle-hint-choice.is-correct {
+	border-color: rgb(102, 187, 106);
+	background: rgba(102, 187, 106, .16);
+}
+
+.ayle .ayle-hint-choice.is-incorrect {
+	border-color: rgb(239, 83, 80);
+	background: rgba(239, 83, 80, .16);
+}
+
+.ayle-hint-type-tutorial {
+	--ayle-hint-accent: rgb(255, 238, 88);
+	--ayle-hint-accent-soft: rgba(255, 238, 88, .13);
+	width: min(320px, 100%);
+	border-radius: 18px;
+	border-style: dashed;
+}
+
+.ayle-hint-type-tutorial .ayle-hint-icon {
+	color: #111;
+	background: var(--ayle-hint-accent);
+}
+
+.ayle-hint-type-tutorial:after {
+	content: '';
+	position: absolute;
+	left: 24px;
+	bottom: -7px;
+	width: 12px;
+	height: 12px;
+	border-right: 1px solid rgba(255, 255, 255, .14);
+	border-bottom: 1px solid rgba(255, 255, 255, .14);
+	background: rgba(18, 18, 20, .94);
+	transform: rotate(45deg);
+}
+
+.ayle-hint-type-rating .ayle-hint-choice {
+	padding-left: 12px;
+	text-align: center;
+}
+
+.ayle-hint-type-rating .ayle-hint-choice:before {
+	display: none;
+}
+
+
+
+/* -------------------------------------------------------------------------
+ * Hint heading alignment + minimalist variants
+ * ---------------------------------------------------------------------- */
+
+.ayle-hint-heading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+	padding-right: 22px;
+}
+
+.ayle-hint-heading .ayle-hint-title {
+	min-width: 0;
+	flex: 1 1 auto;
+	padding-right: 0;
+}
+
+.ayle-hint-heading .ayle-hint-icon {
+	flex: 0 0 auto;
+	align-self: center;
+	margin-bottom: 0;
+}
+
+/*
+ * Lightweight built-in hints.
+ * These types behave more like annotations/callouts than modal cards,
+ * so they intentionally have no solid panel background or outer border.
+ */
+.ayle-hint-type-info,
+.ayle-hint-type-correction,
+.ayle-hint-type-source,
+.ayle-hint-type-navigation,
+.ayle-hint-type-share,
+.ayle-hint-type-tutorial {
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+	backdrop-filter: none;
+}
+
+.ayle-hint-type-info,
+.ayle-hint-type-correction,
+.ayle-hint-type-source {
+	padding: 8px 10px;
+	box-shadow: inset 3px 0 0 var(--ayle-hint-accent);
+}
+
+.ayle-hint-type-navigation {
+	padding: 8px 10px;
+}
+
+.ayle-hint-type-share {
+	padding: 7px 10px;
+}
+
+.ayle-hint-type-tutorial {
+	padding: 9px 11px;
+	border: 1px dashed rgba(255, 255, 255, .24);
+	background: rgba(0, 0, 0, .18);
+	backdrop-filter: blur(3px);
+}
+
+.ayle-hint-type-tutorial:after {
+	background: rgba(0, 0, 0, .18);
+	border-color: rgba(255, 255, 255, .24);
+}
+
+.ayle-hint-type-warning {
+	/* Warning intentionally remains a real card. */
+	border-color: rgba(255, 183, 77, .32);
+}
+
+.ayle-hint-type-definition {
+	/* Definition remains subtle, but still reads as a contained glossary card. */
+	background: rgba(18, 18, 20, .82);
+}
+
+
+/* -------------------------------------------------------------------------
+ * Hint refinements
+ * ---------------------------------------------------------------------- */
+
+/* info: no frame/left accent; text aligns under title after the icon */
+.ayle-hint-type-info {
+	border: 0;
+	box-shadow: none;
+}
+
+.ayle-hint-type-info .ayle-hint-text {
+	margin: 0 0 0 32px;
+}
+
+/* action: more breathing room around descriptive text */
+.ayle-hint-type-action .ayle-hint-text {
+	margin: 8px 0 8px 0;
+}
+
+/* correction: keep accent, align text with heading title */
+.ayle-hint-type-correction .ayle-hint-text {
+	margin: 0 0 0 32px;
+}
+
+/* navigation: timestamp and button(s) share one row */
+.ayle-hint-navigation-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-top: 3px;
+}
+
+.ayle-hint-navigation-row .ayle-hint-navigation-time {
+	margin-top: 0;
+	flex: 0 0 auto;
+}
+
+.ayle-hint-navigation-row .ayle-hint-navigation-actions {
+	margin: 0 0 0 auto;
+	flex: 0 1 auto;
+}
+
+/* quiz confirmation button */
+.ayle-hint-quiz-footer {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 8px;
+}
+
+.ayle .ayle-hint-quiz-answer {
+	min-width: 96px;
+	padding: 7px 12px;
+	background: var(--ayle-hint-accent);
+	color: #111;
+	font-weight: 600;
+}
+
+.ayle .ayle-hint-quiz-answer:disabled {
+	opacity: .42;
+	cursor: default;
+}
+
+/* warning: no left accent line */
+.ayle-hint-type-warning {
+	box-shadow: 0 8px 28px rgba(0, 0, 0, .32);
+}
+
+
+/* -------------------------------------------------------------------------
+ * Hint refinements round 2
+ * ---------------------------------------------------------------------- */
+
+.ayle-hint-type-correction {
+	box-shadow: none;
+}
+
+.ayle-hint-type-source {
+	box-shadow: none;
+}
+
+.ayle-hint-type-source .ayle-hint-text {
+	margin: 8px 0;
+}
+
+/* Keep navigation time and button compact and adjacent. */
+.ayle-hint-navigation-row {
+	display: inline-flex;
+	align-items: stretch;
+	justify-content: flex-start;
+	gap: 6px;
+	margin-top: 3px;
+	width: auto;
+}
+
+.ayle-hint-navigation-row .ayle-hint-navigation-time,
+.ayle-hint-navigation-row .ayle-hint-navigation-actions,
+.ayle-hint-navigation-row .ayle-hint-navigation-actions .ayle-hint-action {
+	min-height: 28px;
+	height: 28px;
+	box-sizing: border-box;
+}
+
+.ayle-hint-navigation-row .ayle-hint-navigation-time {
+	display: inline-flex;
+	align-items: center;
+	margin: 0;
+	padding: 4px 8px;
+}
+
+.ayle-hint-navigation-row .ayle-hint-navigation-actions {
+	display: inline-flex;
+	align-items: stretch;
+	flex: 0 0 auto;
+	margin: 0;
+}
+
+.ayle-hint-navigation-row .ayle-hint-navigation-actions .ayle-hint-action {
+	display: inline-flex;
+	align-items: center;
+	margin: 0;
+}
+
+/* Quiz answer button: blue hover when enabled, no hover effect when disabled. */
+.ayle .ayle-hint-quiz-answer:not(:disabled):hover {
+	background: rgb(66, 165, 245);
+	filter: brightness(1.08);
+}
+
+.ayle .ayle-hint-quiz-answer:disabled,
+.ayle .ayle-hint-quiz-answer:disabled:hover {
+	opacity: .42;
+	cursor: default;
+	background: var(--ayle-hint-accent);
+	filter: none;
+	transform: none;
+}
+
+
+/* Configurable top-level Settings order. */
+.ayle-settings-page-main.is-active {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.ayle-settings-page-main > [data-ayle-settings-item] {
+	flex: 0 0 auto;
+}
+
+.ayle-settings-page-main > .ayle-integration-settings {
+	padding: 2px 0;
+}
+
+.ayle-settings-page-main > .ayle-settings-toggle,
+.ayle-settings-page-main > .ayle-settings-submenu-item {
+	width: 100%;
+}
+
+
+/* SettingsOrder is authoritative: omitted items do not exist visually. */
+.ayle-settings-page-main > .is-settings-order-hidden {
+	display: none !important;
+}
+
+.ayle-settings-order-separator {
+	width: 100%;
+	height: 1px;
+	flex: 0 0 1px;
+	margin: 5px 0;
+	background: rgba(255, 255, 255, .10);
+	pointer-events: none;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Audio mode / minimal UI
+ * ---------------------------------------------------------------------- */
+
+.ayle-audio-cover {
+	display: none;
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	z-index: 0;
+	background: #000;
+}
+
+.ayle-media-audio .ayle-media {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ayle-media-audio.ayle-audio-no-visual {
+	aspect-ratio: auto;
+	height: auto;
+	min-height: 0;
+	overflow: visible;
+}
+
+.ayle-media-audio.ayle-audio-no-visual .ayle-surface,
+.ayle-media-audio.ayle-audio-no-visual .ayle-header,
+.ayle-media-audio.ayle-audio-no-visual .ayle-hints,
+.ayle-media-audio.ayle-audio-no-visual .ayle-subtitle-overlay,
+.ayle-media-audio.ayle-audio-no-visual .ayle-center-play {
+	display: none !important;
+}
+
+.ayle-media-audio.ayle-audio-no-visual .ayle-controls {
+	position: relative;
+	left: auto;
+	right: auto;
+	bottom: auto;
+}
+
+.ayle-media-audio.ayle-audio-has-visual {
+	min-height: var(--ayle-audio-visual-min-height);
+}
+
+.ayle-ui-minimal.ayle-audio-no-visual {
+	background: transparent;
+}
+
+.ayle-ui-minimal.ayle-audio-no-visual .ayle-controls {
+	background: rgba(0, 0, 0, .82);
+	border-radius: 8px;
+}
+
+.ayle-minimal-hidden {
+	display: none !important;
+}
+
+.ayle-ui-minimal .ayle-controls {
+	opacity: 1 !important;
+}
+
+.ayle-ui-minimal.ayle-audio-no-visual.controls-hidden {
+	cursor: default;
+}
+
+.ayle-ui-minimal.ayle-audio-no-visual.controls-hidden .ayle-controls {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* Quality/PiP are video-specific by nature. */
+.ayle-media-audio .ayle-quality-control,
+.ayle-media-audio .ayle-pip {
+	display: none !important;
+}
+
+/* Keep the compact timeline useful even on narrow audio layouts. */
+.ayle-ui-minimal .ayle-timeline {
+	min-width: 80px;
+	flex: 1 1 auto;
+}
+
+
+/* Audio subtitles are a first-class timed-text visual layer.
+ * When an audio subtitle track is enabled, PlayerUI may expand the compact
+ * audio player into the normal visual surface so the existing subtitle
+ * overlay can render without any video track. */
+.ayle-media-audio.ayle-audio-has-visual .ayle-subtitle-overlay {
+	display: block;
+}
+
+.ayle-media-audio.ayle-audio-has-visual .ayle-audio-cover[style*="display: none"] {
+	pointer-events: none;
+}
+
+
+.ayle-subtitle-cue {
+	white-space: pre-line;
+}
+
+
+/* Minimal UI keeps the last control away from the player's right edge. */
+.ayle-ui-minimal .ayle-controls {
+	padding-right: 8px;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Minimal UI - Now Playing popup
+ * ---------------------------------------------------------------------- */
+
+.ayle-minimal-info {
+	position: absolute;
+	left: 8px;
+	top: auto;
+	bottom: 100%;
+	z-index: 20;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: min(360px, calc(100% - 16px));
+	min-height: 64px;
+	padding: 8px;
+	box-sizing: border-box;
+	border: 1px solid rgba(255, 255, 255, .12);
+	border-radius: 10px 10px 0 0;
+	background: rgba(18, 18, 20, .94);
+	box-shadow: 0 8px 28px rgba(0, 0, 0, .32);
+	color: #fff;
+	pointer-events: none;
+	backdrop-filter: blur(8px);
+	visibility: hidden;
+	opacity: 0;
+	transform: translateY(6px);
+	transition:
+		opacity .22s ease,
+		transform .22s ease,
+		visibility 0s linear .22s;
+}
+
+.ayle-minimal-info.ayle-minimal-info-bottom {
+	top: 100%;
+	bottom: auto;
+	border-top: 0;
+	border-radius: 0 0 10px 10px;
+	transform: translateY(-6px);
+}
+
+.ayle-minimal-info.ayle-minimal-info-top {
+	top: auto;
+	bottom: 100%;
+	border-bottom: 0;
+	border-radius: 10px 10px 0 0;
+	transform: translateY(6px);
+}
+
+.ayle-ui-minimal.ayle-audio-no-visual .ayle-minimal-info.is-enabled.is-visible {
+	visibility: visible;
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+	transition:
+		opacity .22s ease,
+		transform .22s ease,
+		visibility 0s linear 0s;
+}
+
+.ayle-minimal-info-artwork {
+	display: none;
+	width: 56px;
+	height: 56px;
+	flex: 0 0 56px;
+	border-radius: 7px;
+	object-fit: cover;
+	background: #000;
+}
+
+.ayle-minimal-info-body {
+	display: flex;
+	min-width: 0;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.ayle-minimal-info-title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.ayle-minimal-info-meta {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: rgba(255, 255, 255, .72);
+	font-size: 13px;
+	line-height: 1.2;
+}
+
+.ayle-minimal-info-channel {
+	display: none;
+	align-items: center;
+	gap: 5px;
+	min-width: 0;
+	margin-top: 2px;
+}
+
+.ayle-minimal-info-channel-avatar {
+	display: none;
+	width: 20px;
+	height: 20px;
+	flex: 0 0 20px;
+	border-radius: 4px;
+	object-fit: cover;
+}
+
+.ayle-minimal-info-channel-text {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: rgba(255, 255, 255, .78);
+	font-size: 12px;
+	line-height: 20px;
+	text-decoration: none;
+}
+
+.ayle-minimal-info-channel-text[href]:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+
+.ayle-ui-minimal.ayle-audio-no-visual {
+	position: relative;
+	overflow: visible;
+}
+
+
+.ayle:not(.ayle-ui-minimal) .ayle-minimal-info,
+.ayle-ui-minimal:not(.ayle-audio-no-visual) .ayle-minimal-info,
+.ayle-minimal-info:not(.is-enabled) {
+	visibility: hidden;
+	opacity: 0;
+	pointer-events: none;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Minimal UI loading indicator
+ *
+ * The large centered spinner competes visually with the compact control bar.
+ * In minimal mode loading/seeking is represented directly on the timeline as
+ * an indeterminate moving segment.
+ * ---------------------------------------------------------------------- */
+
+.ayle-ui-minimal .ayle-loading {
+	display: none !important;
+}
+
+.ayle-ui-minimal .ayle-timeline:after {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 24%;
+	height: 6px;
+	border-radius: 3px;
+	background: rgba(255, 255, 255, .9);
+	transform: translate(-110%, -50%);
+	opacity: 0;
+	z-index: 5;
+	pointer-events: none;
+}
+
+.ayle-ui-minimal.is-loading .ayle-timeline:after {
+	opacity: .9;
+	animation: ayle-minimal-loading 1s ease-in-out infinite;
+}
+
+@keyframes ayle-minimal-loading {
+	0% {
+		transform: translate(-110%, -50%);
+	}
+	50% {
+		transform: translate(210%, -50%);
+	}
+	100% {
+		transform: translate(430%, -50%);
+	}
+}
+
+
+/* -------------------------------------------------------------------------
+ * Minimal popup interaction
+ * ---------------------------------------------------------------------- */
+
+.ayle-minimal-info,
+.ayle-minimal-info * {
+	-webkit-user-select: text;
+	user-select: text;
+}
+
+.ayle-minimal-info img {
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+/* -------------------------------------------------------------------------
+ * Minimal loading indicator v2
+ *
+ * Keep loading entirely inside the timeline and make it much less prominent.
+ * The old travelling :after segment is disabled; the track itself gets a
+ * subtle animated shimmer instead.
+ * ---------------------------------------------------------------------- */
+
+.ayle-ui-minimal .ayle-timeline:after {
+	display: none !important;
+	animation: none !important;
+}
+
+.ayle-ui-minimal.is-loading .ayle-timeline:before {
+	background:
+		linear-gradient(
+			90deg,
+			rgba(255, 255, 255, .10) 0%,
+			rgba(255, 255, 255, .10) 34%,
+			rgba(255, 255, 255, .24) 50%,
+			rgba(255, 255, 255, .10) 66%,
+			rgba(255, 255, 255, .10) 100%
+		);
+	background-size: 220% 100%;
+	animation: ayle-minimal-loading-shimmer 1.35s linear infinite;
+}
+
+@keyframes ayle-minimal-loading-shimmer {
+	from {
+		background-position: 100% 0;
+	}
+	to {
+		background-position: -120% 0;
+	}
+}
+
+
+/* Timed text inside the minimal Now Playing popup. */
+.ayle-minimal-info-subtitle {
+	display: none;
+	margin-top: 5px;
+	padding-top: 6px;
+	border-top: 1px solid rgba(255, 255, 255, .10);
+	color: rgba(255, 255, 255, .92);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.35;
+	white-space: pre-line;
+	user-select: text;
+	-webkit-user-select: text;
+}
+
+.ayle-minimal-info.has-subtitle {
+	min-height: 82px;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Dedicated minimal subtitle strip
+ * ---------------------------------------------------------------------- */
+
+.ayle-minimal-info-subtitle {
+	display: none !important;
+}
+
+.ayle-minimal-subtitle-popup {
+	position: absolute;
+	left: 50%;
+	z-index: 19;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: min(520px, calc(100% - 24px));
+	min-height: 34px;
+	padding: 6px 12px;
+	box-sizing: border-box;
+	border: 1px solid rgba(255, 255, 255, .10);
+	background: rgba(18, 18, 20, .92);
+	color: rgba(255, 255, 255, .92);
+	font-size: 13px;
+	line-height: 1.35;
+	text-align: center;
+	visibility: hidden;
+	opacity: 0;
+	pointer-events: none;
+	transform: translateX(-50%);
+	transition: opacity .18s ease, visibility 0s linear .18s;
+}
+
+.ayle-minimal-subtitle-popup.is-visible {
+	visibility: visible;
+	opacity: 1;
+	transition: opacity .18s ease, visibility 0s linear 0s;
+}
+
+.ayle-minimal-subtitle-popup-top {
+	top: auto;
+	bottom: 100%;
+	border-bottom: 0;
+	border-radius: 8px 8px 0 0;
+}
+
+.ayle-minimal-subtitle-popup-bottom {
+	top: 100%;
+	bottom: auto;
+	border-top: 0;
+	border-radius: 0 0 8px 8px;
+}
+
+.ayle-minimal-subtitle-popup-text {
+	width: 100%;
+	min-height: 18px;
+	white-space: pre-line;
+	user-select: text;
+	-webkit-user-select: text;
+}
+
+/* The Now Playing popup stacks outside the subtitle strip when both share
+ * the same side. */
+.ayle-minimal-info.ayle-minimal-info-top {
+	bottom: calc(100% + var(--ayle-minimal-subtitle-stack));
+}
+
+.ayle-minimal-info.ayle-minimal-info-bottom {
+	top: calc(100% + var(--ayle-minimal-subtitle-stack));
+}
+
+
+/* -------------------------------------------------------------------------
+ * Minimal subtitle popup v3: transient, content-sized, overlapping
+ * ---------------------------------------------------------------------- */
+
+.ayle-minimal-subtitle-popup {
+	left: 50%;
+	width: max-content;
+	max-width: min(520px, calc(100% - 24px));
+	min-width: 0;
+	min-height: 0;
+	padding: 5px 10px;
+	z-index: 18;
+}
+
+.ayle-minimal-subtitle-popup-text {
+	width: auto;
+	min-height: 0;
+}
+
+.ayle-minimal-info {
+	z-index: 22;
+}
+
+/* Both popups attach directly to the player. They may overlap intentionally. */
+.ayle-minimal-info.ayle-minimal-info-top {
+	bottom: 100% !important;
+}
+
+.ayle-minimal-info.ayle-minimal-info-bottom {
+	top: 100% !important;
+}
+
+.ayle-minimal-subtitle-popup.ayle-minimal-subtitle-popup-top {
+	bottom: 100%;
+	top: auto;
+}
+
+.ayle-minimal-subtitle-popup.ayle-minimal-subtitle-popup-bottom {
+	top: 100%;
+	bottom: auto;
+}
+
+
+/* Timeline hover preview must render above minimal subtitle popup. */
+.ayle-preview {
+	z-index: 20;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Minimal timeline preview stacking context fix
+ *
+ * .ayle-preview lives inside .ayle-controls.  A child's z-index cannot
+ * escape the stacking context of its parent, so raising only .ayle-preview
+ * was insufficient while .ayle-controls stayed at z-index: 10 and the
+ * subtitle popup lived at z-index: 18.
+ *
+ * Keep the complete minimal controls stacking context above subtitles, while
+ * Now Playing remains above both.
+ * ---------------------------------------------------------------------- */
+
+.ayle-ui-minimal .ayle-controls {
+	z-index: 20;
+}
+
+.ayle-ui-minimal .ayle-preview {
+	z-index: 21;
+}
+
+.ayle-ui-minimal .ayle-minimal-subtitle-popup {
+	z-index: 18;
+}
+
+.ayle-ui-minimal .ayle-minimal-info {
+	z-index: 22;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Minimal UI Settings popover positioning
+ * ---------------------------------------------------------------------- */
+
+.ayle-ui-minimal .ayle-popover.ayle-popover-top {
+	top: auto;
+	bottom: calc(100% + 6px);
+}
+
+.ayle-ui-minimal .ayle-popover.ayle-popover-bottom {
+	top: calc(100% + 6px);
+	bottom: auto;
+}
+
+/* Settings must stay above subtitles / controls / Now Playing. */
+.ayle-ui-minimal .ayle-settings-popover {
+	z-index: 40;
+}
+
+/* On narrow screens minimal UI popovers also stay ayle-relative. */
+@media (max-width: 760px) {
+	.ayle-ui-minimal .ayle-popover.ayle-popover-top {
+		position: absolute;
+		left: auto;
+		right: 0;
+		top: auto;
+		bottom: calc(100% + 6px);
+	}
+
+	.ayle-ui-minimal .ayle-popover.ayle-popover-bottom {
+		position: absolute;
+		left: auto;
+		right: 0;
+		top: calc(100% + 6px);
+		bottom: auto;
+	}
+}
+
+
+/* Feedback for a Play attempt while no playable source is resolved. */
+.ayle.is-play-unavailable .ayle-play,
+.ayle.is-play-unavailable .ayle-center-play {
+	animation: ayle-play-unavailable 0.35s ease-in-out 2;
+}
+
+@keyframes ayle-play-unavailable {
+	0%, 100% { transform: translateX(0); }
+	50% { transform: translateX(2px); }
+}
+
+
+/* -------------------------------------------------------------------------
+ * Video artwork slideshow
+ * ---------------------------------------------------------------------- */
+
+.ayle-artwork-slideshow {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	overflow: hidden;
+	display: none;
+	background: #000;
+	pointer-events: none;
+}
+
+.ayle-artwork-slideshow.is-visible {
+	display: block;
+}
+
+.ayle-artwork-slide {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	transition-property: opacity;
+	transition-timing-function: ease;
+	pointer-events: none;
+}
+
+.ayle-artwork-slide.is-active {
+	opacity: 1;
+}
+
+/*
+ * The normal Player UI stays above the slideshow. The slideshow sits above the
+ * media element only during the pre-playback state.
+ */
+
+
+/*
+ * Artwork slideshow does not hide Player controls by default.
+ * HideControls:true opts into a clean artwork-only pre-playback surface.
+ */
+.ayle-artwork-slideshow-hide-controls .ayle-controls,
+.ayle-artwork-slideshow-hide-controls .ayle-header {
+	display: none !important;
+}
+
+
+/* Very narrow portrait Players: preserve the important edge controls first. */
+@media (max-width: 430px) {
+	.ayle-volume-control .ayle-volume {
+		width: 56px;
+	}
+}
+
+
+/* -------------------------------------------------------------------------
+ * Narrow popovers: keep them inside the Player and allow 2D scrolling.
+ * ---------------------------------------------------------------------- */
+
+.ayle-controls-narrow .ayle-popover {
+	width: min(320px, calc(100vw - 24px));
+	max-width: calc(100vw - 24px);
+	overflow-x: auto;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+.ayle-controls-narrow .ayle-chapters-popover {
+	width: min(360px, calc(100vw - 24px));
+	min-width: min(300px, calc(100vw - 24px));
+	max-width: calc(100vw - 24px);
+}
+
+.ayle-controls-narrow .ayle-settings-popover,
+.ayle-controls-narrow .ayle-quality-popover {
+	max-width: calc(100vw - 24px);
+	overflow-x: auto;
+	overflow-y: auto;
+}
+
+/*
+ * Chapters can have intrinsically wide rows/titles. Let the menu scroll
+ * horizontally instead of escaping beyond the Player's left edge.
+ */
+.ayle-controls-narrow .ayle-chapters-list {
+	min-width: 280px;
+}
+
+.ayle-controls-narrow .ayle-settings-page,
+.ayle-controls-narrow .ayle-quality-list {
+	min-width: 0;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Video fit: keep Player geometry stable, fit only the media inside it.
+ * ---------------------------------------------------------------------- */
+
+/*
+ * Do NOT change the Player's aspect ratio in portrait mode.
+ * The Player remains a stable 16:9 UI box; only the decoded video is fitted.
+ */
+.ayle.ayle-media-video > .ayle-video {
+	object-fit: contain !important;
+	object-position: center center !important;
+}
+
+/*
+ * Fullscreen Player fills the viewport, while the video is letterboxed inside
+ * that viewport. This prevents left/right cropping in portrait orientation.
+ */
+.ayle:fullscreen,
+.ayle:-webkit-full-screen {
+	width: 100vw !important;
+	height: 100dvh !important;
+	max-width: none !important;
+	max-height: none !important;
+	aspect-ratio: auto !important;
+	background: #000;
+}
+
+.ayle:fullscreen > .ayle-video,
+.ayle:-webkit-full-screen > .ayle-video {
+	position: absolute;
+	inset: 0;
+	width: 100% !important;
+	height: 100% !important;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain !important;
+	object-position: center center !important;
+}
+
+@media (orientation: portrait) {
+	.ayle.ayle-media-video > .ayle-video {
+		width: 100% !important;
+		height: 100% !important;
+		object-fit: contain !important;
+		object-position: center center !important;
+	}
+}
+
+
+/* Audio minimal UI: menus must be visually above both external popups. */
+.ayle-ui-minimal.ayle-media-audio .ayle-controls {
+	z-index: 30;
+}
+
+.ayle-ui-minimal.ayle-media-audio .ayle-popover {
+	z-index: 40;
+}
+
+.ayle-ui-minimal.ayle-media-audio .ayle-minimal-info {
+	z-index: 22;
+}
+
+.ayle-ui-minimal.ayle-media-audio .ayle-minimal-subtitle-popup {
+	z-index: 18;
+}

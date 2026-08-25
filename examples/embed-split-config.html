@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ru">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Ayle Media Player — split config example</title>
+
+	<script data-ayle-driver="mse"
+	src="../ayle-bootstrap.js"
+	data-ayle-loader
+	data-ayle-localization="ru"
+	data-ayle-auto-init="false">
+</script>
+
+	<style>
+		body {
+			margin: 0;
+			padding: 30px;
+			background: #1b1b1b;
+		}
+	</style>
+</head>
+<body>
+
+<div id="movie-player"></div>
+
+<script type="application/json" id="ayle-config">
+{
+	"Driver": {
+		"Type": "mse"
+	},
+	"Player": {
+		"AutoFocus": true,
+		"FontFamily": "Calibri, sans-serif",
+		"KeyboardArrowSeekStep": 10,
+		"KeyboardAngleSeekStep": "frame"
+	},
+	"HTTP": {
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+		"Stream": {
+			"SkipInit": true
+		}
+	}
+}
+</script>
+
+<script type="application/json" id="media-config">
+{
+	"File": "example.mkv",
+
+	"Channel": {
+		"Name": "Nature Explorer",
+		"Avatar": "../img/channel-avatar.png",
+		"Profile": {
+			"Name": "@natureexplorer",
+			"URL": "#",
+			"Target": "_blank"
+		}
+	},
+
+	"Hints": [
+		{
+			"ID": "split-config-info",
+			"Type": "info",
+			"Position": "top-right",
+			"Start": 5,
+			"Duration": 8,
+			"Title": "MediaConfig",
+			"Text": "Файл, канал и Hints приехали из отдельного JSON."
+		}
+	]
+}
+</script>
+
+<script>
+(function () {
+	function readJSON (selector) {
+		return JSON.parse(
+			document.querySelector(selector).textContent
+		);
+	}
+
+	function init () {
+		var playerConfig = readJSON('#ayle-config');
+		var mediaConfig = readJSON('#media-config');
+
+		var instance = PlayerEmbed.InitSplit(
+			'#movie-player',
+			playerConfig,
+			mediaConfig
+		);
+
+		console.log('Split-config instance:', instance);
+		console.log('Effective config:', instance.Config);
+	}
+
+	if (window.PlayerEmbed)
+		init();
+	else
+		document.addEventListener(
+			'playerBootstrapReady',
+			init,
+			{ once: true }
+		);
+})();
+</script>
+
+</body>
+</html>

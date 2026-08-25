@@ -1,0 +1,112 @@
+{
+    "file": "example.mkv",
+    "duration": 7508.673,
+    "cover": "/media/fallback-cover.jpg",
+    "format": {
+        "duration": "7508.673000",
+        "tags": {
+            "title": "Example Movie",
+            "artist": "Example Artist",
+            "album_artist": "Example Album Artist",
+            "albumArtist": "Example Album Artist Alias",
+            "author": "Example Author",
+            "album": "Example Album",
+            "cover": "/media/format-fallback-cover.jpg"
+        }
+    },
+    "video": [
+        {
+            "track": 0,
+            "width": 1920,
+            "height": 1080,
+            "tags": {
+                "language": "eng",
+                "title": "Main Video"
+            },
+            "disposition": {
+                "default": 1,
+                "attached_pic": 0
+            },
+            "attachedPicture": false,
+            "mseCodec": "",
+            "outputMseCodec": "",
+            "sourceMseCodec": "avc1.640029",
+            "avg_frame_rate": "24000/1001",
+            "r_frame_rate": "24000/1001",
+            "frame_rate": 23.976,
+            "frameRate": 23.976
+        },
+        {
+            "track": 1,
+            "disposition": {
+                "default": 0,
+                "attached_pic": 1
+            },
+            "attachedPicture": true
+        }
+    ],
+    "audio": [
+        {
+            "track": 0,
+            "sourceCodec": "aac",
+            "tags": {
+                "language": "eng",
+                "title": "Main Audio"
+            },
+            "disposition": {
+                "default": 1
+            },
+            "mseCodec": "",
+            "outputMseCodec": "",
+            "sourceMseCodec": "mp4a.40.2"
+        }
+    ],
+    "subtitles": [
+        {
+            "track": 0,
+            "tags": {
+                "language": "eng",
+                "title": "English Forced"
+            },
+            "disposition": {
+                "default": 0,
+                "forced": 1
+            }
+        }
+    ],
+    "artwork": [
+        {
+            "track": 0,
+            "streamIndex": 7,
+            "URL": "",
+            "url": "/media/artwork/front.jpg",
+            "type": "image/jpeg",
+            "mimeType": "image/jpeg",
+            "sourceCodec": "mjpeg",
+            "codec": "mjpeg",
+            "width": 1200,
+            "height": 1200,
+            "label": "Front Cover",
+            "default": true,
+            "attachedPicture": true,
+            "tags": {
+                "title": "Cover (front)",
+                "comment": "Front cover"
+            },
+            "disposition": {
+                "default": 1,
+                "attached_pic": 1
+            }
+        }
+    ],
+    "chapters": [
+        {
+            "id": "chapter-1",
+            "start_time": "0.000",
+            "end_time": "120.000",
+            "tags": {
+                "title": "Chapter 1"
+            }
+        }
+    ]
+}

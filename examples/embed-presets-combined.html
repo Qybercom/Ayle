@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Ayle Media Player — data attributes + presets</title>
+
+	<script data-ayle-driver="mse"
+		src="../ayle-bootstrap.js"
+		data-ayle-localization="ru"
+		data-ayle-loader
+		data-ayle-settings="localStorage"
+		data-ayle-url-metadata="../../server/metadata.php?file={file}"
+		data-ayle-url-track="../../server/track.php?file={file}&type={kind}&track={track}&start={time}">
+	</script>
+
+	<style>
+		body {
+			margin: 0;
+			padding: 30px;
+			background: #1b1b1b;
+			color: #fff;
+			font-family: Calibri, sans-serif;
+		}
+
+		.example-block {
+			margin-bottom: 32px;
+		}
+
+		.example-title {
+			margin: 0 0 10px;
+			font-size: 20px;
+		}
+	</style>
+</head>
+<body>
+
+<div class="example-block">
+	<h2 class="example-title">Video preset</h2>
+
+	<script
+		type="application/json"
+		data-ayle="videoExample1"
+		data-ayle-preset="video"
+		data-ayle-localization="ro-MD"
+		data-ayle-file="example.mkv"
+		data-ayle-debug>
+	</script>
+</div>
+
+<div class="example-block">
+	<h2 class="example-title">Video preset</h2>
+
+	<script
+		type="application/json"
+		data-ayle="videoExample"
+		data-ayle-preset="video"
+		data-ayle-file="example2.mkv"
+		data-ayle-settings="sessionStorage"
+		data-ayle-on="play:onPlay;pause:onPause;error:onErro  ">
+	</script>
+</div>
+
+<div class="example-block">
+	<h2 class="example-title">Audio preset</h2>
+
+	<script
+		type="application/json"
+		data-ayle="audioExample"
+		data-ayle-preset="audio"
+		data-ayle-localization="de"
+		data-ayle-file="example.mp3">
+	</script>
+</div>
+
+<div class="example-block">
+	<h2 class="example-title">Undefined / no source</h2>
+
+	<script
+		type="application/json"
+		data-ayle="emptyExample"
+		data-ayle-preset="video">
+	</script>
+
+	<p style="margin-top: 8px; color: #bdbdbd;">
+		Этот экземпляр намеренно не содержит data-ayle-file и JSON File.
+		Нажатие Play должно вызвать playUnavailable с Reason = "no-source"
+		и не запускать бесконечный индикатор загрузки.
+	</p>
+</div>
+
+
+<div class="example-block">
+	<h2 class="example-title">Video preset + persisted settings + Debug</h2>
+
+	<script
+		type="application/json"
+		data-ayle="videoSettingsExample"
+		data-ayle-preset="video"
+		data-ayle-file="example.mkv"
+		data-ayle-debug
+		data-ayle-settings="localStorage">
+	</script>
+</div>
+
+
+<script>
+function onPlay (e) {
+	console.log('Declarative play:', e);
+}
+
+function onPause (e) {
+	console.log('Declarative pause:', e);
+}
+
+function onErro (e) {
+	console.error('Declarative error:', e);
+}
+</script>
+
+</body>
+</html>
