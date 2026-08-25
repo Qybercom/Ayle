@@ -5,6 +5,11 @@
 	--ayle-button-hover-bg: rgba(255,255,255,.14);
 	--ayle-button-radius: 9px;
 	--ayle-button-size: 38px;
+	--ayle-center-play-background: rgba(0, 0, 0, .42);
+	--ayle-center-play-border: rgba(0, 0, 0, .78);
+	--ayle-center-play-shadow:
+		0 2px 12px rgba(0, 0, 0, .78),
+		0 0 0 2px rgba(255, 255, 255, .58);
 	--ayle-font-family: Arial, sans-serif;
 	--ayle-hint-safe-bottom: 16px;
 	--ayle-hint-safe-center-x: 50%;
@@ -101,7 +106,10 @@
 	width: 64px;
 	height: 64px;
 	flex-basis: 64px;
+	border: 1px solid var(--ayle-center-play-border);
 	border-radius: 50%;
+	background: var(--ayle-center-play-background);
+	box-shadow: var(--ayle-center-play-shadow);
 	opacity: 1;
 	transition: opacity .2s ease, transform .12s ease;
 }
@@ -2767,22 +2775,17 @@
  * ---------------------------------------------------------------------- */
 
 .ayle-controls-narrow .ayle-popover {
-	width: min(320px, calc(100vw - 24px));
-	max-width: calc(100vw - 24px);
 	overflow-x: auto;
 	overflow-y: auto;
 	overscroll-behavior: contain;
 }
 
 .ayle-controls-narrow .ayle-chapters-popover {
-	width: min(360px, calc(100vw - 24px));
-	min-width: min(300px, calc(100vw - 24px));
-	max-width: calc(100vw - 24px);
+	min-width: 0;
 }
 
 .ayle-controls-narrow .ayle-settings-popover,
 .ayle-controls-narrow .ayle-quality-popover {
-	max-width: calc(100vw - 24px);
 	overflow-x: auto;
 	overflow-y: auto;
 }

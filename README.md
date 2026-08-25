@@ -920,7 +920,7 @@ examples contain hand-written UI markup and reference those assets directly.
 
 `{kind}` may resolve to `video`, `audio`, `subtitle` or `artwork`.
 
-URLs under `server/...` in examples are integration placeholders. This archive
+URLs under `../../server/...` in examples are integration placeholders. This archive
 does not contain a PHP backend.
 
 ### Codec negotiation
@@ -974,48 +974,62 @@ fullscreen and Picture-in-Picture where supported.
 
 ## Package layout and example paths
 
-The HTML examples live in the `examples/` directory while the Ayle runtime
-files remain at the package root. Backend example endpoints are expected in the
-sibling `server/` directory:
+The HTML examples live in `examples/`, while the Ayle runtime files remain at
+the package root. The example backend is intentionally outside the Ayle package
+root and is reached with ordinary relative URLs:
 
 ```text
-<root>/
-├── ayle.js
-├── ayle-bootstrap.js
-├── ayle.css
-├── ayle-icons.svg
-├── icons/
+<parent>/
 ├── server/
 │   ├── metadata.php
 │   └── track.php
-└── examples/
-    ├── embed-presets-combined.html
-    └── ...
+└── <ayle-root>/
+    ├── ayle.js
+    ├── ayle-bootstrap.js
+    ├── ayle.css
+    ├── ayle-icons.svg
+    ├── icons/
+    └── examples/
+        ├── embed-presets-combined.html
+        └── ...
 ```
 
-All example paths are plain browser-resolved relative URLs. They do **not**
-depend on Apache/Nginx rewrite rules, aliases, front controllers, or a specific
-deployment depth.
-
-For example, a declarative page in `examples/` uses:
+No rewrite rules, aliases, or front controllers are required. A declarative
+example uses:
 
 ```html
 <script
     src="../ayle-bootstrap.js"
     data-ayle-loader
     data-ayle-driver="mse"
-    data-ayle-url-metadata="../server/metadata.php?file={file}"
-    data-ayle-url-track="../server/track.php?file={file}&type={kind}&track={track}&start={time}">
+    data-ayle-url-metadata="../../server/metadata.php?file={file}"
+    data-ayle-url-track="../../server/track.php?file={file}&type={kind}&track={track}&start={time}">
 </script>
 ```
 
-Because `ayle-bootstrap.js` resolves `ayle.js` and `ayle.css` relative to its own
-`src`, loading it as `../ayle-bootstrap.js` still resolves both runtime files
-from `<root>/` correctly.
+`ayle-bootstrap.js` resolves `ayle.js` and `ayle.css` relative to its own
+`src`, so loading the bootstrap as `../ayle-bootstrap.js` still resolves the
+runtime files from `<ayle-root>/`.
 
-Values such as `data-ayle-file="example.mkv"` are intentionally **not** prefixed
-with `../`: they are media identifiers passed to the configured backend rather
-than browser URLs to files beside the HTML page.
+Values such as `data-ayle-file="example.mkv"` are media identifiers sent to the
+configured backend, not browser-relative paths, and therefore are not prefixed
+with `../`.
+
+Integration examples reference `../../img/channel-avatar.png`. The external `img/` directory is not distributed in this package; provide the
+example asset at `../../img/channel-avatar.png` when running those examples.
+
+### Center Play visibility and narrow menus
+
+The center Play button uses a translucent dark background, a dark outline, a
+strong dark shadow, and a subtle light outer ring so that it remains readable
+over both bright and dark video frames.
+These values are themeable through `--ayle-center-play-background`,
+`--ayle-center-play-border`, and `--ayle-center-play-shadow`.
+
+When the Player enters its narrow-controls layout, open popovers are clamped to
+the **actual Player width**, not the browser viewport. If menu content is wider
+than the available Player area, the popover remains inside the Player and
+becomes horizontally/vertically scrollable.
 
 ## Examples
 
@@ -1026,6 +1040,7 @@ than browser URLs to files beside the HTML page.
 | `examples/embed-example.html` | Basic JSON-configured declarative instance. |
 | `examples/embed-data-attributes.html` | Attribute shortcuts and intentional no-source state. |
 | `examples/embed-presets-combined.html` | Presets, persistence, Debug and event binding. |
+| `examples/embed-presets-combined-integrations.html` | Combined presets plus full Integration examples: Channel, Hints, custom actions/renderers, custom Settings and Integration.Data. |
 | `examples/embed-preset-video.html` | Minimal video preset. |
 | `examples/embed-preset-audio.html` | Minimal audio preset. |
 | `examples/embed-preset-auto.html` | Automatic preset resolution. |
@@ -1057,8 +1072,8 @@ the lower-level API.
 ## Running examples
 
 The package contains the frontend examples and sample metadata, not the example
-media backend. Examples configured with `../server/metadata.php` from files inside `examples/` and
-`../server/track.php` from files inside `examples/` need a compatible backend at those paths before playback can
+media backend. Examples configured with `../../server/metadata.php` from files inside `examples/` and
+`../../server/track.php` from files inside `examples/` need a compatible backend at those paths before playback can
 work.
 
 For browser testing, serve the directory over HTTP rather than relying on a

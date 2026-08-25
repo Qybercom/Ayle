@@ -8304,8 +8304,22 @@ function Ayle (driver, options) {
 		}
 
 		var playerRect = this.Element.getBoundingClientRect();
-		var popoverRect = popover.getBoundingClientRect();
 		var padding = 8;
+		var availableWidth = Math.max(0, playerRect.width - padding * 2);
+
+		/*
+		 * The menu must fit the actual Player, not the viewport. This matters
+		 * when Ayle is embedded in a narrow column/card on a wide desktop.
+		 * Wide menu contents remain reachable through horizontal scrolling.
+		 */
+		popover.style.maxWidth = Math.floor(availableWidth) + 'px';
+
+		if (popover.scrollWidth > availableWidth)
+			popover.style.width = Math.floor(availableWidth) + 'px';
+		else
+			popover.style.width = '';
+
+		var popoverRect = popover.getBoundingClientRect();
 		var shift = 0;
 
 		if (popoverRect.left < playerRect.left + padding)
