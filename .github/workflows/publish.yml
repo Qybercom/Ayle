@@ -28,7 +28,7 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           npm version "$VERSION" --no-git-tag-version
 
-      - run: npm install
+      - run: npm ci
       - run: npm run build
       - run: npm run check
       - run: npm pack --dry-run

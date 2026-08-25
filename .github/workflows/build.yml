@@ -22,7 +22,7 @@ jobs:
           node-version: '24'
           cache: npm
 
-      - run: npm install
+      - run: npm ci
       - run: npm run build
       - run: npm run check
       - run: npm pack --dry-run

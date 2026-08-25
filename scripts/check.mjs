@@ -6,41 +6,41 @@ const root = process.cwd();
 const dist = path.join(root, 'dist');
 
 const required = [
-    'ayle.js',
-    'ayle.min.js',
-    'ayle.esm.js',
-    'ayle-bootstrap.js',
-    'ayle-bootstrap.min.js',
-    'ayle.css',
-    'ayle.min.css',
-    'ayle-icons.svg'
+	'ayle.js',
+	'ayle.min.js',
+	'ayle.esm.js',
+	'ayle-bootstrap.js',
+	'ayle-bootstrap.min.js',
+	'ayle.css',
+	'ayle.min.css',
+	'ayle-icons.svg'
 ];
 
 for (const name of required)
-    await fs.access(path.join(dist, name));
+	await fs.access(path.join(dist, name));
 
 const esm = await import(
-    new URL('../dist/ayle.esm.js', import.meta.url).href
+	new URL('../dist/ayle.esm.js', import.meta.url).href
 );
 
 const exports = [
-    'Ayle',
-    'AyleEventEmitter',
-    'AyleMediaVariant',
-    'AyleMediaTrack',
-    'AyleMediaCover',
-    'AyleMediaChapter',
-    'AyleSource',
-    'AyleMediaDriver',
-    'AyleHTML5MediaDriver',
-    'AyleMSEMediaDriver',
-    'AyleHTTP',
-    'AyleUI'
+	'Ayle',
+	'AyleEventEmitter',
+	'AyleMediaVariant',
+	'AyleMediaTrack',
+	'AyleMediaCover',
+	'AyleMediaChapter',
+	'AyleSource',
+	'AyleMediaDriver',
+	'AyleHTML5MediaDriver',
+	'AyleMSEMediaDriver',
+	'AyleHTTP',
+	'AyleUI'
 ];
 
 for (const name of exports) {
-    if (!esm[name])
-        throw new Error('Missing ESM export: ' + name);
+	if (!esm[name])
+		throw new Error('Missing ESM export: ' + name);
 }
 
 console.log('Ayle package validation passed.');
