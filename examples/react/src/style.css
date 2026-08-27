@@ -1,0 +1,93 @@
+html {
+	background: #121212;
+	color: #f4f4f4;
+	font-family: Arial, sans-serif;
+}
+
+body {
+	margin: 0;
+}
+
+button {
+	padding: 8px 12px;
+	border: 1px solid rgba(255, 255, 255, .18);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, .08);
+	color: inherit;
+	cursor: pointer;
+}
+
+button:hover {
+	background: rgba(255, 255, 255, .14);
+}
+
+.app {
+	box-sizing: border-box;
+	width: min(1100px, 100%);
+	margin: 0 auto;
+	padding: 32px 20px 64px;
+}
+
+.hero {
+	margin-bottom: 28px;
+}
+
+.hero h1,
+.card h2 {
+	margin-top: 0;
+}
+
+.hero p,
+.card p {
+	line-height: 1.5;
+}
+
+.eyebrow {
+	margin-bottom: 6px;
+	font-size: 13px;
+	font-weight: 700;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	opacity: .65;
+}
+
+.card {
+	margin-bottom: 24px;
+	padding: 20px;
+	border: 1px solid rgba(255, 255, 255, .12);
+	border-radius: 14px;
+	background: rgba(255, 255, 255, .035);
+}
+
+.card-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 20px;
+	margin-bottom: 16px;
+}
+
+.card-header p {
+	margin-bottom: 0;
+	opacity: .72;
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.status {
+	margin-bottom: 0;
+}
+
+@media (max-width: 700px) {
+	.card-header {
+		display: block;
+	}
+
+	.actions {
+		margin-top: 14px;
+	}
+}

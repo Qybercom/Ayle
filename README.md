@@ -1242,3 +1242,27 @@ Framework bindings require deterministic teardown, so the core now exposes
 The tag release workflow publishes `@qybercom/ayle` first and
 `@qybercom/ayle-react` second using the same version. See
 `bindings/react/README.md` for the React component API.
+
+### Runnable React example
+
+`examples/react/` is a self-contained Vite + React + TypeScript application
+using the local `@qybercom/ayle` and `@qybercom/ayle-react` packages through
+`file:` dependencies.
+
+Run it with:
+
+```bash
+cd examples/react
+npm install
+npm run dev
+```
+
+The Vite dev server proxies `/server/*` to the `AYLE_SERVER_TARGET` configured
+in `examples/react/.env` (default example: `http://localhost:8000`). See
+`examples/react/README.md` for the expected directory layout and launch
+commands.
+
+The React example builds the local core and binding automatically before Vite
+starts. Its Vite config resolves the local Ayle package names directly to the
+repository build outputs, so `npm run dev` does not depend on a previously
+published npm package.
