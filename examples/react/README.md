@@ -77,3 +77,7 @@ build outputs.
 
 This avoids stale or incomplete `file:` package copies in
 `examples/react/node_modules`, which is especially useful on Windows.
+
+The Vite configuration uses Node built-in modules such as `node:path` and
+`node:url`; `@types/node` is included in the example dev dependencies so those
+imports are typed correctly by TypeScript.
