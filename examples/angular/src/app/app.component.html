@@ -1,0 +1,56 @@
+<main class="app">
+	<header class="hero">
+		<p class="eyebrow">Ayle Angular binding</p>
+		<h1>Runnable Angular + TypeScript example</h1>
+		<p>This application uses the local Ayle core and Angular binding.</p>
+	</header>
+
+	<section class="card">
+		<div class="card-header">
+			<div>
+				<h2>Video preset</h2>
+				<p>MSE, HTTP pipeline, typed outputs and ViewChild access.</p>
+			</div>
+
+			<div class="actions">
+				<button type="button" (click)="ToggleVideo()">Play / Pause through ViewChild</button>
+				<button type="button" (click)="RestartVideo()">Restart</button>
+			</div>
+		</div>
+
+		<ayle-player
+			#videoPlayer
+			id="angular-video"
+			preset="video"
+			file="example.mkv"
+			driver="mse"
+			settings="localStorage"
+			[http]="HTTP"
+			(ready)="OnReady($event)"
+			(play)="OnPlay()"
+			(pause)="OnPause()"
+			(error)="OnError($event)"
+			(ayleEvent)="OnAyleEvent($event)">
+		</ayle-player>
+
+		<p class="status">Last video event: <strong>{{ LastEvent }}</strong></p>
+	</section>
+
+	<section class="card">
+		<div class="card-header">
+			<div>
+				<h2>Audio preset</h2>
+				<p>No explicit localization is supplied, so browser auto-detection remains active.</p>
+			</div>
+		</div>
+
+		<ayle-player
+			id="angular-audio"
+			preset="audio"
+			file="example.mp3"
+			driver="mse"
+			[http]="HTTP"
+			(error)="OnError($event)">
+		</ayle-player>
+	</section>
+</main>

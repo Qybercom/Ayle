@@ -1,0 +1,61 @@
+{
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"version": 1,
+	"projects": {
+		"ayle-angular-example": {
+			"projectType": "application",
+			"root": "",
+			"sourceRoot": "src",
+			"prefix": "app",
+			"architect": {
+				"build": {
+					"builder": "@angular/build:application",
+					"options": {
+						"outputPath": "dist/ayle-angular-example",
+						"index": "src/index.html",
+						"browser": "src/main.ts",
+						"tsConfig": "tsconfig.app.json",
+						"assets": [
+							{
+								"glob": "**/*",
+								"input": "public"
+							}
+						],
+						"styles": [
+							"src/styles.css"
+						]
+					},
+					"configurations": {
+						"production": {
+							"outputHashing": "all"
+						},
+						"development": {
+							"optimization": false,
+							"extractLicenses": false,
+							"sourceMap": true
+						}
+					},
+					"defaultConfiguration": "production"
+				},
+				"serve": {
+					"builder": "@angular/build:dev-server",
+					"configurations": {
+						"production": {
+							"buildTarget": "ayle-angular-example:build:production"
+						},
+						"development": {
+							"buildTarget": "ayle-angular-example:build:development"
+						}
+					},
+					"defaultConfiguration": "development"
+				}
+			}
+		}
+	},
+	"cli": {
+		"cache": {
+			"enabled": false
+    },
+    "analytics": "2eab3861-cba3-4491-a491-6f08dca384c9"
+	}
+}

@@ -23,7 +23,9 @@ jobs:
           cache: npm
 
       - run: npm ci
+      - run: npm install --prefix bindings/angular
       - run: npm run build
       - run: npm run check
       - run: npm pack --dry-run
       - run: npm pack --dry-run ./bindings/react
+      - run: npm pack --dry-run ./bindings/angular/dist

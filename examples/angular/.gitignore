@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.angular/
+*.tsbuildinfo
+npm-debug.log*
+.DS_Store
+proxy.conf.json

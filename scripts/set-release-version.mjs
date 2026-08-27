@@ -19,4 +19,8 @@ await update(path.join(root, 'bindings', 'react', 'package.json'), function (pac
 	packageJSON.peerDependencies['@qybercom/ayle'] = '^' + version;
 });
 
+await update(path.join(root, 'bindings', 'angular', 'package.json'), function (packageJSON) {
+	packageJSON.peerDependencies['@qybercom/ayle'] = '^' + version;
+});
+
 console.log('Release version set to ' + version);

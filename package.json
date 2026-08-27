@@ -6,7 +6,9 @@
 	"sideEffects": [
 		"./dist/ayle.css",
 		"./dist/ayle.js",
-		"./dist/ayle-bootstrap.js"
+		"./dist/ayle-bootstrap.js",
+		"./dist/ayle.esm.js",
+		"./dist/ayle-bootstrap.esm.js"
 	],
 	"files": [
 		"dist/",
@@ -39,11 +41,15 @@
 		"clean": "node scripts/build.mjs --clean",
 		"build:core": "node scripts/build.mjs",
 		"build:react": "node scripts/build-react.mjs",
-		"build": "npm run build:core && npm run build:react",
+		"build:angular": "node scripts/build-angular.mjs",
+		"sync:angular-example": "node scripts/sync-angular-example.mjs",
+		"prepare:angular-example": "node scripts/prepare-angular-example.mjs",
+		"build": "npm run build:core && npm run build:react && npm run build:angular",
 		"check:core": "node scripts/check.mjs",
 		"check:react": "node scripts/check-react.mjs",
-		"check": "npm run check:core && npm run check:react",
-		"pack:check": "npm pack --dry-run && npm pack --dry-run ./bindings/react",
+		"check:angular": "node scripts/check-angular.mjs",
+		"check": "npm run check:core && npm run check:react && npm run check:angular",
+		"pack:check": "npm pack --dry-run && npm pack --dry-run ./bindings/react && npm pack --dry-run ./bindings/angular/dist",
 		"prepack": "npm run build:core && npm run check:core"
 	},
 	"publishConfig": {

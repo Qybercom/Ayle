@@ -101,7 +101,21 @@ function createBootstrapESM (source) {
 
 	const runtime = source.substring(0, index + marker.length) + '\n})(globalThis);';
 
-	return runtime + `
+	return `import {
+	Ayle,
+	AyleHTTP,
+	AyleUI,
+	AyleHTML5MediaDriver,
+	AyleMSEMediaDriver
+} from './ayle.esm.js';
+
+globalThis.Ayle = Ayle;
+globalThis.AyleHTTP = AyleHTTP;
+globalThis.AyleUI = AyleUI;
+globalThis.AyleHTML5MediaDriver = AyleHTML5MediaDriver;
+globalThis.AyleMSEMediaDriver = AyleMSEMediaDriver;
+
+` + runtime + `
 
 const AyleBootstrap = globalThis.AyleBootstrap;
 

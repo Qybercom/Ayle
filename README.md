@@ -1285,3 +1285,30 @@ The React example rebuilds Ayle before `dev`, `build`, and `typecheck`.
 This is required because `bindings/react/dist/index.d.ts` is generated and an
 older local build may otherwise make TypeScript/WebStorm show stale `any`
 types.
+
+## Angular binding
+
+`bindings/angular/` contains the `@qybercom/ayle-angular` Angular library,
+built with `ng-packagr`. A runnable standalone Angular + TypeScript application
+is available in `examples/angular/`.
+
+The Angular binding is included in the root build/check/pack commands and in
+GitHub Actions. Tag releases publish core first, then the React binding, then
+the Angular package produced by `ng-packagr`.
+
+Angular local builds resolve `@qybercom/ayle` from `file:../..` through the
+binding's dev dependencies, while the published Angular package still declares
+Ayle as a peer dependency.
+
+The Angular example uses Angular's zoneless bootstrap mode and therefore does
+not depend on Zone.js. Its application build uses the `@angular/build` package
+and follows the maintained Angular 20.3 release line.
+
+The ESM bootstrap entry imports `./ayle.esm.js` itself. Framework bindings no
+longer rely on side-effect import ordering to initialize Ayle constructors on
+`globalThis` before `AyleBootstrap` runs.
+
+The ESM bootstrap imports the core constructors as named imports and explicitly
+binds them to `globalThis` before bootstrap initialization. The ESM core and
+bootstrap files are also listed in `sideEffects`, preventing framework bundlers
+from dropping that initialization path.

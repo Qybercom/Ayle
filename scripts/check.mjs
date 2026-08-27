@@ -62,6 +62,23 @@ for (const name of exports) {
 console.log('Ayle package validation passed.');
 console.log('ESM exports: ' + exports.join(', '));
 
+const bootstrapESMSource = await fs.readFile(
+	path.join(dist, 'ayle-bootstrap.esm.js'),
+	'utf8'
+);
+
+for (const token of [
+	"from './ayle.esm.js'",
+	'globalThis.Ayle = Ayle;',
+	'globalThis.AyleHTTP = AyleHTTP;',
+	'globalThis.AyleUI = AyleUI;',
+	'globalThis.AyleHTML5MediaDriver = AyleHTML5MediaDriver;',
+	'globalThis.AyleMSEMediaDriver = AyleMSEMediaDriver;'
+]) {
+	if (!bootstrapESMSource.includes(token))
+		throw new Error('Bootstrap ESM is missing required core binding: ' + token);
+}
+
 const bootstrapESM = await import(
 	new URL('../dist/ayle-bootstrap.esm.js', import.meta.url).href
 );

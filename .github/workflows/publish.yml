@@ -29,13 +29,18 @@ jobs:
           node scripts/set-release-version.mjs "$VERSION"
 
       - run: npm ci
+      - run: npm install --prefix bindings/angular
       - run: npm run build
       - run: npm run check
       - run: npm pack --dry-run
       - run: npm pack --dry-run ./bindings/react
+      - run: npm pack --dry-run ./bindings/angular/dist
 
       - name: Publish Ayle core
         run: npm publish
 
       - name: Publish React binding
         run: npm publish ./bindings/react
+
+      - name: Publish Angular binding
+        run: npm publish ./bindings/angular/dist
