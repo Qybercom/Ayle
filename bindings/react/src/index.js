@@ -29,7 +29,7 @@ export const AYLE_EVENTS = [
 	'debugChange', 'debugMP4Change', 'debugSettingsChange',
 	'debugMP4SettingsChange', 'hintOpen', 'hintClose', 'hintShow', 'hintHide',
 	'hintDismiss', 'hintResume', 'hintAction', 'hintMedia', 'hintsChange',
-	'hintRenderersChange', 'hintSafeAreaChange', 'quizAnswer'
+	'hintRenderersChange', 'hintSafeAreaChange', 'integrationChange', 'quizAnswer'
 ];
 
 function cloneConfig (value) {

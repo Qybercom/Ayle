@@ -87,12 +87,12 @@ export default function App () {
 						ended: function () {
 							setLastEvent('ended');
 						},
-						error: function (error: unknown) {
+						error: function (error) {
 							console.error('Ayle video error:', error);
 							setLastEvent('error');
 						}
 					}}
-					onReady={function (instance: unknown) {
+					onReady={function (instance) {
 						console.log('Video Ayle ready:', instance);
 						setLastEvent('ready');
 					}}
@@ -128,7 +128,7 @@ export default function App () {
 						}
 					}}
 					events={{
-						error: function (error: unknown) {
+						error: function (error) {
 							console.error('Ayle audio error:', error);
 						}
 					}}

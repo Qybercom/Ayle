@@ -71,3 +71,37 @@ The forwarded ref exposes `Element`, `Instance`, `Player`, `UI`, `HTTP`, and
 
 Core lifecycle cleanup is used on unmount, including React development Strict
 Mode remounts.
+
+## TypeScript event types
+
+The binding exports `AyleEventMap`, `AyleEventHandlers`, `AyleInstance`,
+`AylePlayerCore`, `AyleSource`, track/variant/chapter types, and the common
+event payload interfaces.
+
+Known event names are contextually typed:
+
+```tsx
+<AylePlayer
+	events={{
+		timeUpdate: function (event) {
+			console.log(event.Position, event.Duration);
+		},
+		volumeChange: function (event) {
+			console.log(event.Volume, event.Muted);
+		},
+		error: function (error) {
+			if (error instanceof Error)
+				console.error(error.message);
+		}
+	}}
+	onReady={function (instance) {
+		instance.Player.Play();
+		console.log(instance.Player.State.Duration);
+	}}
+/>
+```
+
+Dynamic Ayle events such as application-defined `hintAction:*` or
+`settingsAction:*` remain supported through the event-map string index and use
+`any` for their application-defined payloads. Known built-in events use their
+specific payload types.

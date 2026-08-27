@@ -1266,3 +1266,9 @@ The React example builds the local core and binding automatically before Vite
 starts. Its Vite config resolves the local Ayle package names directly to the
 repository build outputs, so `npm run dev` does not depend on a previously
 published npm package.
+
+The React declarations include a typed `AyleEventMap` and structural types for
+Ayle instances, state, sources, tracks, variants, chapters, hints, and common
+event payloads. Built-in event callbacks therefore receive contextual
+TypeScript types instead of `any`/`unknown`; dynamic integration event names
+remain available.
