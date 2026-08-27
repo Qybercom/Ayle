@@ -15,21 +15,36 @@
 	],
 	"exports": {
 		".": "./dist/ayle.esm.js",
-		"./browser": "./dist/ayle.js",
-		"./browser/min": "./dist/ayle.min.js",
-		"./bootstrap": "./dist/ayle-bootstrap.js",
-		"./bootstrap/min": "./dist/ayle-bootstrap.min.js",
-		"./css": "./dist/ayle.css",
-		"./css/min": "./dist/ayle.min.css",
+		"./ayle.js": "./dist/ayle.js",
+		"./ayle.min.js": "./dist/ayle.min.js",
+		"./ayle-bootstrap.js": "./dist/ayle-bootstrap.js",
+		"./ayle-bootstrap.min.js": "./dist/ayle-bootstrap.min.js",
+		"./ayle.css": "./dist/ayle.css",
+		"./ayle.min.css": "./dist/ayle.min.css",
+		"./ayle-icons.svg": "./dist/ayle-icons.svg",
+		"./package.json": "./package.json",
+		"./bootstrap": "./dist/ayle-bootstrap.esm.js",
 		"./icons": "./dist/ayle-icons.svg",
-		"./package.json": "./package.json"
+		"./icons/chapters.svg": "./dist/icons/chapters.svg",
+		"./icons/fullscreen-enter.svg": "./dist/icons/fullscreen-enter.svg",
+		"./icons/fullscreen-exit.svg": "./dist/icons/fullscreen-exit.svg",
+		"./icons/loading.svg": "./dist/icons/loading.svg",
+		"./icons/pause.svg": "./dist/icons/pause.svg",
+		"./icons/pip.svg": "./dist/icons/pip.svg",
+		"./icons/play.svg": "./dist/icons/play.svg",
+		"./icons/settings.svg": "./dist/icons/settings.svg",
+		"./icons/volume.svg": "./dist/icons/volume.svg"
 	},
 	"scripts": {
 		"clean": "node scripts/build.mjs --clean",
-		"build": "node scripts/build.mjs",
-		"check": "node scripts/check.mjs",
-		"pack:check": "npm pack --dry-run",
-		"prepack": "npm run build && npm run check"
+		"build:core": "node scripts/build.mjs",
+		"build:react": "node scripts/build-react.mjs",
+		"build": "npm run build:core && npm run build:react",
+		"check:core": "node scripts/check.mjs",
+		"check:react": "node scripts/check-react.mjs",
+		"check": "npm run check:core && npm run check:react",
+		"pack:check": "npm pack --dry-run && npm pack --dry-run ./bindings/react",
+		"prepack": "npm run build:core && npm run check:core"
 	},
 	"publishConfig": {
 		"access": "public"

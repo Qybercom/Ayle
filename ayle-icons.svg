@@ -1,33 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-  <symbol id="icon-play" viewBox="0 0 24 24">
-    <path d="M8 5.2v13.6c0 .76.84 1.22 1.48.81l10.07-6.8a.96.96 0 0 0 0-1.62L9.48 4.39A.96.96 0 0 0 8 5.2Z" fill="currentColor"/>
-  </symbol>
-  <symbol id="icon-pause" viewBox="0 0 24 24">
-    <rect x="6.5" y="5" width="4" height="14" rx="1" fill="currentColor"/>
-    <rect x="13.5" y="5" width="4" height="14" rx="1" fill="currentColor"/>
-  </symbol>
-  <symbol id="icon-volume" viewBox="0 0 24 24">
-    <path d="M4.5 9.5h4L13 6v12l-4.5-3.5h-4Z" fill="currentColor"/>
-    <path d="M15.4 9a4.25 4.25 0 0 1 0 6M17.8 6.6a7.65 7.65 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-  </symbol>
-  <symbol id="icon-chapters" viewBox="0 0 24 24">
-    <path d="M8.5 6.5h10M8.5 12h10M8.5 17.5h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-    <circle cx="5" cy="6.5" r="1.25" fill="currentColor"/>
-    <circle cx="5" cy="12" r="1.25" fill="currentColor"/>
-    <circle cx="5" cy="17.5" r="1.25" fill="currentColor"/>
-  </symbol>
-  <symbol id="icon-settings" viewBox="0 0 24 24">
-    <path d="M12 8.3a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4Z" fill="none" stroke="currentColor" stroke-width="1.7"/>
-    <path d="M19.2 13.25a7.8 7.8 0 0 0 .05-1.25 7.8 7.8 0 0 0-.05-1.25l2-1.55-2-3.45-2.47 1a8.1 8.1 0 0 0-2.15-1.25L14.2 3h-4.4l-.38 2.5a8.1 8.1 0 0 0-2.15 1.25l-2.47-1-2 3.45 2 1.55A7.8 7.8 0 0 0 4.75 12c0 .42.02.84.05 1.25l-2 1.55 2 3.45 2.47-1a8.1 8.1 0 0 0 2.15 1.25l.38 2.5h4.4l.38-2.5a8.1 8.1 0 0 0 2.15-1.25l2.47 1 2-3.45-2-1.55Z" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linejoin="round"/>
-  </symbol>
-  <symbol id="icon-fullscreen-enter" viewBox="0 0 24 24">
-    <path d="M4.5 9V5.5a1 1 0 0 1 1-1H9M15 4.5h3.5a1 1 0 0 1 1 1V9M19.5 15v3.5a1 1 0 0 1-1 1H15M9 19.5H5.5a1 1 0 0 1-1-1V15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-  </symbol>
-  <symbol id="icon-fullscreen-exit" viewBox="0 0 24 24">
-    <path d="M9 4.5V8a1 1 0 0 1-1 1H4.5M19.5 9H16a1 1 0 0 1-1-1V4.5M15 19.5V16a1 1 0 0 1 1-1h3.5M4.5 15H8a1 1 0 0 1 1 1v3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-  </symbol>
-  <symbol id="icon-pip" viewBox="0 0 24 24">
-    <rect x="3.5" y="5" width="17" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/>
-    <rect x="12.5" y="11.5" width="6" height="4.5" rx=".8" fill="currentColor"/>
-  </symbol>
+	<symbol id="icon-play" viewBox="0 0 24 24">
+		<path d="M8 5.2v13.6c0 .76.84 1.22 1.48.81l10.07-6.8a.96.96 0 0 0 0-1.62L9.48 4.39A.96.96 0 0 0 8 5.2Z" fill="currentColor"/>
+	</symbol>
+	<symbol id="icon-pause" viewBox="0 0 24 24">
+		<rect x="6.5" y="5" width="4" height="14" rx="1" fill="currentColor"/>
+		<rect x="13.5" y="5" width="4" height="14" rx="1" fill="currentColor"/>
+	</symbol>
+	<symbol id="icon-volume" viewBox="0 0 24 24">
+		<path d="M4.5 9.5h4L13 6v12l-4.5-3.5h-4Z" fill="currentColor"/>
+		<path d="M15.4 9a4.25 4.25 0 0 1 0 6M17.8 6.6a7.65 7.65 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+	</symbol>
+	<symbol id="icon-chapters" viewBox="0 0 24 24">
+		<path d="M8.5 6.5h10M8.5 12h10M8.5 17.5h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+		<circle cx="5" cy="6.5" r="1.25" fill="currentColor"/>
+		<circle cx="5" cy="12" r="1.25" fill="currentColor"/>
+		<circle cx="5" cy="17.5" r="1.25" fill="currentColor"/>
+	</symbol>
+	<symbol id="icon-settings" viewBox="0 0 24 24">
+		<path d="M12 8.3a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4Z" fill="none" stroke="currentColor" stroke-width="1.7"/>
+		<path d="M19.2 13.25a7.8 7.8 0 0 0 .05-1.25 7.8 7.8 0 0 0-.05-1.25l2-1.55-2-3.45-2.47 1a8.1 8.1 0 0 0-2.15-1.25L14.2 3h-4.4l-.38 2.5a8.1 8.1 0 0 0-2.15 1.25l-2.47-1-2 3.45 2 1.55A7.8 7.8 0 0 0 4.75 12c0 .42.02.84.05 1.25l-2 1.55 2 3.45 2.47-1a8.1 8.1 0 0 0 2.15 1.25l.38 2.5h4.4l.38-2.5a8.1 8.1 0 0 0 2.15-1.25l2.47 1 2-3.45-2-1.55Z" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linejoin="round"/>
+	</symbol>
+	<symbol id="icon-fullscreen-enter" viewBox="0 0 24 24">
+		<path d="M4.5 9V5.5a1 1 0 0 1 1-1H9M15 4.5h3.5a1 1 0 0 1 1 1V9M19.5 15v3.5a1 1 0 0 1-1 1H15M9 19.5H5.5a1 1 0 0 1-1-1V15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+	</symbol>
+	<symbol id="icon-fullscreen-exit" viewBox="0 0 24 24">
+		<path d="M9 4.5V8a1 1 0 0 1-1 1H4.5M19.5 9H16a1 1 0 0 1-1-1V4.5M15 19.5V16a1 1 0 0 1 1-1h3.5M4.5 15H8a1 1 0 0 1 1 1v3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+	</symbol>
+	<symbol id="icon-pip" viewBox="0 0 24 24">
+		<rect x="3.5" y="5" width="17" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+		<rect x="12.5" y="11.5" width="6" height="4.5" rx=".8" fill="currentColor"/>
+	</symbol>
+	<symbol id="icon-loading" viewBox="0 0 48 48">
+		<circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="4"/>
+		<path d="M24 6a18 18 0 0 1 18 18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round">
+		<animateTransform attributeName="transform" type="rotate" from="0 24 24" to="360 24 24" dur=".8s" repeatCount="indefinite"/>
+		</path>
+	</symbol>
 </svg>

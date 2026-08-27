@@ -1158,7 +1158,7 @@ import {
 CSS can be consumed through the package export:
 
 ```js
-import '@qybercom/ayle/css';
+import '@qybercom/ayle/ayle.css';
 ```
 
 The standalone/browser integration remains available through the normal
@@ -1206,3 +1206,39 @@ core ESM API.
 `ayle.min.js` and `ayle.min.css`, so the production bootstrap does not
 accidentally load the readable development assets. The readable
 `dist/ayle-bootstrap.js` continues to load `ayle.js` and `ayle.css`.
+
+## React binding
+
+The first framework binding lives in `bindings/react/` and is published as
+`@qybercom/ayle-react`.
+
+Build only the core:
+
+```bash
+npm run build:core
+```
+
+Build only React:
+
+```bash
+npm run build:react
+```
+
+Build and validate both:
+
+```bash
+npm run build
+npm run check
+```
+
+The core build now also generates `dist/ayle-bootstrap.esm.js`, exported as
+`@qybercom/ayle/bootstrap`. React uses this ESM bootstrap API instead of
+depending on the global `AyleEmbed`.
+
+Framework bindings require deterministic teardown, so the core now exposes
+`Destroy()` on the built-in drivers and `AyleUI`, plus
+`AyleBootstrap.Destroy()` for complete instance cleanup.
+
+The tag release workflow publishes `@qybercom/ayle` first and
+`@qybercom/ayle-react` second using the same version. See
+`bindings/react/README.md` for the React component API.

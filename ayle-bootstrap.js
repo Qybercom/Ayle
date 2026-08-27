@@ -1201,6 +1201,38 @@
 		return result;
 	};
 
+	AyleBootstrap.prototype.Destroy = function (target) {
+		var instance = typeof target === 'string' ? this.Get(target) : target;
+
+		if (!instance)
+			return false;
+
+		if (instance.UI && typeof instance.UI.Destroy === 'function')
+			instance.UI.Destroy();
+
+		if (instance.Driver && typeof instance.Driver.Destroy === 'function')
+			instance.Driver.Destroy();
+
+		if (instance.Player)
+			instance.Player._events = {};
+
+		if (instance.Element) {
+			delete instance.Element.__playerInstance;
+			instance.Element.innerHTML = '';
+			instance.Element.classList.remove('ayle');
+		}
+
+		delete this.Instances[instance.ID];
+
+		var i = this.List.length;
+		while (i--) {
+			if (this.List[i] === instance)
+				this.List.splice(i, 1);
+		}
+
+		return true;
+	};
+
 	AyleBootstrap.prototype.Get = function (id) { return this.Instances[id] || null; };
 	global.AyleBootstrap = AyleBootstrap;
 

@@ -22,14 +22,20 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
-      - name: Set package version from Git tag
+      - name: Set release version from Git tag
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          npm version "$VERSION" --no-git-tag-version
+          node scripts/set-release-version.mjs "$VERSION"
 
       - run: npm ci
       - run: npm run build
       - run: npm run check
       - run: npm pack --dry-run
-      - run: npm publish
+      - run: npm pack --dry-run ./bindings/react
+
+      - name: Publish Ayle core
+        run: npm publish
+
+      - name: Publish React binding
+        run: npm publish ./bindings/react

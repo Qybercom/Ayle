@@ -191,6 +191,8 @@
 	AyleMediaDriver.prototype.SetDebugMP4 = function (value) { return this; };
 	AyleMediaDriver.prototype.GetCodecCandidates = function () { return []; };
 	AyleMediaDriver.prototype.SupportsCodec = function (type, codec) { return false; };
+	AyleMediaDriver.prototype.Destroy = function () {};
+
 	AyleMediaDriver.prototype.GetSupportedCodecs = function (candidates) {
 		var result = [];
 		var seen = {};
@@ -1926,6 +1928,40 @@
 	};
 
 
+	AyleHTML5MediaDriver.prototype.Destroy = function () {
+		if (this.Element) {
+			try {
+				this.Element.pause();
+			}
+			catch (ignore) {}
+
+			try {
+				this.Element.removeAttribute('src');
+				this.Element.load();
+			}
+			catch (ignore) {}
+		}
+
+		if (this._subtitleObjectURLs) {
+			var i = this._subtitleObjectURLs.length;
+
+			while (i--) {
+				try {
+					URL.revokeObjectURL(this._subtitleObjectURLs[i]);
+				}
+				catch (ignore) {}
+			}
+		}
+
+		this._subtitleObjectURLs = [];
+		this._subtitleSourceTracks = [];
+		this._chapterTextTracks = [];
+		this.Source = null;
+		this._events = {};
+		return this;
+	};
+
+
 	function AyleMSEMediaDriver (element) {
 		AyleHTML5MediaDriver.call(this, element);
 
@@ -2967,6 +3003,12 @@
 			URL.revokeObjectURL(this._objectURL);
 			this._objectURL = '';
 		}
+	};
+
+	AyleMSEMediaDriver.prototype.Destroy = function () {
+		this._destroyMediaSource();
+		AyleHTML5MediaDriver.prototype.Destroy.call(this);
+		return this;
 	};
 
 	AyleMSEMediaDriver.prototype._build = function (variant, audioTrack) {
@@ -8521,18 +8563,21 @@ function Ayle (driver, options) {
 	AyleUI.prototype._bindSafeArea = function () {
 		var self = this;
 
-		global.addEventListener('resize', function () {
+		this._safeAreaResizeHandler = function () {
 			self.UpdateControlLayoutMode();
 			self.ScheduleSafeAreaUpdate();
 
 			if (self.SettingsPopover && self.SettingsPopover.classList.contains('is-open'))
 				self.UpdatePopoverBounds(self.SettingsPopover);
-		});
+		};
 
-		global.addEventListener('scroll', function () {
+		this._safeAreaScrollHandler = function () {
 			if (self.SettingsPopover && self.SettingsPopover.classList.contains('is-open'))
 				self.UpdatePopoverBounds(self.SettingsPopover);
-		}, true);
+		};
+
+		global.addEventListener('resize', this._safeAreaResizeHandler);
+		global.addEventListener('scroll', this._safeAreaScrollHandler, true);
 
 		if (typeof ResizeObserver !== 'undefined') {
 			this._safeAreaObserver = new ResizeObserver(function () {
@@ -11106,10 +11151,12 @@ function Ayle (driver, options) {
 
 
 
-		document.addEventListener('pointerdown', function (event) {
+		this._documentPointerDownHandler = function (event) {
 			if (!self.Element.contains(event.target))
 				self._closePopovers();
-		});
+		};
+
+		document.addEventListener('pointerdown', this._documentPointerDownHandler);
 
 		this.Controls.addEventListener('pointerenter', function () {
 			self._controlsHover = true;
@@ -11147,7 +11194,7 @@ function Ayle (driver, options) {
 
 		}
 
-		document.addEventListener('fullscreenchange', function () {
+		this._fullscreenChangeHandler = function () {
 			self._quickTapTime = 0;
 			self._quickTapPointerType = '';
 			self.CancelSurfaceToggle();
@@ -11157,7 +11204,9 @@ function Ayle (driver, options) {
 
 			if (self.SettingsPopover && self.SettingsPopover.classList.contains('is-open'))
 				self.UpdatePopoverBounds(self.SettingsPopover);
-		});
+		};
+
+		document.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
 
 		var mediaElement = player.Driver ? player.Driver.Element : null;
 		if (mediaElement) {
@@ -11486,6 +11535,62 @@ function Ayle (driver, options) {
 		'ar': PlayerArabicLocalization,
 		'hi': PlayerHindiLocalization,
 		'hi-IN': PlayerHindiLocalization
+	};
+
+
+	AyleUI.prototype.Destroy = function () {
+		this.StopArtworkSlideshow('destroy');
+
+		if (this._controlsTimer) clearTimeout(this._controlsTimer);
+		if (this._minimalInfoTimer) clearTimeout(this._minimalInfoTimer);
+		if (this._minimalInfoHideTimer) clearTimeout(this._minimalInfoHideTimer);
+		if (this._safeAreaUpdateTimer) clearTimeout(this._safeAreaUpdateTimer);
+
+		this._controlsTimer = null;
+		this._minimalInfoTimer = null;
+		this._minimalInfoHideTimer = null;
+		this._safeAreaUpdateTimer = null;
+
+		if (this._minimalInfoPositionHandler) {
+			window.removeEventListener('resize', this._minimalInfoPositionHandler);
+			window.removeEventListener('scroll', this._minimalInfoPositionHandler, true);
+			this._minimalInfoPositionHandler = null;
+		}
+
+		if (this._safeAreaResizeHandler) {
+			global.removeEventListener('resize', this._safeAreaResizeHandler);
+			this._safeAreaResizeHandler = null;
+		}
+
+		if (this._safeAreaScrollHandler) {
+			global.removeEventListener('scroll', this._safeAreaScrollHandler, true);
+			this._safeAreaScrollHandler = null;
+		}
+
+		if (this._documentPointerDownHandler) {
+			document.removeEventListener('pointerdown', this._documentPointerDownHandler);
+			this._documentPointerDownHandler = null;
+		}
+
+		if (this._fullscreenChangeHandler) {
+			document.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
+			this._fullscreenChangeHandler = null;
+		}
+
+		if (this._safeAreaObserver) {
+			this._safeAreaObserver.disconnect();
+			this._safeAreaObserver = null;
+		}
+
+		if (this._popoverResizeObserver) {
+			this._popoverResizeObserver.disconnect();
+			this._popoverResizeObserver = null;
+		}
+
+		if (this.Surface)
+			this.Surface.onclick = null;
+
+		return this;
 	};
 
 	global.Ayle = Ayle;

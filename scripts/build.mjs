@@ -10,7 +10,8 @@ const files = {
 	js: path.join(root, 'ayle.js'),
 	bootstrap: path.join(root, 'ayle-bootstrap.js'),
 	css: path.join(root, 'ayle.css'),
-	icons: path.join(root, 'ayle-icons.svg')
+	icons: path.join(root, 'ayle-icons.svg'),
+	iconsDirectory: path.join(root, 'icons')
 };
 
 async function exists (file) {
@@ -90,6 +91,26 @@ export {
 `;
 }
 
+
+function createBootstrapESM (source) {
+	const marker = '\tglobal.AyleBootstrap = AyleBootstrap;';
+	const index = source.indexOf(marker);
+
+	if (index === -1)
+		throw new Error('Cannot create bootstrap ESM build: AyleBootstrap export marker was not found.');
+
+	const runtime = source.substring(0, index + marker.length) + '\n})(globalThis);';
+
+	return runtime + `
+
+const AyleBootstrap = globalThis.AyleBootstrap;
+
+export {
+	AyleBootstrap
+};
+`;
+}
+
 async function build () {
 	await clean();
 	await fs.mkdir(dist, {
@@ -104,6 +125,14 @@ async function build () {
 	await copy(files.bootstrap, path.join(dist, 'ayle-bootstrap.js'));
 	await copy(files.css, path.join(dist, 'ayle.css'));
 	await copy(files.icons, path.join(dist, 'ayle-icons.svg'));
+
+	await fs.cp(
+		files.iconsDirectory,
+		path.join(dist, 'icons'),
+		{
+			recursive: true
+		}
+	);
 
 	await fs.writeFile(
 		path.join(dist, 'ayle.min.js'),
@@ -126,6 +155,12 @@ async function build () {
 	await fs.writeFile(
 		path.join(dist, 'ayle.esm.js'),
 		createESM(js),
+		'utf8'
+	);
+
+	await fs.writeFile(
+		path.join(dist, 'ayle-bootstrap.esm.js'),
+		createBootstrapESM(bootstrap),
 		'utf8'
 	);
 
