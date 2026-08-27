@@ -81,3 +81,40 @@ This avoids stale or incomplete `file:` package copies in
 The Vite configuration uses Node built-in modules such as `node:path` and
 `node:url`; `@types/node` is included in the example dev dependencies so those
 imports are typed correctly by TypeScript.
+
+## Type resolution
+
+Vite aliases the Ayle core runtime files because the React binding imports them
+as peer dependencies. The React binding itself is intentionally **not** aliased
+to `bindings/react/dist/index.js`: doing that makes IDEs such as WebStorm follow
+the JavaScript file and lose the binding declarations, so callback parameters
+appear as `any`.
+
+The `file:` dependency remains in `package.json` because it accurately models how
+the package is consumed, but npm may install it as a copied directory rather than a
+live link. Rebuilding `../../bindings/react/dist` therefore does not necessarily
+refresh `examples/react/node_modules/@qybercom/ayle-react`.
+
+For repository development, Vite resolves the React binding runtime directly
+from `bindings/react/dist/index.js`, while TypeScript resolves
+`@qybercom/ayle-react` directly from `bindings/react/src/index.d.ts`.
+`tsconfig.app.json` also maps `react` to this example's installed
+`@types/react`, so the external declaration file retains full React contextual
+typing.
+
+You can verify the example typings with:
+
+```bash
+npm run typecheck
+```
+
+### Generated declaration freshness
+
+`bindings/react/dist/index.d.ts` is generated from
+`bindings/react/src/index.d.ts`. The `dist/` directory is intentionally not
+distributed in the repository archive, so replacing source files can leave an
+older local `dist/index.d.ts` from a previous build.
+
+For that reason `npm run typecheck` has a `pretypecheck` hook that runs the
+normal local Ayle build first. This guarantees that TypeScript reads the current
+React declarations rather than a stale generated file.

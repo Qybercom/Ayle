@@ -437,17 +437,85 @@ export interface AyleEventMap {
 
 export type AyleKnownEventName = keyof AyleEventMap;
 
-export type AyleEventHandlers = {
-	[K in AyleKnownEventName]?: (
-		data: AyleEventMap[K],
-		instance: AyleInstance
-	) => void;
-} & {
-	[eventName: string]: ((
-		data: any,
-		instance: AyleInstance
-	) => void) | undefined;
-};
+export interface AyleEventHandlers {
+	ready?: (data: AyleEventMap['ready'], instance: AyleInstance) => void;
+	play?: (data: AyleEventMap['play'], instance: AyleInstance) => void;
+	playing?: (data: AyleEventMap['playing'], instance: AyleInstance) => void;
+	pause?: (data: AyleEventMap['pause'], instance: AyleInstance) => void;
+	ended?: (data: AyleEventMap['ended'], instance: AyleInstance) => void;
+	error?: (data: AyleEventMap['error'], instance: AyleInstance) => void;
+	buffering?: (data: AyleEventMap['buffering'], instance: AyleInstance) => void;
+	progress?: (data: AyleEventMap['progress'], instance: AyleInstance) => void;
+	timeUpdate?: (data: AyleEventMap['timeUpdate'], instance: AyleInstance) => void;
+	seeking?: (data: AyleEventMap['seeking'], instance: AyleInstance) => void;
+	seeked?: (data: AyleEventMap['seeked'], instance: AyleInstance) => void;
+	sourceChange?: (data: AyleEventMap['sourceChange'], instance: AyleInstance) => void;
+	variantChange?: (data: AyleEventMap['variantChange'], instance: AyleInstance) => void;
+	variantSwitched?: (data: AyleEventMap['variantSwitched'], instance: AyleInstance) => void;
+	variantSwitchError?: (data: AyleEventMap['variantSwitchError'], instance: AyleInstance) => void;
+	variantsChange?: (data: AyleEventMap['variantsChange'], instance: AyleInstance) => void;
+	audioTrackChange?: (data: AyleEventMap['audioTrackChange'], instance: AyleInstance) => void;
+	audioTracksChange?: (data: AyleEventMap['audioTracksChange'], instance: AyleInstance) => void;
+	subtitleTrackChange?: (data: AyleEventMap['subtitleTrackChange'], instance: AyleInstance) => void;
+	subtitleTracksChange?: (data: AyleEventMap['subtitleTracksChange'], instance: AyleInstance) => void;
+	subtitleData?: (data: AyleEventMap['subtitleData'], instance: AyleInstance) => void;
+	subtitleDataChange?: (data: AyleEventMap['subtitleDataChange'], instance: AyleInstance) => void;
+	subtitleOffsetChange?: (data: AyleEventMap['subtitleOffsetChange'], instance: AyleInstance) => void;
+	subtitleStyleChange?: (data: AyleEventMap['subtitleStyleChange'], instance: AyleInstance) => void;
+	chapterChange?: (data: AyleEventMap['chapterChange'], instance: AyleInstance) => void;
+	chaptersChange?: (data: AyleEventMap['chaptersChange'], instance: AyleInstance) => void;
+	playUnavailable?: (data: AyleEventMap['playUnavailable'], instance: AyleInstance) => void;
+	emptyPlay?: (data: AyleEventMap['emptyPlay'], instance: AyleInstance) => void;
+	autoplayBlocked?: (data: AyleEventMap['autoplayBlocked'], instance: AyleInstance) => void;
+	autoplayChange?: (data: AyleEventMap['autoplayChange'], instance: AyleInstance) => void;
+	autoplayModeChange?: (data: AyleEventMap['autoplayModeChange'], instance: AyleInstance) => void;
+	autoplaySettingsChange?: (data: AyleEventMap['autoplaySettingsChange'], instance: AyleInstance) => void;
+	nativeSubtitlesChange?: (data: AyleEventMap['nativeSubtitlesChange'], instance: AyleInstance) => void;
+	autoNativeSubtitlesInPictureInPictureChange?: (data: AyleEventMap['autoNativeSubtitlesInPictureInPictureChange'], instance: AyleInstance) => void;
+	pictureInPictureChange?: (data: AyleEventMap['pictureInPictureChange'], instance: AyleInstance) => void;
+	loadStart?: (data: AyleEventMap['loadStart'], instance: AyleInstance) => void;
+	metadata?: (data: AyleEventMap['metadata'], instance: AyleInstance) => void;
+	durationChange?: (data: AyleEventMap['durationChange'], instance: AyleInstance) => void;
+	rateChange?: (data: AyleEventMap['rateChange'], instance: AyleInstance) => void;
+	volumeChange?: (data: AyleEventMap['volumeChange'], instance: AyleInstance) => void;
+	stateChange?: (data: AyleEventMap['stateChange'], instance: AyleInstance) => void;
+	mediaModeChange?: (data: AyleEventMap['mediaModeChange'], instance: AyleInstance) => void;
+	minimalUIChange?: (data: AyleEventMap['minimalUIChange'], instance: AyleInstance) => void;
+	uiModeChange?: (data: AyleEventMap['uiModeChange'], instance: AyleInstance) => void;
+	audioVisualChange?: (data: AyleEventMap['audioVisualChange'], instance: AyleInstance) => void;
+	artworkSlideshowChange?: (data: AyleEventMap['artworkSlideshowChange'], instance: AyleInstance) => void;
+	artworkSlideshowStart?: (data: AyleEventMap['artworkSlideshowStart'], instance: AyleInstance) => void;
+	artworkSlideshowStop?: (data: AyleEventMap['artworkSlideshowStop'], instance: AyleInstance) => void;
+	localizationChange?: (data: AyleEventMap['localizationChange'], instance: AyleInstance) => void;
+	fontFamilyChange?: (data: AyleEventMap['fontFamilyChange'], instance: AyleInstance) => void;
+	settingsChange?: (data: AyleEventMap['settingsChange'], instance: AyleInstance) => void;
+	settingsOrderChange?: (data: AyleEventMap['settingsOrderChange'], instance: AyleInstance) => void;
+	settingsAction?: (data: AyleEventMap['settingsAction'], instance: AyleInstance) => void;
+	integrationSettingsAction?: (data: AyleEventMap['integrationSettingsAction'], instance: AyleInstance) => void;
+	shortcutChange?: (data: AyleEventMap['shortcutChange'], instance: AyleInstance) => void;
+	shortcutSettingsChange?: (data: AyleEventMap['shortcutSettingsChange'], instance: AyleInstance) => void;
+	keyboardArrowSeekStepChange?: (data: AyleEventMap['keyboardArrowSeekStepChange'], instance: AyleInstance) => void;
+	keyboardAngleSeekStepChange?: (data: AyleEventMap['keyboardAngleSeekStepChange'], instance: AyleInstance) => void;
+	keyboardFrameRateFallbackChange?: (data: AyleEventMap['keyboardFrameRateFallbackChange'], instance: AyleInstance) => void;
+	debugChange?: (data: AyleEventMap['debugChange'], instance: AyleInstance) => void;
+	debugMP4Change?: (data: AyleEventMap['debugMP4Change'], instance: AyleInstance) => void;
+	debugSettingsChange?: (data: AyleEventMap['debugSettingsChange'], instance: AyleInstance) => void;
+	debugMP4SettingsChange?: (data: AyleEventMap['debugMP4SettingsChange'], instance: AyleInstance) => void;
+	hintOpen?: (data: AyleEventMap['hintOpen'], instance: AyleInstance) => void;
+	hintClose?: (data: AyleEventMap['hintClose'], instance: AyleInstance) => void;
+	hintShow?: (data: AyleEventMap['hintShow'], instance: AyleInstance) => void;
+	hintHide?: (data: AyleEventMap['hintHide'], instance: AyleInstance) => void;
+	hintDismiss?: (data: AyleEventMap['hintDismiss'], instance: AyleInstance) => void;
+	hintResume?: (data: AyleEventMap['hintResume'], instance: AyleInstance) => void;
+	hintAction?: (data: AyleEventMap['hintAction'], instance: AyleInstance) => void;
+	hintMedia?: (data: AyleEventMap['hintMedia'], instance: AyleInstance) => void;
+	hintsChange?: (data: AyleEventMap['hintsChange'], instance: AyleInstance) => void;
+	hintRenderersChange?: (data: AyleEventMap['hintRenderersChange'], instance: AyleInstance) => void;
+	hintSafeAreaChange?: (data: AyleEventMap['hintSafeAreaChange'], instance: AyleInstance) => void;
+	integrationChange?: (data: AyleEventMap['integrationChange'], instance: AyleInstance) => void;
+	quizAnswer?: (data: AyleEventMap['quizAnswer'], instance: AyleInstance) => void;
+	[eventName: string]: ((data: any, instance: AyleInstance) => void) | undefined;
+}
 
 export type AyleKnownEvent = {
 	[K in AyleKnownEventName]: {

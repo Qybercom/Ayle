@@ -44,8 +44,7 @@
 		"check:react": "node scripts/check-react.mjs",
 		"check": "npm run check:core && npm run check:react",
 		"pack:check": "npm pack --dry-run && npm pack --dry-run ./bindings/react",
-		"prepack": "npm run build:core && npm run check:core",
-		"prepare": "npm run build:core"
+		"prepack": "npm run build:core && npm run check:core"
 	},
 	"publishConfig": {
 		"access": "public"

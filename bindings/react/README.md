@@ -105,3 +105,7 @@ Dynamic Ayle events such as application-defined `hintAction:*` or
 `settingsAction:*` remain supported through the event-map string index and use
 `any` for their application-defined payloads. Known built-in events use their
 specific payload types.
+
+Known event properties are declared explicitly in `AyleEventHandlers`, which
+lets TypeScript contextually type inline `events={{ ... }}` callbacks. Dynamic
+application-defined event names remain supported by the string index.

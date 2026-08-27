@@ -29,7 +29,6 @@
 	"scripts": {
 		"build": "node ../../scripts/build-react.mjs",
 		"check": "node ../../scripts/check-react.mjs",
-		"prepack": "npm run build && npm run check",
-		"prepare": "npm run build"
+		"prepack": "npm run build && npm run check"
 	}
 }

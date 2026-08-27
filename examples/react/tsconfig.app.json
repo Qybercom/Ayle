@@ -19,7 +19,16 @@
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"noEmit": true,
-		"jsx": "react-jsx"
+		"jsx": "react-jsx",
+		"baseUrl": ".",
+		"paths": {
+			"@qybercom/ayle-react": [
+				"../../bindings/react/src/index.d.ts"
+			],
+			"react": [
+				"./node_modules/@types/react/index.d.ts"
+			]
+		}
 	},
 	"include": [
 		"src"

@@ -1272,3 +1272,16 @@ Ayle instances, state, sources, tracks, variants, chapters, hints, and common
 event payloads. Built-in event callbacks therefore receive contextual
 TypeScript types instead of `any`/`unknown`; dynamic integration event names
 remain available.
+
+`examples/react/.env` is intentionally not distributed. Use
+`examples/react/.env.example` as the template for local configuration.
+
+The React example intentionally does not map `@qybercom/ayle-react` directly
+to `bindings/react/src/index.d.ts`. TypeScript resolves the installed local
+package so the declaration's React imports resolve from the example's
+`node_modules` tree and retain their contextual JSX types.
+
+The React example rebuilds Ayle before `dev`, `build`, and `typecheck`.
+This is required because `bindings/react/dist/index.d.ts` is generated and an
+older local build may otherwise make TypeScript/WebStorm show stale `any`
+types.

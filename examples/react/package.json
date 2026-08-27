@@ -9,6 +9,8 @@
 		"dev": "vite",
 		"prebuild": "npm run prepare:ayle",
 		"build": "tsc -b && vite build",
+		"pretypecheck": "npm run prepare:ayle",
+		"typecheck": "tsc -b",
 		"preview": "vite preview"
 	},
 	"dependencies": {
@@ -24,11 +26,5 @@
 		"typescript": "^5.9.2",
 		"vite": "^7.1.3",
 		"@types/node": "^24.3.0"
-	},
-	"allowScripts": {
-		"file:../../../..": true,
-		"react@19.2.8": true,
-		"file:../../../../bindings/react": true,
-		"esbuild": true
 	}
 }
