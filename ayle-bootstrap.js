@@ -754,6 +754,9 @@
 		var localization = element.getAttribute('data-ayle-localization');
 		var driver = element.getAttribute('data-ayle-driver');
 		var driverOptions = element.getAttribute('data-ayle-driver-options');
+		var volume = element.getAttribute('data-ayle-volume');
+		var start = element.getAttribute('data-ayle-start');
+		var muted = element.getAttribute('data-ayle-muted');
 
 		if (preset !== null && preset !== '')
 			config.Preset = preset;
@@ -768,6 +771,26 @@
 				config.Player = {};
 
 			config.Player.Localization = localization;
+		}
+
+		if (volume !== null || start !== null || muted !== null) {
+			if (!AyleBootstrap.IsObject(config.Player))
+				config.Player = {};
+
+			if (volume !== null) {
+				var volumeValue = Number(volume);
+				if (isFinite(volumeValue))
+					config.Player.Volume = Math.max(0, Math.min(1, volumeValue));
+			}
+
+			if (start !== null) {
+				var startValue = Number(start);
+				if (isFinite(startValue))
+					config.Player.Start = Math.max(0, startValue);
+			}
+
+			if (muted !== null)
+				config.Player.Muted = AyleLoaderBool(muted, true);
 		}
 
 		if (driver !== null && driver !== '') {
@@ -1351,6 +1374,24 @@
 		autoplayMode = query.autoplayMode;
 	if (AyleLoaderTrim(autoplayMode))
 		defaults.Player.AutoPlayMode = AyleLoaderTrim(autoplayMode);
+
+	var volume = AyleLoaderAttribute('data-ayle-volume');
+	if (volume !== null) {
+		var volumeValue = Number(volume);
+		if (isFinite(volumeValue))
+			defaults.Player.Volume = Math.max(0, Math.min(1, volumeValue));
+	}
+
+	var start = AyleLoaderAttribute('data-ayle-start');
+	if (start !== null) {
+		var startValue = Number(start);
+		if (isFinite(startValue))
+			defaults.Player.Start = Math.max(0, startValue);
+	}
+
+	var muted = AyleLoaderAttribute('data-ayle-muted');
+	if (muted !== null)
+		defaults.Player.Muted = AyleLoaderBool(muted, true);
 
 	var autoInit = AyleLoaderAttribute('data-ayle-auto-init');
 	if (autoInit === null && query.autoInit !== undefined)

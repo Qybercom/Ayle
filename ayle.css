@@ -656,6 +656,11 @@
 	right: var(--ayle-hint-safe-right);
 }
 
+.ayle-hint[data-hint-position='top-right-corner'] {
+	top: 0;
+	right: 0;
+}
+
 .ayle-hint[data-hint-position='center-left'] {
 	top: var(--ayle-hint-safe-center-y);
 	left: var(--ayle-hint-safe-left);
@@ -2865,4 +2870,39 @@
 
 .ayle-ui-minimal.ayle-media-audio .ayle-minimal-subtitle-popup {
 	z-index: 18;
+}
+
+.ayle-hint-type-link {
+	width: auto;
+	max-width: 100%;
+	padding: 0;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+}
+
+.ayle-hint-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 36px;
+	padding: 8px 12px;
+	border-radius: 4px;
+	background: rgba(0, 0, 0, .72);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 20px;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.ayle-hint-link:hover {
+	background: rgba(0, 0, 0, .86);
+	color: #fff;
+}
+
+.ayle-hint-link-icon {
+	font-size: 15px;
+	line-height: 1;
 }

@@ -83,6 +83,9 @@ export interface AyleHint {
 	Duration?: number;
 	Title?: string;
 	Text?: string;
+	Label?: string;
+	URL?: string;
+	Target?: string;
 	Image?: string;
 	Dismissible?: boolean;
 	PauseOnShow?: boolean;

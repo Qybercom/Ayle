@@ -59,6 +59,9 @@ The table below is a quick overview. See **Configuration reference → `data-ayl
 | `data-ayle-auto-focus` | Enable automatic focus on interaction. |
 | `data-ayle-autoplay` | Enable autoplay. |
 | `data-ayle-autoplay-mode="..."` | Set autoplay mode. |
+| `data-ayle-volume="0..1"` | Set the global default initial volume. |
+| `data-ayle-start="seconds"` | Set the global default initial playback position. |
+| `data-ayle-muted="true|false"` | Set the global default muted state. |
 | `data-ayle-skip-init="true\|false"` | Set HTTP stream `SkipInit`. |
 
 The driver must be configured explicitly; there is no hidden MSE fallback.
@@ -76,6 +79,9 @@ The table below is a quick overview. See **Configuration reference → `data-ayl
 | `data-ayle-localization="..."` | Per-instance localization. |
 | `data-ayle-driver="mse\|html5"` | Per-instance driver override. |
 | `data-ayle-driver-options='{}'` | Per-instance driver options. |
+| `data-ayle-volume="0..1"` | Override the initial volume for this instance. |
+| `data-ayle-start="seconds"` | Override the initial playback position for this instance. |
+| `data-ayle-muted="true|false"` | Override the initial muted state for this instance. |
 | `data-ayle-settings="localStorage\|sessionStorage\|cookie\|<empty>"` | Per-instance persistence override. An empty value explicitly disables persistence, including an inherited loader setting. |
 | `data-ayle-debug` | Adds/enables Debug settings for this instance. |
 | `data-ayle-on="play:onPlay;pause:onPause"` | Binds Ayle events to global handlers. |
@@ -148,6 +154,9 @@ A normal declarative config is an object with these top-level fields:
 | `AutoSelectFirstSubtitleTrack` | boolean / `false` | Select the first available subtitle track when no subtitle track is otherwise selected. |
 | `AutoPlay` | boolean / `false` | Request autoplay after a source becomes ready. |
 | `AutoPlayMode` | `audible` or `muted` / `audible` | Autoplay strategy. Invalid values fall back to `audible`. |
+| `Volume` | number `0..1` / current driver value | Initial playback volume. |
+| `Muted` | boolean / current driver value | Initial muted state. |
+| `Start` | number / `0` | Initial playback position in seconds. Applied when the source becomes ready. |
 | `NativeSubtitles` | boolean / `false` | Use native browser subtitle rendering instead of the custom HTML overlay. |
 | `SubtitleOffset` | number / `0` | Time offset in seconds applied to subtitle cue matching. |
 | `AutoNativeSubtitlesInPictureInPicture` | boolean / `false` | Automatically switch to native subtitles while Picture-in-Picture is active. |
@@ -348,6 +357,9 @@ A number may be supplied to apply the same padding to all sides, or an object ma
 | `Offset` | object / `{}` | Additional `{X, Y}` pixel offset. |
 | `Title` | string / empty | Hint title. |
 | `Text` | string / empty | Hint body/description. |
+| `Label` | string / empty | Compact label used by built-in hint types such as `link`. |
+| `URL` | string / empty | External URL used by the built-in `link` hint. |
+| `Target` | string / `_blank` | Browser target used by the built-in `link` hint. |
 | `Image` | string / empty | Optional image URL for card/media/product-style hints. |
 | `Action` | object / none | Single action shorthand. |
 | `Actions` | array / `[]` | Multiple hint actions. |
@@ -569,6 +581,9 @@ Public attributes are intended for embedding/configuration. Runtime/internal att
 | `data-ayle-auto-focus` | boolean attribute/value | Default `Player.AutoFocus`. Bare/empty means true. |
 | `data-ayle-autoplay` | boolean attribute/value | Default `Player.AutoPlay`. Bare/empty means true. |
 | `data-ayle-autoplay-mode` | `audible` or `muted` | Default `Player.AutoPlayMode`. |
+| `data-ayle-volume` | number `0..1` | Default `Player.Volume`. Values are clamped to the valid range. |
+| `data-ayle-start` | seconds / `0` | Default `Player.Start`. Negative values are clamped to `0`. |
+| `data-ayle-muted` | boolean attribute/value | Default `Player.Muted`. Bare/empty means true. |
 | `data-ayle-auto-init` | boolean / `true` | Controls whether the bootstrap automatically runs `InitAll()`. |
 | `data-ayle-skip-init` | boolean | Default `HTTP.Stream.SkipInit`. |
 
@@ -583,6 +598,9 @@ Public attributes are intended for embedding/configuration. Runtime/internal att
 | `data-ayle-localization` | locale key | Overrides `Player.Localization` for this instance. |
 | `data-ayle-driver` | `mse` or `html5` | Overrides `Driver.Type`. |
 | `data-ayle-driver-options` | JSON object | Merged over inherited `Driver.Options`. |
+| `data-ayle-volume` | number `0..1` | Overrides `Player.Volume` for this instance. |
+| `data-ayle-start` | seconds / `0` | Overrides `Player.Start` for this instance. |
+| `data-ayle-muted` | boolean attribute/value | Overrides `Player.Muted` for this instance. Bare/empty means true. |
 | `data-ayle-settings` | storage name or empty | Per-instance persistence override. Absence inherits the loader setting; empty explicitly disables it. |
 | `data-ayle-debug` | boolean marker | Adds the Debug section to the generated Settings order for this declarative instance. |
 | `data-ayle-on` | bindings string | Event bindings in `event:globalHandler;event2:namespace.handler` form. Each handler receives `{Type, Data, Player, Instance, Element}`. |
@@ -1343,3 +1361,40 @@ tag, for example:
 git tag v0.1.1
 git push origin v0.1.1
 ```
+
+### Initial playback state
+
+The initial playback state can be configured with Player options:
+
+```js
+{
+	Volume: 0.5,
+	Start: 30,
+	Muted: true
+}
+```
+
+The same values can be set per Player instance with `data-ayle-volume`, `data-ayle-start` and `data-ayle-muted`. `Volume` uses the `0..1` range and `Start` is expressed in seconds. These three attributes are also supported on the Ayle loader script and act as global defaults; instance attributes override them.
+
+```html
+<script src="/ayle-bootstrap.js" data-ayle-loader data-ayle-volume="0.5" data-ayle-muted="true"></script>
+<div data-ayle data-ayle-file="movie.mp4" data-ayle-start="30"></div>
+```
+
+### Hint corner position and external links
+
+Hints support `Position: 'top-right-corner'` for placement at the literal top-right corner of the Player, outside the calculated hint safe area. The existing `top-right` position remains safe-area aware.
+
+A lightweight external-link hint is available with `Type: 'link'`:
+
+```js
+{
+	Type: 'link',
+	Position: 'top-right-corner',
+	Label: 'Open website',
+	URL: 'https://example.com',
+	Target: '_blank'
+}
+```
+
+Current playback time uses the same leading-field width as the duration, so the zero state has the same number of characters: `0:01` → `0:00`, `12:34` → `00:00`, `1:23:45` → `0:00:00`, `12:34:56` → `00:00:00`.

@@ -4096,6 +4096,9 @@ function Ayle (driver, options) {
 			AutoSelectFirstSubtitleTrack: !!options.AutoSelectFirstSubtitleTrack,
 			AutoPlay: !!options.AutoPlay,
 			AutoPlayMode: options.AutoPlayMode || 'audible',
+			Volume: options.Volume !== undefined ? Math.max(0, Math.min(1, Number(options.Volume) || 0)) : driver.GetVolume(),
+			Muted: options.Muted !== undefined ? !!options.Muted : driver.GetMuted(),
+			Start: options.Start !== undefined ? Math.max(0, Number(options.Start) || 0) : 0,
 			NativeSubtitles: !!options.NativeSubtitles,
 			SubtitleOffset: Number(options.SubtitleOffset) || 0,
 			AutoNativeSubtitlesInPictureInPicture: !!options.AutoNativeSubtitlesInPictureInPicture,
@@ -4273,7 +4276,10 @@ function Ayle (driver, options) {
 		this._lastSubtitleTrackID = null;
 		this._hintRenderers = {};
 		this._hintActionHandlers = {};
+		this._initialStartPending = this.Options.Start > 0;
 		this.Driver.SetNativeSubtitles(this.Options.NativeSubtitles);
+		this.Driver.SetVolume(this.Options.Volume);
+		this.Driver.SetMuted(this.Options.Muted);
 
 		this.State = {
 			Ready: false,
@@ -4287,8 +4293,8 @@ function Ayle (driver, options) {
 			Duration: 0,
 			Buffered: [],
 			Seekable: [],
-			Volume: driver.GetVolume(),
-			Muted: driver.GetMuted(),
+			Volume: this.Options.Volume,
+			Muted: this.Options.Muted,
 			PlaybackRate: driver.GetPlaybackRate(),
 			PictureInPicture: false,
 			MediaMode: this.Options.MediaMode === 'auto' ? 'video' : this.Options.MediaMode,
@@ -4498,6 +4504,11 @@ function Ayle (driver, options) {
 			self.State.Ready = true;
 			self.State.Loading = false;
 			self.State.Buffering = false;
+
+			if (!self._switch && self._initialStartPending) {
+				self._initialStartPending = false;
+				self.Seek(self.Options.Start);
+			}
 
 			if (self._switch) {
 				self._switch.Ready = true;
@@ -4891,7 +4902,10 @@ function Ayle (driver, options) {
 			String(this.State.SubtitleTrack.ID) : null;
 		this._autoPlayPending = !!this.Options.AutoPlay;
 		this._restartPlayPending = false;
+		this._initialStartPending = this.Options.Start > 0;
 
+		this.Driver.SetVolume(this.Options.Volume);
+		this.Driver.SetMuted(this.Options.Muted);
 		this.Driver.Load(source);
 
 		if (this.State.Variant)
@@ -7642,7 +7656,7 @@ function Ayle (driver, options) {
 		return this;
 	};
 
-	AyleUI.prototype._formatTime = function (seconds) {
+	AyleUI.prototype._formatTime = function (seconds, forceHours) {
 		if (!isFinite(seconds) || seconds < 0)
 			seconds = 0;
 
@@ -7652,7 +7666,7 @@ function Ayle (driver, options) {
 		var secs = seconds % 60;
 		var result = '';
 
-		if (hours) {
+		if (hours || forceHours) {
 			result += hours + ':';
 			result += minutes < 10 ? '0' + minutes : minutes;
 		}
@@ -7663,6 +7677,31 @@ function Ayle (driver, options) {
 		result += ':';
 		result += secs < 10 ? '0' + secs : secs;
 		return result;
+	};
+
+	AyleUI.prototype._formatTimeForDuration = function (seconds, duration) {
+		if (!isFinite(duration) || duration < 0)
+			return this._formatTime(seconds);
+
+		duration = Math.floor(duration);
+		var forceHours = duration >= 3600;
+		var formatted = this._formatTime(seconds, forceHours);
+		var durationText = this._formatTime(duration);
+		var targetWidth = durationText.indexOf(':');
+		var separator = formatted.indexOf(':');
+
+		if (targetWidth <= separator)
+			return formatted;
+
+		var padding = '';
+		var i = separator;
+
+		while (i < targetWidth) {
+			padding += '0';
+			i++;
+		}
+
+		return padding + formatted;
 	};
 
 	AyleUI.prototype._setLoadingVisible = function (visible) {
@@ -8604,6 +8643,7 @@ function Ayle (driver, options) {
 			'top-left': true,
 			'top-center': true,
 			'top-right': true,
+			'top-right-corner': true,
 			'center-left': true,
 			'center': true,
 			'center-right': true,
@@ -8693,6 +8733,10 @@ function Ayle (driver, options) {
 
 		this._registerBuiltInHintRenderer('source', function (hint, element) {
 			self._renderNoticeHint(hint, element, 'source', '\u2197');
+		});
+
+		this._registerBuiltInHintRenderer('link', function (hint, element) {
+			self._renderLinkHint(hint, element);
 		});
 
 		this._registerBuiltInHintRenderer('definition', function (hint, element) {
@@ -8895,6 +8939,49 @@ function Ayle (driver, options) {
 		this._appendHintDescription(hint, body);
 		this._appendHintActions(hint, body);
 		element.appendChild(body);
+		this._appendHintClose(hint, element);
+	};
+
+	AyleUI.prototype._renderLinkHint = function (hint, element) {
+		var self = this;
+		this._prepareHintElement(hint, element, 'link');
+
+		var link = document.createElement('a');
+		link.className = 'ayle-hint-link';
+		link.href = hint.URL || '#';
+		link.target = hint.Target || '_blank';
+
+		if (link.target === '_blank')
+			link.rel = 'noopener noreferrer';
+
+		var label = document.createElement('span');
+		label.className = 'ayle-hint-link-label';
+		label.textContent = hint.Label || hint.Title || hint.Text || this.Player.Localize('open');
+		link.appendChild(label);
+
+		var icon = document.createElement('span');
+		icon.className = 'ayle-hint-link-icon';
+		icon.setAttribute('aria-hidden', 'true');
+		icon.textContent = '\u2197';
+		link.appendChild(icon);
+
+		link.onclick = function (event) {
+			if (!hint.URL) {
+				event.preventDefault();
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			self.ExecuteHintAction(
+				hint,
+				{ Type: 'url', URL: hint.URL, Target: hint.Target || '_blank' },
+				event
+			);
+		};
+
+		element.appendChild(link);
+
 		this._appendHintClose(hint, element);
 	};
 
@@ -9520,7 +9607,7 @@ function Ayle (driver, options) {
 		var state = this.Player.State;
 		var position = this._seeking ? this._seekPosition : state.Position;
 
-		this.Current.innerHTML = this._formatTime(position);
+		this.Current.innerHTML = this._formatTimeForDuration(position, state.Duration);
 		this.Duration.innerHTML = this._formatTime(state.Duration);
 
 		var value = 0;
