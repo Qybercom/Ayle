@@ -50,7 +50,9 @@
 		"check:angular": "node scripts/check-angular.mjs",
 		"check": "npm run check:core && npm run check:react && npm run check:angular",
 		"pack:check": "npm pack --dry-run && npm pack --dry-run ./bindings/react && npm pack --dry-run ./bindings/angular/dist",
-		"prepack": "npm run build:core && npm run check:core"
+		"prepack": "npm run build:core && npm run check:core",
+		"release:preflight": "node scripts/release-preflight.mjs",
+		"release:prepare": "npm run build && npm run check && npm run pack:check"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -60,5 +62,13 @@
 	},
 	"devDependencies": {
 		"esbuild": "^0.25.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Qybercom/Ayle.git"
+	},
+	"homepage": "https://github.com/Qybercom/Ayle#readme",
+	"bugs": {
+		"url": "https://github.com/Qybercom/Ayle/issues"
 	}
 }

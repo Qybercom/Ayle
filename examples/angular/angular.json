@@ -55,7 +55,6 @@
 	"cli": {
 		"cache": {
 			"enabled": false
-    },
-    "analytics": "2eab3861-cba3-4491-a491-6f08dca384c9"
+		}
 	}
 }

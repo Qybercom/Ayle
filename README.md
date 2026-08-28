@@ -1312,3 +1312,34 @@ The ESM bootstrap imports the core constructors as named imports and explicitly
 binds them to `globalThis` before bootstrap initialization. The ESM core and
 bootstrap files are also listed in `sideEffects`, preventing framework bundlers
 from dropping that initialization path.
+
+## npm releases
+
+Ayle publishes three public npm packages with the same version:
+
+```text
+@qybercom/ayle
+@qybercom/ayle-react
+@qybercom/ayle-angular
+```
+
+The release workflow is `.github/workflows/publish.yml`. It is triggered by
+`v*` Git tags and publishes packages in dependency order: core, React, Angular.
+
+Before a local first release:
+
+```bash
+node scripts/set-release-version.mjs 0.1.0
+npm run release:prepare
+node scripts/release-preflight.mjs 0.1.0
+```
+
+After the first manual publication, configure npm Trusted Publishing for all
+three packages with GitHub repository `Qybercom/Ayle` and workflow
+`publish.yml`. Subsequent releases can then be created by pushing a release
+tag, for example:
+
+```bash
+git tag v0.1.1
+git push origin v0.1.1
+```

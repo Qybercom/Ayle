@@ -32,5 +32,13 @@
 		"rxjs": "^7.8.2",
 		"typescript": "~5.9.2",
 		"@qybercom/ayle": "file:../.."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Qybercom/Ayle.git"
+	},
+	"homepage": "https://github.com/Qybercom/Ayle#readme",
+	"bugs": {
+		"url": "https://github.com/Qybercom/Ayle/issues"
 	}
 }

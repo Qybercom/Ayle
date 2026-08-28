@@ -30,5 +30,13 @@
 		"build": "node ../../scripts/build-react.mjs",
 		"check": "node ../../scripts/check-react.mjs",
 		"prepack": "npm run build && npm run check"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Qybercom/Ayle.git"
+	},
+	"homepage": "https://github.com/Qybercom/Ayle#readme",
+	"bugs": {
+		"url": "https://github.com/Qybercom/Ayle/issues"
 	}
 }

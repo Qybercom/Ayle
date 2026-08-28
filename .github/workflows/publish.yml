@@ -22,6 +22,9 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
+      - name: Use current npm with Trusted Publishing support
+        run: npm install --global npm@^11.15.0
+
       - name: Set release version from Git tag
         shell: bash
         run: |
@@ -32,15 +35,22 @@ jobs:
       - run: npm install --prefix bindings/angular
       - run: npm run build
       - run: npm run check
+
+      - name: Release preflight
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          node scripts/release-preflight.mjs "$VERSION"
+
       - run: npm pack --dry-run
       - run: npm pack --dry-run ./bindings/react
       - run: npm pack --dry-run ./bindings/angular/dist
 
       - name: Publish Ayle core
-        run: npm publish
+        run: npm publish --access public
 
       - name: Publish React binding
-        run: npm publish ./bindings/react
+        run: npm publish ./bindings/react --access public
 
       - name: Publish Angular binding
         run: npm publish ./bindings/angular/dist
