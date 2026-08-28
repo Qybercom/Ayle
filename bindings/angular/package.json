@@ -6,8 +6,8 @@
 	"type": "module",
 	"sideEffects": false,
 	"peerDependencies": {
-		"@angular/common": ">=20 <22",
-		"@angular/core": ">=20 <22",
+		"@angular/common": ">=20",
+		"@angular/core": ">=20",
 		"@qybercom/ayle": ">=0.0.0",
 		"rxjs": ">=7.8"
 	},
