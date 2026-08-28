@@ -46,4 +46,9 @@ if (result.error)
 if (result.status !== 0)
 	process.exit(result.status === null ? 1 : result.status);
 
+fs.copyFileSync(
+	path.join(root, 'LICENSE'),
+	path.join(root, 'bindings/angular/dist/LICENSE')
+);
+
 console.log('Ayle Angular binding build completed: bindings/angular/dist/');

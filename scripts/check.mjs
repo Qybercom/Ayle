@@ -87,3 +87,16 @@ if (!bootstrapESM.AyleBootstrap)
 	throw new Error('Missing ESM export: AyleBootstrap');
 
 console.log('Bootstrap ESM export: AyleBootstrap');
+
+const corePackage = JSON.parse(
+	await fs.readFile(path.join(root, 'package.json'), 'utf8')
+);
+const coreLicense = await fs.readFile(path.join(root, 'LICENSE'));
+
+if (corePackage.license !== 'LGPL-3.0-only')
+	throw new Error('Core package license must be LGPL-3.0-only');
+
+if (!coreLicense.length)
+	throw new Error('Core LICENSE must not be empty');
+
+console.log('Ayle core license validation passed.');

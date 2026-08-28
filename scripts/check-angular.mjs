@@ -62,3 +62,17 @@ if (!files.some(function (name) {
 	throw new Error('Angular dist does not contain TypeScript declarations');
 
 console.log('Ayle Angular binding validation passed.');
+
+const licenseReference = await fs.readFile(path.join(root, 'LICENSE'));
+const publishedPackage = JSON.parse(
+	await fs.readFile(path.join(root, 'bindings/angular/dist', 'package.json'), 'utf8')
+);
+const publishedLicense = await fs.readFile(path.join(root, 'bindings/angular/dist/LICENSE'));
+
+if (publishedPackage.license !== 'LGPL-3.0-only')
+	throw new Error('Ayle Angular binding package license must be LGPL-3.0-only');
+
+if (!publishedLicense.equals(licenseReference))
+	throw new Error('Ayle Angular binding LICENSE mismatch');
+
+console.log('Ayle Angular binding license validation passed.');

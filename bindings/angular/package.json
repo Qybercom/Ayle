@@ -2,6 +2,7 @@
 	"name": "@qybercom/ayle-angular",
 	"version": "0.0.0-development",
 	"description": "Angular binding for Ayle media player",
+	"license": "LGPL-3.0-only",
 	"type": "module",
 	"sideEffects": false,
 	"peerDependencies": {

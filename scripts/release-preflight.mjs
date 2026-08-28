@@ -38,6 +38,9 @@ for (const packageJSON of [core, react, angular]) {
 
 	if (!packageJSON.publishConfig || packageJSON.publishConfig.access !== 'public')
 		throw new Error(packageJSON.name + ' must have publishConfig.access="public"');
+
+	if (packageJSON.license !== 'LGPL-3.0-only')
+		throw new Error(packageJSON.name + ' must have license="LGPL-3.0-only"');
 }
 
 for (const binding of [react, angular]) {

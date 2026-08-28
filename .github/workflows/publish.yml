@@ -43,14 +43,14 @@ jobs:
           node scripts/release-preflight.mjs "$VERSION"
 
       - run: npm pack --dry-run
-      - run: npm pack --dry-run ./bindings/react
+      - run: npm pack --dry-run ./bindings/react/dist
       - run: npm pack --dry-run ./bindings/angular/dist
 
       - name: Publish Ayle core
         run: npm publish --access public
 
       - name: Publish React binding
-        run: npm publish ./bindings/react --access public
+        run: npm publish ./bindings/react/dist --access public
 
       - name: Publish Angular binding
         run: npm publish ./bindings/angular/dist

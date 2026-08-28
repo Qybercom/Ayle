@@ -2,6 +2,7 @@
 	"name": "@qybercom/ayle",
 	"version": "0.0.0-development",
 	"description": "Ayle framework-independent media player",
+	"license": "LGPL-3.0-only",
 	"type": "module",
 	"sideEffects": [
 		"./dist/ayle.css",
@@ -49,7 +50,7 @@
 		"check:react": "node scripts/check-react.mjs",
 		"check:angular": "node scripts/check-angular.mjs",
 		"check": "npm run check:core && npm run check:react && npm run check:angular",
-		"pack:check": "npm pack --dry-run && npm pack --dry-run ./bindings/react && npm pack --dry-run ./bindings/angular/dist",
+		"pack:check": "npm pack --dry-run && npm pack --dry-run ./bindings/react/dist && npm pack --dry-run ./bindings/angular/dist",
 		"prepack": "npm run build:core && npm run check:core",
 		"release:preflight": "node scripts/release-preflight.mjs",
 		"release:prepare": "npm run build && npm run check && npm run pack:check"

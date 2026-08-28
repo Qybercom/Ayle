@@ -2,6 +2,7 @@
 	"name": "@qybercom/ayle-react",
 	"version": "0.0.0-development",
 	"description": "React binding for Ayle media player",
+	"license": "LGPL-3.0-only",
 	"type": "module",
 	"files": [
 		"dist/",

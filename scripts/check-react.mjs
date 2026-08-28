@@ -92,3 +92,17 @@ try {
 }
 
 console.log('Ayle React binding validation passed.');
+
+const licenseReference = await fs.readFile(path.join(root, 'LICENSE'));
+const publishedPackage = JSON.parse(
+	await fs.readFile(path.join(root, 'bindings/react/dist', 'package.json'), 'utf8')
+);
+const publishedLicense = await fs.readFile(path.join(root, 'bindings/react/dist/LICENSE'));
+
+if (publishedPackage.license !== 'LGPL-3.0-only')
+	throw new Error('Ayle React binding package license must be LGPL-3.0-only');
+
+if (!publishedLicense.equals(licenseReference))
+	throw new Error('Ayle React binding LICENSE mismatch');
+
+console.log('Ayle React binding license validation passed.');

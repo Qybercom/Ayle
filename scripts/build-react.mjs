@@ -23,4 +23,24 @@ const result = await transform(code, {
 await fs.writeFile(path.join(dist, 'index.js'), result.code.trimEnd(), 'utf8');
 await fs.copyFile(path.join(source, 'index.d.ts'), path.join(dist, 'index.d.ts'));
 
+const reactPackage = JSON.parse(
+	await fs.readFile(path.join(root, 'bindings/react/package.json'), 'utf8')
+);
+
+delete reactPackage.scripts;
+delete reactPackage.devDependencies;
+
+await fs.writeFile(
+	path.join(root, 'bindings/react/dist/package.json'),
+	JSON.stringify(reactPackage, null, '\t')
+);
+await fs.copyFile(
+	path.join(root, 'bindings/react/README.md'),
+	path.join(root, 'bindings/react/dist/README.md')
+);
+await fs.copyFile(
+	path.join(root, 'LICENSE'),
+	path.join(root, 'bindings/react/dist/LICENSE')
+);
+
 console.log('Ayle React binding build completed: bindings/react/dist/');
