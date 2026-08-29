@@ -97,6 +97,49 @@ export interface AyleHint {
 	[key: string]: any;
 }
 
+export interface AyleToolbarMenuItem {
+	ID?: string;
+	Title?: string;
+	Label?: string;
+	Value?: any;
+	Event?: string;
+	ClassName?: string;
+	Disabled?: boolean;
+	CloseMenu?: boolean;
+	Action?: (context: any) => any;
+	OnClick?: (context: any) => any;
+	[key: string]: any;
+}
+
+export interface AyleToolbarButton {
+	ID?: string;
+	Type: 'button';
+	Before?: string;
+	After?: string;
+	Icon?: string;
+	Title?: string;
+	Label?: string;
+	ClassName?: string;
+	Visible?: boolean;
+	Disabled?: boolean;
+	Event?: string;
+	Menu?: AyleToolbarMenuItem[] | { Items: AyleToolbarMenuItem[] };
+	OnClick?: (context: any) => any;
+	OnCreate?: (context: any) => any;
+	OnDestroy?: (context: any) => any;
+	[key: string]: any;
+}
+
+export interface AyleTimelineRange {
+	ID?: string;
+	Start: number;
+	End?: number;
+	Duration?: number;
+	Label?: string;
+	ClassName?: string;
+	[key: string]: any;
+}
+
 export interface AyleIntegrationSetting {
 	ID?: string;
 	Title?: string;
@@ -114,6 +157,9 @@ export interface AyleIntegration {
 	Channel?: Record<string, any>;
 	Hints?: AyleHint[];
 	Settings?: AyleIntegrationSetting[];
+	Toolbar?: AyleToolbarButton[];
+	TimelineRanges?: AyleTimelineRange[];
+	MediaSession?: Record<string, any>;
 	Data?: Record<string, any>;
 	[key: string]: any;
 }

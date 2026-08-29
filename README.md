@@ -1398,3 +1398,181 @@ A lightweight external-link hint is available with `Type: 'link'`:
 ```
 
 Current playback time uses the same leading-field width as the duration, so the zero state has the same number of characters: `0:01` → `0:00`, `12:34` → `00:00`, `1:23:45` → `0:00:00`, `12:34:56` → `00:00:00`.
+
+## Extensible toolbar
+
+The main toolbar is declarative. Its default order is:
+
+```js
+Toolbar: {
+	Items: [
+		'play',
+		'timeline',
+		'time',
+		'volume',
+		'chapters',
+		'quality',
+		'settings',
+		'pip',
+		'fullscreen'
+	]
+}
+```
+
+`timeline` remains the flexible control and consumes the available toolbar space regardless of its position. Integrations can inject custom buttons without replacing the default layout. `Before` and `After` remain attached to the referenced built-in control in both the normal flex layout and the narrow multi-row layout:
+
+```js
+Integration: {
+	Toolbar: [
+		{
+			ID: 'favorite',
+			Type: 'button',
+			Before: 'settings',
+			Icon: '/icons/favorite.svg',
+			Title: 'Favorite',
+			Event: 'favoriteAction',
+			OnClick: function (context) {
+				// context.Player, context.UI, context.Element, context.Item
+			}
+		}
+	]
+}
+```
+
+A button may use `Before` or `After`, plus `Icon`, `Label`, `Title`, `ClassName`, `Visible`, `Disabled`, `Event`, `OnClick`, `OnCreate`, and `OnDestroy`.
+
+Custom toolbar buttons may also open their own menu:
+
+```js
+{
+	ID: 'favorite',
+	Type: 'button',
+	Before: 'settings',
+	Label: '★',
+	Title: 'Favorite',
+	Menu: [
+		{
+			Label: 'Add to favorites',
+			Event: 'add'
+		},
+		{
+			Label: 'Save for later',
+			Action: function (context) {
+				// context.Player, context.UI, context.ToolbarItem, context.Item
+			}
+		},
+		'',
+		{
+			Label: 'Manage favorites',
+			Value: '↗',
+			Event: 'manage'
+		}
+	]
+}
+```
+
+An empty string is a menu separator. Menu items support `Label`, `Title`, `Value`, `ClassName`, `Disabled`, `CloseMenu`, `Action`, `OnClick`, and `Event`. Custom toolbar menus use the same `ayle-popover-container` anchoring and visual treatment as the built-in Settings, Chapters, and Quality popovers, so they open directly above their toolbar button.
+
+
+### Toolbar layouts
+
+`Toolbar.Layout` controls the geometry of the full toolbar without changing which controls exist:
+
+```js
+Toolbar: {
+	Layout: 'inline',
+	Items: [
+		'play',
+		'timeline',
+		'time',
+		'volume',
+		'chapters',
+		'quality',
+		'settings',
+		'pip',
+		'fullscreen'
+	]
+}
+```
+
+Supported layouts are `inline`, `timeline-top`, and `auto`.
+
+`inline` preserves the original Ayle layout. `timeline-top` uses a deterministic two-row grid: the timeline occupies the complete first row, while every other declarative toolbar item stays in sequence on the second row. `auto` uses `inline` above 1100px, `timeline-top` from 761px through 1100px, and the existing narrow layout at 760px and below. The default remains `inline`, so existing players keep their current appearance.
+
+An empty string in `Toolbar.Items` is a flexible spacer, following the same separator convention used by Settings:
+
+```js
+Toolbar: {
+	Layout: 'timeline-top',
+	Items: [
+		'play',
+		'timeline',
+		'time',
+		'',
+		'volume',
+		'chapters',
+		'quality',
+		'settings',
+		'pip',
+		'fullscreen'
+	]
+}
+```
+
+In `timeline-top` and `auto`, Ayle inserts this spacer automatically before the first right-side built-in control when `Items` contains no explicit empty string. Integration buttons injected with `Before` or `After` keep their declarative position in the same sequence.
+
+## Timeline ranges
+
+Arbitrary timeline ranges are independent from metadata chapters and are rendered on a separate timeline layer. They may be configured directly or supplied by an integration:
+
+```js
+Timeline: {
+	Ranges: [
+		{
+			ID: 'intro',
+			Start: 0,
+			Duration: 15,
+			Label: 'Intro',
+			ClassName: 'intro-range'
+		}
+	]
+}
+
+Integration: {
+	TimelineRanges: [
+		{
+			ID: 'sponsor',
+			Start: 120,
+			End: 150,
+			Label: 'Sponsor',
+			ClassName: 'sponsor-range'
+		}
+	]
+}
+```
+
+Ranges support either `Start + End` or `Start + Duration`. `ClassName` is the intended styling hook. Ranges are visual-only and never intercept timeline input: clicking or dragging anywhere on the timeline keeps the normal seek behavior. `Label` is retained as lightweight metadata/title text, but the experimental range tooltip/marker interaction has been removed for now.
+
+## Media Session
+
+Media Session support is enabled by default when the browser provides the Media Session API. Ayle synchronizes title/artist/album/artwork, playback state, position, playback rate, and system actions for play, pause, stop, backward seek, forward seek, and seek-to. This allows compatible mobile browsers to expose Ayle playback in system media controls such as Android notification and lock-screen controls.
+
+Source metadata is used automatically. It can be overridden globally or by an integration:
+
+```js
+MediaSession: {
+	Enabled: true,
+	Metadata: {
+		Title: 'Custom title',
+		Artist: 'Custom artist',
+		Album: 'Custom album',
+		Artwork: [
+			{ src: '/artwork/cover.png', sizes: '512x512', type: 'image/png' }
+		]
+	}
+}
+```
+
+Set `MediaSession: false` or `MediaSession.Enabled: false` to disable the integration.
+
+Loading indicator rotation is handled by CSS on `.ayle-loading-icon` rather than SVG SMIL, which keeps the spinner more resilient during seek/MSE work and other main-thread-heavy transitions.

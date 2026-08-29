@@ -4178,6 +4178,21 @@ function Ayle (driver, options) {
 				Fullscreen: shortcuts.Fullscreen !== false,
 				PictureInPicture: shortcuts.PictureInPicture !== false
 			},
+			Toolbar: {
+				Layout: options.Toolbar && options.Toolbar.Layout ?
+					String(options.Toolbar.Layout).toLowerCase() : 'inline',
+				Items: options.Toolbar && options.Toolbar.Items instanceof Array ?
+					options.Toolbar.Items.slice(0) :
+					['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'settings', 'pip', 'fullscreen']
+			},
+			Timeline: {
+				Ranges: options.Timeline && options.Timeline.Ranges instanceof Array ?
+					options.Timeline.Ranges.slice(0) : []
+			},
+			MediaSession: options.MediaSession === false ? { Enabled: false } : {
+				Enabled: !options.MediaSession || options.MediaSession.Enabled !== false,
+				Metadata: options.MediaSession && options.MediaSession.Metadata ? options.MediaSession.Metadata : {}
+			},
 			SettingsOrder: AyleNormalizeSettingsOrder(
 				options.SettingsOrder instanceof Array ?
 					options.SettingsOrder :
@@ -4208,6 +4223,9 @@ function Ayle (driver, options) {
 				Channel: integration.Channel || null,
 				Hints: integration.Hints instanceof Array ? integration.Hints : [],
 				Settings: integration.Settings instanceof Array ? integration.Settings : [],
+				Toolbar: integration.Toolbar instanceof Array ? integration.Toolbar : [],
+				TimelineRanges: integration.TimelineRanges instanceof Array ? integration.TimelineRanges : [],
+				MediaSession: integration.MediaSession || null,
 				Data: integration.Data !== undefined ? integration.Data : null
 			}
 		};
@@ -4230,6 +4248,13 @@ function Ayle (driver, options) {
 			this.Options.UIMode !== 'minimal'
 		)
 			this.Options.UIMode = 'normal';
+
+		if (
+			this.Options.Toolbar.Layout !== 'inline' &&
+			this.Options.Toolbar.Layout !== 'timeline-top' &&
+			this.Options.Toolbar.Layout !== 'auto'
+		)
+			this.Options.Toolbar.Layout = 'inline';
 
 		if (
 			this.Options.MinimalUI.SubtitlePopup.Position !== 'auto' &&
@@ -5881,6 +5906,9 @@ function Ayle (driver, options) {
 			Channel: integration.Channel || null,
 			Hints: integration.Hints instanceof Array ? integration.Hints : [],
 			Settings: integration.Settings instanceof Array ? integration.Settings : [],
+			Toolbar: integration.Toolbar instanceof Array ? integration.Toolbar : [],
+			TimelineRanges: integration.TimelineRanges instanceof Array ? integration.TimelineRanges : [],
+			MediaSession: integration.MediaSession || null,
 			Data: integration.Data !== undefined ? integration.Data : null
 		};
 		this._syncHints(this.State.Position);
@@ -6642,6 +6670,10 @@ function Ayle (driver, options) {
 		this.PlayButton = element.querySelector('.ayle-play');
 		this.CenterPlayButton = element.querySelector('.ayle-center-play');
 		this.Timeline = element.querySelector('.ayle-timeline');
+		this.TimelineRanges = null;
+		this._toolbarCustomElements = [];
+		this._toolbarCustomMenus = [];
+		this._toolbarRenderedItems = [];
 		this.Buffered = element.querySelector('.ayle-buffered');
 		this.Progress = element.querySelector('.ayle-progress');
 		this.Handle = element.querySelector('.ayle-handle');
@@ -6739,6 +6771,8 @@ function Ayle (driver, options) {
 		this._pendingQuickSeekDelta = 0;
 		this._registerBuiltInHintRenderers();
 		this._bind();
+		this.UpdateTimelineRanges();
+		this.UpdateMediaSession();
 		this.UpdateTime();
 		this.UpdateTimeWidth();
 		this.UpdateBuffer();
@@ -6768,6 +6802,7 @@ function Ayle (driver, options) {
 		this.UpdateSubtitleOverlay();
 		this.ApplyMediaMode();
 		this.ApplyUIMode();
+		this.ApplyToolbar();
 		this.UpdateControlLayoutMode();
 		this.UpdateMinimalInfo(false);
 
@@ -7613,6 +7648,632 @@ function Ayle (driver, options) {
 		this.ApplyMinimalInfoMode(false);
 	};
 
+	AyleUI.prototype._toolbarElement = function (name) {
+		switch (name) {
+			case 'play': return this.PlayButton;
+			case 'timeline': return this.Timeline;
+			case 'time': return this.Time;
+			case 'volume': return this.Volume ? this.Volume.parentNode : null;
+			case 'chapters': return this.ChaptersControl;
+			case 'quality': return this.QualityControl;
+			case 'settings': return this.SettingsControl;
+			case 'pip': return this.PictureInPicture;
+			case 'fullscreen': return this.Fullscreen;
+		}
+
+		return null;
+	};
+
+	AyleUI.prototype._executeToolbarMenuItem = function (toolbarItem, menuItem, event) {
+		if (!menuItem)
+			return;
+
+		var result;
+		var context = {
+			Player: this.Player,
+			UI: this,
+			ToolbarItem: toolbarItem,
+			Item: menuItem,
+			Event: event
+		};
+
+		if (typeof menuItem.Action === 'function')
+			result = menuItem.Action(context);
+		else if (typeof menuItem.OnClick === 'function')
+			result = menuItem.OnClick(context);
+		else if (menuItem.Event) {
+			this.Player.Emit('toolbarMenuAction:' + menuItem.Event, context);
+			result = true;
+		}
+		else {
+			this.Player.Emit('toolbarMenuAction', context);
+			result = true;
+		}
+
+		this.Player.Emit('toolbarMenuSelect', {
+			ToolbarItem: toolbarItem,
+			Item: menuItem,
+			Event: event,
+			Result: result,
+			UI: this
+		});
+
+		return result;
+	};
+
+	AyleUI.prototype._createToolbarCustomMenu = function (toolbarItem, button) {
+		var items =
+			toolbarItem.Menu instanceof Array ?
+				toolbarItem.Menu :
+				(
+					toolbarItem.Menu &&
+					toolbarItem.Menu.Items instanceof Array ?
+						toolbarItem.Menu.Items :
+						[]
+				);
+
+		if (!items.length)
+			return null;
+
+		var container = document.createElement('div');
+		container.className = 'ayle-popover-container ayle-toolbar-custom-control';
+
+		var popover = document.createElement('div');
+		popover.className = 'ayle-popover ayle-toolbar-custom-menu';
+		popover.setAttribute('role', 'menu');
+
+		container.appendChild(button);
+		container.appendChild(popover);
+
+		var i = 0;
+		var self = this;
+
+		while (i < items.length) {
+			var item = items[i];
+
+			if (item === '') {
+				var separator = document.createElement('div');
+				separator.className =
+					'ayle-settings-order-separator ' +
+					'ayle-toolbar-custom-menu-separator';
+				separator.setAttribute('role', 'separator');
+				popover.appendChild(separator);
+				i++;
+				continue;
+			}
+
+			item = item || {};
+
+			var menuButton = document.createElement('button');
+			menuButton.type = 'button';
+			menuButton.className =
+				'ayle-settings-submenu-item ' +
+				'ayle-toolbar-custom-menu-item';
+			menuButton.setAttribute('role', 'menuitem');
+			menuButton.disabled = item.Disabled === true;
+
+			if (item.ClassName)
+				menuButton.className += ' ' + item.ClassName;
+
+			var label = document.createElement('span');
+			label.className =
+				'ayle-settings-submenu-label ' +
+				'ayle-toolbar-custom-menu-label';
+			label.textContent = item.Label || item.Title || item.ID || '';
+			menuButton.appendChild(label);
+
+			if (item.Value !== undefined && item.Value !== null && item.Value !== '') {
+				var value = document.createElement('span');
+				value.className =
+					'ayle-settings-submenu-value ' +
+					'ayle-toolbar-custom-menu-value';
+				value.textContent =
+					typeof item.Value === 'function' ?
+						item.Value(item, this.Player, this) :
+						String(item.Value);
+				menuButton.appendChild(value);
+			}
+
+			(function (descriptor, control) {
+				control.addEventListener('click', function (event) {
+					event.preventDefault();
+					event.stopPropagation();
+
+					self._executeToolbarMenuItem(toolbarItem, descriptor, event);
+
+					if (descriptor.CloseMenu !== false)
+						self._closePopovers();
+				});
+			})(item, menuButton);
+
+			popover.appendChild(menuButton);
+			i++;
+		}
+
+		button.setAttribute('aria-haspopup', 'menu');
+		button.setAttribute('aria-expanded', 'false');
+
+		var pair = {
+			Button: button,
+			Container: container,
+			Popover: popover,
+			Item: toolbarItem
+		};
+
+		button._ayleToolbarControl = container;
+		this._toolbarCustomMenus.push(pair);
+
+		return pair;
+	};
+
+	AyleUI.prototype._toggleToolbarCustomMenu = function (pair) {
+		if (!pair || !pair.Button || !pair.Popover)
+			return this;
+
+		var open = !pair.Popover.classList.contains('is-open');
+		this._closePopovers(pair.Popover);
+
+		pair.Popover.classList.toggle('is-open', open);
+		pair.Button.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+		if (open)
+			this.ShowControls();
+
+		return this;
+	};
+
+	AyleUI.prototype._createToolbarButton = function (item) {
+		item = item || {};
+		var button = document.createElement('button');
+		button.type = 'button';
+		button.className = 'ayle-icon-button ayle-toolbar-custom-button';
+
+		if (item.ID)
+			button.setAttribute('data-ayle-toolbar-id', String(item.ID));
+
+		var title = item.Title || item.Label || '';
+		if (title) {
+			button.title = title;
+			button.setAttribute('aria-label', title);
+		}
+
+		if (item.ClassName)
+			button.className += ' ' + item.ClassName;
+
+		var content = document.createElement('span');
+		content.className = 'ayle-toolbar-custom-content';
+
+		if (item.Icon) {
+			if (String(item.Icon).indexOf('<') !== -1)
+				content.innerHTML = String(item.Icon);
+			else {
+				var image = document.createElement('img');
+				image.className = 'ayle-toolbar-custom-icon';
+				image.src = String(item.Icon);
+				image.alt = '';
+				content.appendChild(image);
+			}
+		}
+		else
+			content.textContent = item.Label || item.Title || item.ID || '';
+
+		button.appendChild(content);
+
+		button.disabled = item.Disabled === true;
+		button.style.display = item.Visible === false ? 'none' : '';
+
+		var self = this;
+		var menuPair = this._createToolbarCustomMenu(item, button);
+
+		button.addEventListener('click', function (event) {
+			event.stopPropagation();
+
+			var context = {
+				Player: self.Player,
+				UI: self,
+				Element: button,
+				Item: item,
+				Event: event
+			};
+
+			if (menuPair)
+				self._toggleToolbarCustomMenu(menuPair);
+
+			if (typeof item.OnClick === 'function')
+				item.OnClick(context);
+
+			self.Player.Emit(item.Event || 'toolbarAction', context);
+		});
+
+		if (typeof item.OnCreate === 'function') {
+			item.OnCreate({
+				Player: this.Player,
+				UI: this,
+				Element: button,
+				Item: item
+			});
+		}
+
+		return button;
+	};
+
+	AyleUI.prototype.ApplyToolbar = function () {
+		if (!this.Controls)
+			return this;
+
+		var i = 0;
+		while (i < this._toolbarCustomElements.length) {
+			var custom = this._toolbarCustomElements[i];
+			if (custom.Item && typeof custom.Item.OnDestroy === 'function') {
+				custom.Item.OnDestroy({
+					Player: this.Player,
+					UI: this,
+					Element: custom.Element,
+					Item: custom.Item
+				});
+			}
+
+			var layoutElement = custom.LayoutElement || custom.Element;
+
+			if (layoutElement && layoutElement.parentNode)
+				layoutElement.parentNode.removeChild(layoutElement);
+
+			i++;
+		}
+		this._toolbarCustomElements = [];
+
+		this._toolbarCustomMenus = [];
+		this._toolbarRenderedItems = [];
+
+		var oldSpacers = this.Controls.querySelectorAll('.ayle-toolbar-spacer');
+		var spacerIndex = 0;
+		while (spacerIndex < oldSpacers.length) {
+			if (oldSpacers[spacerIndex].parentNode)
+				oldSpacers[spacerIndex].parentNode.removeChild(oldSpacers[spacerIndex]);
+			spacerIndex++;
+		}
+
+		var items = this.Player.Options.Toolbar && this.Player.Options.Toolbar.Items instanceof Array ?
+			this.Player.Options.Toolbar.Items.slice(0) : [];
+		var injected = this.Player.Options.Integration && this.Player.Options.Integration.Toolbar instanceof Array ?
+			this.Player.Options.Integration.Toolbar : [];
+
+		i = 0;
+		while (i < injected.length) {
+			var descriptor = injected[i] || {};
+			var index = items.length;
+			var reference;
+			var j;
+
+			if (descriptor.Before) {
+				reference = String(descriptor.Before);
+				j = 0;
+				while (j < items.length) {
+					if (String(typeof items[j] === 'string' ? items[j] : items[j].ID) === reference) {
+						index = j;
+						break;
+					}
+					j++;
+				}
+			}
+			else if (descriptor.After) {
+				reference = String(descriptor.After);
+				j = 0;
+				while (j < items.length) {
+					if (String(typeof items[j] === 'string' ? items[j] : items[j].ID) === reference)
+						index = j + 1;
+					j++;
+				}
+			}
+
+			items.splice(index, 0, descriptor);
+			i++;
+		}
+
+		var layout = this.Player.Options.Toolbar ? this.Player.Options.Toolbar.Layout : 'inline';
+		var hasSpacer = false;
+		i = 0;
+		while (i < items.length) {
+			if (items[i] === '') {
+				hasSpacer = true;
+				break;
+			}
+			i++;
+		}
+
+		if ((layout === 'timeline-top' || layout === 'auto') && !hasSpacer) {
+			var spacerAt = items.length;
+			i = 0;
+			while (i < items.length) {
+				var itemName = typeof items[i] === 'string' ? items[i] : (items[i] && items[i].ID);
+
+				if (
+					itemName === 'volume' ||
+					itemName === 'chapters' ||
+					itemName === 'quality' ||
+					itemName === 'settings' ||
+					itemName === 'pip' ||
+					itemName === 'fullscreen'
+				) {
+					spacerAt = i;
+					break;
+				}
+
+				i++;
+			}
+
+			items.splice(spacerAt, 0, '');
+		}
+
+		var builtInNames = ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'settings', 'pip', 'fullscreen'];
+		i = 0;
+		while (i < builtInNames.length) {
+			var builtIn = this._toolbarElement(builtInNames[i]);
+			if (builtIn) {
+				builtIn.style.order = '1000';
+				builtIn.style.display = 'none';
+			}
+			i++;
+		}
+
+		i = 0;
+		while (i < items.length) {
+			var item = items[i];
+			var element = null;
+
+			if (typeof item === 'string') {
+				if (item === '') {
+					element = document.createElement('span');
+					element.className = 'ayle-toolbar-spacer';
+					element.setAttribute('aria-hidden', 'true');
+					this.Controls.appendChild(element);
+				}
+				else
+					element = this._toolbarElement(item);
+			}
+			else if (item && item.Type === 'button') {
+				var button = this._createToolbarButton(item);
+				var layoutElement = button._ayleToolbarControl || button;
+
+				this.Controls.appendChild(layoutElement);
+				this._toolbarCustomElements.push({
+					Element: button,
+					LayoutElement: layoutElement,
+					Item: item
+				});
+				element = layoutElement;
+			}
+
+			if (element) {
+				element.style.order = String(i);
+				element.style.display = item && item.Visible === false ? 'none' : '';
+				this._toolbarRenderedItems.push({
+					Element: element,
+					Item: item
+				});
+			}
+
+			i++;
+		}
+
+		this._applyToolbarLayoutGeometry();
+		return this;
+	};
+
+	AyleUI.prototype._applyToolbarLayoutGeometry = function () {
+		if (!this.Controls)
+			return this;
+
+		this.Controls.style.removeProperty('grid-template-columns');
+
+		var i = 0;
+		while (i < this._toolbarRenderedItems.length) {
+			var entry = this._toolbarRenderedItems[i];
+			if (entry.Element) {
+				entry.Element.style.removeProperty('grid-column');
+				entry.Element.style.removeProperty('grid-row');
+			}
+			i++;
+		}
+
+		if (!this.Element.classList.contains('ayle-controls-timeline-top'))
+			return this;
+
+		var columns = [];
+		var column = 1;
+
+		i = 0;
+		while (i < this._toolbarRenderedItems.length) {
+			var rendered = this._toolbarRenderedItems[i];
+			var element = rendered.Element;
+
+			if (!element || element.style.display === 'none') {
+				i++;
+				continue;
+			}
+
+			if (element === this.Timeline) {
+				element.style.gridColumn = '1 / -1';
+				element.style.gridRow = '1';
+				i++;
+				continue;
+			}
+
+			element.style.gridColumn = String(column);
+			element.style.gridRow = '2';
+
+			if (element.classList.contains('ayle-toolbar-spacer'))
+				columns.push('minmax(0, 1fr)');
+			else
+				columns.push('max-content');
+
+			column++;
+			i++;
+		}
+
+		if (!columns.length)
+			columns.push('minmax(0, 1fr)');
+
+		this.Controls.style.gridTemplateColumns = columns.join(' ');
+		return this;
+	};
+
+	AyleUI.prototype.UpdateTimelineRanges = function () {
+		if (!this.Timeline)
+			return this;
+
+		if (!this.TimelineRanges) {
+			this.TimelineRanges = document.createElement('div');
+			this.TimelineRanges.className = 'ayle-timeline-ranges';
+			this.Timeline.insertBefore(this.TimelineRanges, this.Buffered || this.Timeline.firstChild);
+		}
+
+		this.TimelineRanges.innerHTML = '';
+
+		var ranges = [];
+		var configured = this.Player.Options.Timeline && this.Player.Options.Timeline.Ranges instanceof Array ?
+			this.Player.Options.Timeline.Ranges : [];
+		var integrated = this.Player.Options.Integration && this.Player.Options.Integration.TimelineRanges instanceof Array ?
+			this.Player.Options.Integration.TimelineRanges : [];
+		var i = 0;
+
+		while (i < configured.length) {
+			ranges.push(configured[i]);
+			i++;
+		}
+
+		i = 0;
+		while (i < integrated.length) {
+			ranges.push(integrated[i]);
+			i++;
+		}
+
+		var duration = Number(this.Player.State.Duration) || 0;
+		if (!duration)
+			return this;
+
+		i = 0;
+		while (i < ranges.length) {
+			var range = ranges[i] || {};
+			var start = Math.max(0, Number(range.Start) || 0);
+			var end = range.End !== undefined ?
+				Number(range.End) :
+				start + Math.max(0, Number(range.Duration) || 0);
+
+			end = Math.min(duration, Math.max(start, end));
+
+			if (end > start) {
+				var visual = document.createElement('div');
+				visual.className = 'ayle-timeline-range';
+
+				if (range.ClassName)
+					visual.className += ' ' + range.ClassName;
+
+				if (range.ID)
+					visual.setAttribute('data-ayle-range-id', String(range.ID));
+
+				if (range.Label)
+					visual.title = String(range.Label);
+
+				visual.style.left = ((start / duration) * 100) + '%';
+				visual.style.width = (((end - start) / duration) * 100) + '%';
+
+				this.TimelineRanges.appendChild(visual);
+			}
+
+			i++;
+		}
+
+		return this;
+	};
+
+	AyleUI.prototype._mediaSessionMetadata = function () {
+		var source = this.Player.State.Source || {};
+		var integration = this.Player.Options.Integration || {};
+		var override = this.Player.Options.MediaSession.Metadata || {};
+		var integrationOverride = integration.MediaSession && integration.MediaSession.Metadata ?
+			integration.MediaSession.Metadata : {};
+		var channel = integration.Channel || {};
+		var artwork = integrationOverride.Artwork || override.Artwork || null;
+
+		if (!artwork) {
+			var image = source.Cover || channel.Avatar || '';
+			artwork = image ? [{ src: image }] : [];
+		}
+
+		return {
+			title: integrationOverride.Title || override.Title || source.Title || '',
+			artist: integrationOverride.Artist || override.Artist || source.Artist || channel.Name || '',
+			album: integrationOverride.Album || override.Album || source.Album || '',
+			artwork: artwork
+		};
+	};
+
+	AyleUI.prototype.UpdateMediaSession = function () {
+		if (!navigator.mediaSession || !this.Player.Options.MediaSession.Enabled)
+			return this;
+
+		var session = navigator.mediaSession;
+		var state = this.Player.State;
+		var metadata = this._mediaSessionMetadata();
+
+		try {
+			session.metadata = new MediaMetadata(metadata);
+		}
+		catch (error) {}
+
+		try {
+			session.playbackState = state.Playing ? 'playing' : 'paused';
+		}
+		catch (error) {}
+
+		if (typeof session.setPositionState === 'function') {
+			var duration = Number(state.Duration);
+			var position = Number(state.Position);
+			var rate = Number(state.PlaybackRate) || 1;
+
+			try {
+				if (isFinite(duration) && duration > 0) {
+					session.setPositionState({
+						duration: duration,
+						playbackRate: rate,
+						position: Math.max(0, Math.min(duration, isFinite(position) ? position : 0))
+					});
+				}
+			}
+			catch (error) {}
+		}
+
+		if (!this._mediaSessionActionsBound) {
+			this._mediaSessionActionsBound = true;
+			var self = this;
+			var actions = {
+				play: function () { self.Player.Play(); },
+				pause: function () { self.Player.Pause(); },
+				stop: function () { self.Player.Pause(); self.Player.Seek(0); },
+				seekbackward: function (details) {
+					self.Player.Seek(Math.max(0, self.Player.State.Position - (details.seekOffset || 10)));
+				},
+				seekforward: function (details) {
+					self.Player.Seek(Math.min(self.Player.State.Duration, self.Player.State.Position + (details.seekOffset || 10)));
+				},
+				seekto: function (details) {
+					if (details.seekTime !== undefined)
+						self.Player.Seek(details.seekTime);
+				}
+			};
+			var name;
+			for (name in actions) {
+				try {
+					session.setActionHandler(name, actions[name]);
+				}
+				catch (error) {}
+			}
+		}
+
+		return this;
+	};
+
 	AyleUI.prototype.Focus = function () {
 		if (
 			this.Element &&
@@ -8091,6 +8752,19 @@ function Ayle (driver, options) {
 				if (button)
 					button.setAttribute('aria-expanded', 'false');
 			}
+			i++;
+		}
+
+		i = 0;
+		while (i < this._toolbarCustomMenus.length) {
+			var custom = this._toolbarCustomMenus[i];
+
+			if (custom.Popover && custom.Popover !== except) {
+				custom.Popover.classList.remove('is-open');
+				if (custom.Button)
+					custom.Button.setAttribute('aria-expanded', 'false');
+			}
+
 			i++;
 		}
 	};
@@ -10736,12 +11410,21 @@ function Ayle (driver, options) {
 			this.Element.clientWidth ||
 			this.Element.getBoundingClientRect().width ||
 			0;
-
+		var layout = this.Player.Options.Toolbar ?
+			this.Player.Options.Toolbar.Layout : 'inline';
 		var narrow = width > 0 && width <= 760;
 		var veryNarrow = width > 0 && width <= 430;
+		var timelineTop =
+			!narrow &&
+			(
+				layout === 'timeline-top' ||
+				(layout === 'auto' && width > 0 && width <= 1100)
+			);
 
 		this.Element.classList.toggle('ayle-controls-narrow', narrow);
 		this.Element.classList.toggle('ayle-controls-very-narrow', veryNarrow);
+		this.Element.classList.toggle('ayle-controls-timeline-top', timelineTop);
+		this._applyToolbarLayoutGeometry();
 	};
 
 	AyleUI.prototype.ShowControls = function () {
@@ -11239,8 +11922,27 @@ function Ayle (driver, options) {
 
 
 		this._documentPointerDownHandler = function (event) {
-			if (!self.Element.contains(event.target))
+			if (!self.Element.contains(event.target)) {
 				self._closePopovers();
+				return;
+			}
+
+			var i = 0;
+			while (i < self._toolbarCustomMenus.length) {
+				var pair = self._toolbarCustomMenus[i];
+
+				if (
+					pair.Popover &&
+					pair.Popover.classList.contains('is-open') &&
+					!pair.Popover.contains(event.target) &&
+					!pair.Button.contains(event.target)
+				) {
+					pair.Popover.classList.remove('is-open');
+					pair.Button.setAttribute('aria-expanded', 'false');
+				}
+
+				i++;
+			}
 		};
 
 		document.addEventListener('pointerdown', this._documentPointerDownHandler);
@@ -11377,11 +12079,13 @@ function Ayle (driver, options) {
 
 		player.On('uiModeChange', function () {
 			self.ApplyUIMode();
+			self.ApplyToolbar();
 			self.ApplyMinimalInfoMode(true);
 		});
 
 		player.On('minimalUIChange', function () {
 			self.ApplyUIMode();
+			self.ApplyToolbar();
 			self.ApplyMinimalInfoMode(true);
 		});
 
@@ -11396,6 +12100,8 @@ function Ayle (driver, options) {
 		player.On('durationChange', function () {
 			self.UpdateTimeWidth();
 			self.UpdateTime();
+			self.UpdateTimelineRanges();
+			self.UpdateMediaSession();
 			self.FlushPendingQuickSeek();
 		});
 
@@ -11404,6 +12110,7 @@ function Ayle (driver, options) {
 		});
 
 		player.On('play', function () {
+			self.UpdateMediaSession();
 			self._artworkSlideshowPlayed = true;
 			self.StopArtworkSlideshow('playback');
 			self.UpdatePlayButton();
@@ -11411,6 +12118,7 @@ function Ayle (driver, options) {
 		});
 
 		player.On('pause', function () {
+			self.UpdateMediaSession();
 			self.UpdatePlayButton();
 			self.ShowControls();
 		});
@@ -11543,6 +12251,8 @@ function Ayle (driver, options) {
 		});
 
 		player.On('sourceChange', function () {
+			self.UpdateTimelineRanges();
+			self.UpdateMediaSession();
 			self.UpdateTimeWidth();
 			self.UpdateTitle();
 			self.UpdatePlayButton();
@@ -11556,6 +12266,9 @@ function Ayle (driver, options) {
 		});
 
 		player.On('integrationChange', function () {
+			self.ApplyToolbar();
+			self.UpdateTimelineRanges();
+			self.UpdateMediaSession();
 			self.UpdateTitle();
 			self.ResetHints();
 			self.UpdateIntegrationSettings();

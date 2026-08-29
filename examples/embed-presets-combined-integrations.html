@@ -42,6 +42,13 @@
 			color: #bdbdbd;
 			line-height: 1.4;
 		}
+			.example-range-intro {
+			background: rgba(0, 180, 255, .55);
+		}
+
+		.example-range-highlight {
+			background: rgba(255, 190, 0, .6);
+		}
 	</style>
 </head>
 <body>
@@ -58,6 +65,22 @@
 		data-ayle-settings="localStorage">
 	{
 		"Player": {
+			"Toolbar": {
+				"Layout": "timeline-top",
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"",
+					"volume",
+					"chapters",
+					"quality",
+					"settings",
+					"pip",
+					"fullscreen"
+				]
+			},
+
 			"Integration": {
 				"Channel": {
 					"Name": "Nature Explorer",
@@ -67,6 +90,56 @@
 						"Name": "@natureexplorer",
 						"URL": "#profile",
 						"Target": "_blank"
+					}
+				},
+
+				"Toolbar": [
+					{
+						"ID": "favorite",
+						"Type": "button",
+						"Before": "settings",
+						"Label": "★",
+						"Title": "Favorite",
+						"Event": "favoriteAction",
+						"Menu": [
+							{
+								"Label": "Add to favorites",
+								"Event": "add"
+							},
+							{
+								"Label": "Save for later",
+								"Event": "later"
+							},
+							"",
+							{
+								"Label": "Manage favorites",
+								"Value": "↗",
+								"Event": "manage"
+							}
+						]
+					}
+				],
+
+				"TimelineRanges": [
+					{
+						"ID": "intro",
+						"Start": 0,
+						"Duration": 15,
+						"Label": "Intro",
+						"ClassName": "example-range-intro"
+					},
+					{
+						"ID": "highlight",
+						"Start": 45,
+						"End": 75,
+						"Label": "Highlighted fragment",
+						"ClassName": "example-range-highlight"
+					}
+				],
+
+				"MediaSession": {
+					"Metadata": {
+						"Artist": "Nature Explorer"
 					}
 				},
 
