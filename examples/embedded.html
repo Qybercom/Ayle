@@ -42,22 +42,16 @@
 		data-ayle="embedded-minimal-video">
 {
 	"Driver": {
-		"Type": "mse"
+		"Type": "html5"
 	},
 	"Player": {
 		"MediaMode": "video"
 	},
 	"MediaProvider": {
-		"Type": "http",
-		"File": "example.mkv",
-		"MetadataURL": "../../server/metadata.php?file={file}",
-		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
-		"Stream": {
-			"SkipInit": true
-		}
+		"File": "example.mp4"
 	}
 }
-	</script>
+</script>
 				</div>
 			</div>
 			<div class="example-code-title">Declarative embed</div>
@@ -66,33 +60,13 @@
 	data-ayle="embedded-minimal-video"&gt;
 {
 	"Driver": {
-		"Type": "mse"
+		"Type": "html5"
 	},
 	"Player": {
-		"MediaMode": "video",
-		"UI": {
-			"Header": [],
-			"Overlay": [
-				"track:compact"
-			],
-			"Toolbar": {
-				"Items": [
-					"play",
-					"timeline",
-					"time",
-					"volume"
-				]
-			}
-		}
+		"MediaMode": "video"
 	},
 	"MediaProvider": {
-		"Type": "http",
-		"File": "example.mkv",
-		"MetadataURL": "../../server/metadata.php?file={file}",
-		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
-		"Stream": {
-			"SkipInit": true
-		}
+		"File": "example.mp4"
 	}
 }
 &lt;/script&gt;</code></pre>
@@ -112,22 +86,16 @@
 		data-ayle="embedded-minimal-audio">
 {
 	"Driver": {
-		"Type": "mse"
+		"Type": "html5"
 	},
 	"Player": {
 		"MediaMode": "audio"
 	},
 	"MediaProvider": {
-		"Type": "http",
-		"File": "example.mp3",
-		"MetadataURL": "../../server/metadata.php?file={file}",
-		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
-		"Stream": {
-			"SkipInit": true
-		}
+		"File": "example.mp3"
 	}
 }
-	</script>
+</script>
 				</div>
 			</div>
 			<div class="example-code-title">Declarative embed</div>
@@ -136,40 +104,13 @@
 	data-ayle="embedded-minimal-audio"&gt;
 {
 	"Driver": {
-		"Type": "mse"
+		"Type": "html5"
 	},
 	"Player": {
-		"MediaMode": "audio",
-		"UI": {
-			"Header": [],
-			"Track": [
-				"artwork",
-				"title",
-				"artist",
-				"album"
-			],
-			"Overlay": [
-				"track:compact",
-				"subtitles"
-			],
-			"Toolbar": {
-				"Items": [
-					"play",
-					"timeline",
-					"time",
-					"volume"
-				]
-			}
-		}
+		"MediaMode": "audio"
 	},
 	"MediaProvider": {
-		"Type": "http",
-		"File": "example.mp3",
-		"MetadataURL": "../../server/metadata.php?file={file}",
-		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
-		"Stream": {
-			"SkipInit": true
-		}
+		"File": "example.mp3"
 	}
 }
 &lt;/script&gt;</code></pre>

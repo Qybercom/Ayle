@@ -16,7 +16,7 @@ import {
 	styleUrl: './app.component.css'
 })
 export class AppComponent {
-	readonly MinimalVideoMediaProvider = this.MinimalMediaProvider('example.mkv');
+	readonly MinimalVideoMediaProvider = this.MinimalMediaProvider('example.mp4');
 	readonly MinimalAudioMediaProvider = this.MinimalMediaProvider('example.mp3');
 
 	readonly MinimalVideo = {
@@ -40,14 +40,14 @@ export class AppComponent {
 
 	readonly MinimalVideoCode = `<ayle-player
 	id="angular-minimal-video"
-	driver="mse"
+	driver="html5"
 	[mediaProvider]="MinimalVideoMediaProvider"
 	[player]="MinimalVideo">
 </ayle-player>`;
 
 	readonly MinimalAudioCode = `<ayle-player
 	id="angular-minimal-audio"
-	driver="mse"
+	driver="html5"
 	[mediaProvider]="MinimalAudioMediaProvider"
 	[player]="MinimalAudio">
 </ayle-player>`;
@@ -78,13 +78,7 @@ export class AppComponent {
 
 	private MinimalMediaProvider (file: string) {
 		return {
-			Type: 'http',
-			File: file,
-			MetadataURL: '/server/metadata.php?file={file}',
-			TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
-			Stream: {
-				SkipInit: true
-			}
+			File: file
 		};
 	}
 

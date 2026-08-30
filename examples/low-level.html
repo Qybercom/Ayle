@@ -269,9 +269,16 @@
 			</div>
 			<div class="example-code-title">Manual low-level assembly</div>
 			<pre class="example-code"><code>var root = document.getElementById('player-minimal-video');
-var driver = new AyleMSEMediaDriver();
-var player = new Ayle(driver, {
-	MediaMode: 'video'
+var player = new Ayle({
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: {
+		File: 'example.mp4'
+	},
+	Player: {
+		MediaMode: 'video'
+	}
 });
 var ui = new AyleUI(root, player);
 
@@ -283,24 +290,18 @@ player.On('error', function (error) {
 	console.error('player-minimal-video error:', error);
 });
 
-var mediaProvider = Ayle.CreateMediaProvider('http', player, {
-	File: 'example.mkv',
-	MetadataURL: '../../server/metadata.php?file={file}',
-	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
-	Stream: {
-		SkipInit: true
-	}
-});
-
-mediaProvider.Load(function (error, source, metadata) {
-	if (error)
-		console.error(error);
-	else
-		console.log(source, metadata);
-});</code></pre>
+player.Load();</code></pre>
 			<div class="example-code-title">Same player with Ayle.Init()</div>
-			<pre class="example-code"><code>var player = Ayle.Init('#player-minimal-video', AyleMSEMediaDriver, {
-	MediaMode: 'video'
+			<pre class="example-code"><code>var player = Ayle.Init('#player-minimal-video', {
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: {
+		File: 'example.mp4'
+	},
+	Player: {
+		MediaMode: 'video'
+	}
 });</code></pre>
 		</section>
 		<section class="example-card">
@@ -554,9 +555,16 @@ mediaProvider.Load(function (error, source, metadata) {
 			</div>
 			<div class="example-code-title">JavaScript</div>
 			<pre class="example-code"><code>var root = document.getElementById('player-minimal-audio');
-var driver = new AyleMSEMediaDriver();
-var player = new Ayle(driver, {
-	MediaMode: 'audio'
+var player = new Ayle({
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: {
+		File: 'example.mp3'
+	},
+	Player: {
+		MediaMode: 'audio'
+	}
 });
 var ui = new AyleUI(root, player);
 
@@ -568,21 +576,7 @@ player.On('error', function (error) {
 	console.error('player-minimal-audio error:', error);
 });
 
-var mediaProvider = Ayle.CreateMediaProvider('http', player, {
-	File: 'example.mp3',
-	MetadataURL: '../../server/metadata.php?file={file}',
-	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
-	Stream: {
-		SkipInit: true
-	}
-});
-
-mediaProvider.Load(function (error, source, metadata) {
-	if (error)
-		console.error(error);
-	else
-		console.log(source, metadata);
-});</code></pre>
+player.Load();</code></pre>
 		</section>
 		<section class="example-card">
 			<div class="example-card-header">
@@ -835,8 +829,63 @@ mediaProvider.Load(function (error, source, metadata) {
 			</div>
 			<div class="example-code-title">JavaScript</div>
 			<pre class="example-code"><code>var root = document.getElementById('player-full-video');
-var driver = new AyleMSEMediaDriver();
-var player = new Ayle(driver, {
+var player = new Ayle({
+	Driver: {
+		Type: 'mse'
+	},
+	MediaProvider: {
+		File: 'example.mkv',
+		MetadataURL: '../../server/metadata.php?file={file}',
+		TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
+		VideoURL: '',
+		AudioURL: '',
+		SubtitleURL: '',
+		ArtworkURL: '',
+		CoverURL: '',
+		CodecHeader: 'X-Media-Codec',
+		CodecListHeader: 'X-Media-Codec-List',
+		CodecCandidates: null,
+		RequestHeaders: {},
+		Stream: {
+			Mode: 'time',
+			ChunkSize: 2097152,
+			BufferAhead: 30,
+			BufferBehind: 20,
+			SkipInit: true,
+			Init: {
+				URL: '',
+				RangeStart: 0,
+				RangeEnd: 0
+			},
+			InitValue: 'init',
+			Segments: [
+				{
+					Start: 0,
+					End: 0,
+					URL: '',
+					RangeStart: 0,
+					RangeEnd: 0
+				}
+			],
+			TimeURL: '',
+			TimeParameter: 'time',
+			TimePrecision: 3,
+			TimeStartHeader: 'X-Media-Start',
+			TimeEndHeader: 'X-Media-End',
+			TimeDurationHeader: 'X-Media-Duration',
+			TimeEOFHeader: 'X-Media-EOF',
+			AlignTimestamps: true,
+			MaxNoProgressRequests: 3,
+			UseBufferedEndForNextTime: true,
+			GapTolerance: 0.15,
+			MaxGapRetries: 2,
+			TimeEpsilon: 0.001
+		},
+		VideoType: 'video/mp4',
+		AudioType: 'audio/mp4',
+		SubtitleType: 'text/vtt'
+	},
+	Player: {
 		AutoSelectFirstSubtitleTrack: false,
 		AutoPlay: false,
 		AutoPlayMode: 'audible',
@@ -1072,6 +1121,7 @@ var player = new Ayle(driver, {
 				Example: 'full'
 			}
 		}
+	}
 });
 var ui = new AyleUI(root, player);
 
@@ -1087,60 +1137,7 @@ player.On('favoriteAction', function (context) {
 	console.log('player-full-video favorite button clicked:', context.Item.ID);
 });
 
-var mediaProvider = Ayle.CreateMediaProvider('http', player, {
-	File: 'example.mkv',
-	MetadataURL: '../../server/metadata.php?file={file}',
-	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
-	VideoURL: '',
-	AudioURL: '',
-	SubtitleURL: '',
-	ArtworkURL: '',
-	CoverURL: '',
-	CodecHeader: 'X-Media-Codec',
-	CodecListHeader: 'X-Media-Codec-List',
-	CodecCandidates: null,
-	RequestHeaders: {},
-	Stream: {
-		Mode: 'time',
-		ChunkSize: 2097152,
-		BufferAhead: 30,
-		BufferBehind: 20,
-		SkipInit: true,
-		Init: {
-			URL: '',
-			RangeStart: 0,
-			RangeEnd: 0
-		},
-		InitValue: 'init',
-		Segments: [
-			{
-				Start: 0,
-				End: 0,
-				URL: '',
-				RangeStart: 0,
-				RangeEnd: 0
-			}
-		],
-		TimeURL: '',
-		TimeParameter: 'time',
-		TimePrecision: 3,
-		TimeStartHeader: 'X-Media-Start',
-		TimeEndHeader: 'X-Media-End',
-		TimeDurationHeader: 'X-Media-Duration',
-		TimeEOFHeader: 'X-Media-EOF',
-		AlignTimestamps: true,
-		MaxNoProgressRequests: 3,
-		UseBufferedEndForNextTime: true,
-		GapTolerance: 0.15,
-		MaxGapRetries: 2,
-		TimeEpsilon: 0.001
-	},
-	VideoType: 'video/mp4',
-	AudioType: 'audio/mp4',
-	SubtitleType: 'text/vtt'
-});
-
-mediaProvider.Load(function (error, source, metadata) {
+player.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else
@@ -1398,8 +1395,63 @@ mediaProvider.Load(function (error, source, metadata) {
 			</div>
 			<div class="example-code-title">JavaScript</div>
 			<pre class="example-code"><code>var root = document.getElementById('player-full-audio');
-var driver = new AyleMSEMediaDriver();
-var player = new Ayle(driver, {
+var player = new Ayle({
+	Driver: {
+		Type: 'mse'
+	},
+	MediaProvider: {
+		File: 'example.mp3',
+		MetadataURL: '../../server/metadata.php?file={file}',
+		TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
+		VideoURL: '',
+		AudioURL: '',
+		SubtitleURL: '',
+		ArtworkURL: '',
+		CoverURL: '',
+		CodecHeader: 'X-Media-Codec',
+		CodecListHeader: 'X-Media-Codec-List',
+		CodecCandidates: null,
+		RequestHeaders: {},
+		Stream: {
+			Mode: 'time',
+			ChunkSize: 2097152,
+			BufferAhead: 30,
+			BufferBehind: 20,
+			SkipInit: true,
+			Init: {
+				URL: '',
+				RangeStart: 0,
+				RangeEnd: 0
+			},
+			InitValue: 'init',
+			Segments: [
+				{
+					Start: 0,
+					End: 0,
+					URL: '',
+					RangeStart: 0,
+					RangeEnd: 0
+				}
+			],
+			TimeURL: '',
+			TimeParameter: 'time',
+			TimePrecision: 3,
+			TimeStartHeader: 'X-Media-Start',
+			TimeEndHeader: 'X-Media-End',
+			TimeDurationHeader: 'X-Media-Duration',
+			TimeEOFHeader: 'X-Media-EOF',
+			AlignTimestamps: true,
+			MaxNoProgressRequests: 3,
+			UseBufferedEndForNextTime: true,
+			GapTolerance: 0.15,
+			MaxGapRetries: 2,
+			TimeEpsilon: 0.001
+		},
+		VideoType: 'video/mp4',
+		AudioType: 'audio/mp4',
+		SubtitleType: 'text/vtt'
+	},
+	Player: {
 		AutoSelectFirstSubtitleTrack: false,
 		AutoPlay: false,
 		AutoPlayMode: 'audible',
@@ -1635,6 +1687,7 @@ var player = new Ayle(driver, {
 				Example: 'full'
 			}
 		}
+	}
 });
 var ui = new AyleUI(root, player);
 
@@ -1650,60 +1703,7 @@ player.On('favoriteAction', function (context) {
 	console.log('player-full-audio favorite button clicked:', context.Item.ID);
 });
 
-var mediaProvider = Ayle.CreateMediaProvider('http', player, {
-	File: 'example.mp3',
-	MetadataURL: '../../server/metadata.php?file={file}',
-	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
-	VideoURL: '',
-	AudioURL: '',
-	SubtitleURL: '',
-	ArtworkURL: '',
-	CoverURL: '',
-	CodecHeader: 'X-Media-Codec',
-	CodecListHeader: 'X-Media-Codec-List',
-	CodecCandidates: null,
-	RequestHeaders: {},
-	Stream: {
-		Mode: 'time',
-		ChunkSize: 2097152,
-		BufferAhead: 30,
-		BufferBehind: 20,
-		SkipInit: true,
-		Init: {
-			URL: '',
-			RangeStart: 0,
-			RangeEnd: 0
-		},
-		InitValue: 'init',
-		Segments: [
-			{
-				Start: 0,
-				End: 0,
-				URL: '',
-				RangeStart: 0,
-				RangeEnd: 0
-			}
-		],
-		TimeURL: '',
-		TimeParameter: 'time',
-		TimePrecision: 3,
-		TimeStartHeader: 'X-Media-Start',
-		TimeEndHeader: 'X-Media-End',
-		TimeDurationHeader: 'X-Media-Duration',
-		TimeEOFHeader: 'X-Media-EOF',
-		AlignTimestamps: true,
-		MaxNoProgressRequests: 3,
-		UseBufferedEndForNextTime: true,
-		GapTolerance: 0.15,
-		MaxGapRetries: 2,
-		TimeEpsilon: 0.001
-	},
-	VideoType: 'video/mp4',
-	AudioType: 'audio/mp4',
-	SubtitleType: 'text/vtt'
-});
-
-mediaProvider.Load(function (error, source, metadata) {
+player.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else
@@ -1838,9 +1838,16 @@ bootstrap.InitConfig(config);</code></pre>
 	</main>
 <script>
 var root = document.getElementById('player-minimal-video');
-var driver = new AyleMSEMediaDriver();
-var player = new Ayle(driver, {
-	MediaMode: 'video'
+var player = new Ayle({
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: {
+		File: 'example.mp4'
+	},
+	Player: {
+		MediaMode: 'video'
+	}
 });
 var ui = new AyleUI(root, player);
 
@@ -1852,25 +1859,18 @@ player.On('error', function (error) {
 	console.error('player-minimal-video error:', error);
 });
 
-var mediaProvider = Ayle.CreateMediaProvider('http', player, {
-	File: 'example.mkv',
-	MetadataURL: '../../server/metadata.php?file={file}',
-	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
-	Stream: {
-		SkipInit: true
-	}
-});
-
-mediaProvider.Load(function (error, source, metadata) {
-	if (error)
-		console.error(error);
-	else
-		console.log(source, metadata);
-});
+player.Load();
 var root = document.getElementById('player-minimal-audio');
-var driver = new AyleMSEMediaDriver();
-var player = new Ayle(driver, {
-	MediaMode: 'audio'
+var player = new Ayle({
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: {
+		File: 'example.mp3'
+	},
+	Player: {
+		MediaMode: 'audio'
+	}
 });
 var ui = new AyleUI(root, player);
 
@@ -1882,24 +1882,65 @@ player.On('error', function (error) {
 	console.error('player-minimal-audio error:', error);
 });
 
-var mediaProvider = Ayle.CreateMediaProvider('http', player, {
-	File: 'example.mp3',
-	MetadataURL: '../../server/metadata.php?file={file}',
-	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
-	Stream: {
-		SkipInit: true
-	}
-});
-
-mediaProvider.Load(function (error, source, metadata) {
-	if (error)
-		console.error(error);
-	else
-		console.log(source, metadata);
-});
+player.Load();
 var root = document.getElementById('player-full-video');
-var driver = new AyleMSEMediaDriver();
-var player = new Ayle(driver, {
+var player = new Ayle({
+	Driver: {
+		Type: 'mse'
+	},
+	MediaProvider: {
+		File: 'example.mkv',
+		MetadataURL: '../../server/metadata.php?file={file}',
+		TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
+		VideoURL: '',
+		AudioURL: '',
+		SubtitleURL: '',
+		ArtworkURL: '',
+		CoverURL: '',
+		CodecHeader: 'X-Media-Codec',
+		CodecListHeader: 'X-Media-Codec-List',
+		CodecCandidates: null,
+		RequestHeaders: {},
+		Stream: {
+			Mode: 'time',
+			ChunkSize: 2097152,
+			BufferAhead: 30,
+			BufferBehind: 20,
+			SkipInit: true,
+			Init: {
+				URL: '',
+				RangeStart: 0,
+				RangeEnd: 0
+			},
+			InitValue: 'init',
+			Segments: [
+				{
+					Start: 0,
+					End: 0,
+					URL: '',
+					RangeStart: 0,
+					RangeEnd: 0
+				}
+			],
+			TimeURL: '',
+			TimeParameter: 'time',
+			TimePrecision: 3,
+			TimeStartHeader: 'X-Media-Start',
+			TimeEndHeader: 'X-Media-End',
+			TimeDurationHeader: 'X-Media-Duration',
+			TimeEOFHeader: 'X-Media-EOF',
+			AlignTimestamps: true,
+			MaxNoProgressRequests: 3,
+			UseBufferedEndForNextTime: true,
+			GapTolerance: 0.15,
+			MaxGapRetries: 2,
+			TimeEpsilon: 0.001
+		},
+		VideoType: 'video/mp4',
+		AudioType: 'audio/mp4',
+		SubtitleType: 'text/vtt'
+	},
+	Player: {
 		AutoSelectFirstSubtitleTrack: false,
 		AutoPlay: false,
 		AutoPlayMode: 'audible',
@@ -2135,6 +2176,7 @@ var player = new Ayle(driver, {
 				Example: 'full'
 			}
 		}
+	}
 });
 var ui = new AyleUI(root, player);
 
@@ -2150,68 +2192,70 @@ player.On('favoriteAction', function (context) {
 	console.log('player-full-video favorite button clicked:', context.Item.ID);
 });
 
-var mediaProvider = Ayle.CreateMediaProvider('http', player, {
-	File: 'example.mkv',
-	MetadataURL: '../../server/metadata.php?file={file}',
-	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
-	VideoURL: '',
-	AudioURL: '',
-	SubtitleURL: '',
-	ArtworkURL: '',
-	CoverURL: '',
-	CodecHeader: 'X-Media-Codec',
-	CodecListHeader: 'X-Media-Codec-List',
-	CodecCandidates: null,
-	RequestHeaders: {},
-	Stream: {
-		Mode: 'time',
-		ChunkSize: 2097152,
-		BufferAhead: 30,
-		BufferBehind: 20,
-		SkipInit: true,
-		Init: {
-			URL: '',
-			RangeStart: 0,
-			RangeEnd: 0
-		},
-		InitValue: 'init',
-		Segments: [
-			{
-				Start: 0,
-				End: 0,
-				URL: '',
-				RangeStart: 0,
-				RangeEnd: 0
-			}
-		],
-		TimeURL: '',
-		TimeParameter: 'time',
-		TimePrecision: 3,
-		TimeStartHeader: 'X-Media-Start',
-		TimeEndHeader: 'X-Media-End',
-		TimeDurationHeader: 'X-Media-Duration',
-		TimeEOFHeader: 'X-Media-EOF',
-		AlignTimestamps: true,
-		MaxNoProgressRequests: 3,
-		UseBufferedEndForNextTime: true,
-		GapTolerance: 0.15,
-		MaxGapRetries: 2,
-		TimeEpsilon: 0.001
-	},
-	VideoType: 'video/mp4',
-	AudioType: 'audio/mp4',
-	SubtitleType: 'text/vtt'
-});
-
-mediaProvider.Load(function (error, source, metadata) {
+player.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else
 		console.log(source, metadata);
 });
 var root = document.getElementById('player-full-audio');
-var driver = new AyleMSEMediaDriver();
-var player = new Ayle(driver, {
+var player = new Ayle({
+	Driver: {
+		Type: 'mse'
+	},
+	MediaProvider: {
+		File: 'example.mp3',
+		MetadataURL: '../../server/metadata.php?file={file}',
+		TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
+		VideoURL: '',
+		AudioURL: '',
+		SubtitleURL: '',
+		ArtworkURL: '',
+		CoverURL: '',
+		CodecHeader: 'X-Media-Codec',
+		CodecListHeader: 'X-Media-Codec-List',
+		CodecCandidates: null,
+		RequestHeaders: {},
+		Stream: {
+			Mode: 'time',
+			ChunkSize: 2097152,
+			BufferAhead: 30,
+			BufferBehind: 20,
+			SkipInit: true,
+			Init: {
+				URL: '',
+				RangeStart: 0,
+				RangeEnd: 0
+			},
+			InitValue: 'init',
+			Segments: [
+				{
+					Start: 0,
+					End: 0,
+					URL: '',
+					RangeStart: 0,
+					RangeEnd: 0
+				}
+			],
+			TimeURL: '',
+			TimeParameter: 'time',
+			TimePrecision: 3,
+			TimeStartHeader: 'X-Media-Start',
+			TimeEndHeader: 'X-Media-End',
+			TimeDurationHeader: 'X-Media-Duration',
+			TimeEOFHeader: 'X-Media-EOF',
+			AlignTimestamps: true,
+			MaxNoProgressRequests: 3,
+			UseBufferedEndForNextTime: true,
+			GapTolerance: 0.15,
+			MaxGapRetries: 2,
+			TimeEpsilon: 0.001
+		},
+		VideoType: 'video/mp4',
+		AudioType: 'audio/mp4',
+		SubtitleType: 'text/vtt'
+	},
+	Player: {
 		AutoSelectFirstSubtitleTrack: false,
 		AutoPlay: false,
 		AutoPlayMode: 'audible',
@@ -2447,6 +2491,7 @@ var player = new Ayle(driver, {
 				Example: 'full'
 			}
 		}
+	}
 });
 var ui = new AyleUI(root, player);
 
@@ -2462,60 +2507,7 @@ player.On('favoriteAction', function (context) {
 	console.log('player-full-audio favorite button clicked:', context.Item.ID);
 });
 
-var mediaProvider = Ayle.CreateMediaProvider('http', player, {
-	File: 'example.mp3',
-	MetadataURL: '../../server/metadata.php?file={file}',
-	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
-	VideoURL: '',
-	AudioURL: '',
-	SubtitleURL: '',
-	ArtworkURL: '',
-	CoverURL: '',
-	CodecHeader: 'X-Media-Codec',
-	CodecListHeader: 'X-Media-Codec-List',
-	CodecCandidates: null,
-	RequestHeaders: {},
-	Stream: {
-		Mode: 'time',
-		ChunkSize: 2097152,
-		BufferAhead: 30,
-		BufferBehind: 20,
-		SkipInit: true,
-		Init: {
-			URL: '',
-			RangeStart: 0,
-			RangeEnd: 0
-		},
-		InitValue: 'init',
-		Segments: [
-			{
-				Start: 0,
-				End: 0,
-				URL: '',
-				RangeStart: 0,
-				RangeEnd: 0
-			}
-		],
-		TimeURL: '',
-		TimeParameter: 'time',
-		TimePrecision: 3,
-		TimeStartHeader: 'X-Media-Start',
-		TimeEndHeader: 'X-Media-End',
-		TimeDurationHeader: 'X-Media-Duration',
-		TimeEOFHeader: 'X-Media-EOF',
-		AlignTimestamps: true,
-		MaxNoProgressRequests: 3,
-		UseBufferedEndForNextTime: true,
-		GapTolerance: 0.15,
-		MaxGapRetries: 2,
-		TimeEpsilon: 0.001
-	},
-	VideoType: 'video/mp4',
-	AudioType: 'audio/mp4',
-	SubtitleType: 'text/vtt'
-});
-
-mediaProvider.Load(function (error, source, metadata) {
+player.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else

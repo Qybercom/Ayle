@@ -50,17 +50,32 @@ const lowLevel = await fs.readFile(
 if (lowLevel.indexOf("document.createElement('video')") !== -1)
 	throw new Error('Low-level example must use the media element inside a complete Ayle DOM');
 
-if (lowLevel.indexOf("new AyleMSEMediaDriver()") === -1)
-	throw new Error('Low-level example must construct drivers without DOM dependencies');
+if (
+	lowLevel.indexOf("Driver: {\n\t\tType: 'html5'") === -1 ||
+	lowLevel.indexOf("Driver: {\n\t\tType: 'mse'") === -1
+)
+	throw new Error('Low-level example must use Ayle assembly driver descriptors');
 
 if (
 	lowLevel.indexOf('Same player with Ayle.Init()') === -1 ||
-	lowLevel.indexOf("Ayle.Init('#player-minimal-video', AyleMSEMediaDriver") === -1
+	lowLevel.indexOf("Ayle.Init('#player-minimal-video', {") === -1
 )
 	throw new Error('Low-level example must include a clearly labeled Ayle.Init() example');
 
 if (lowLevel.indexOf("new AyleMSEMediaDriver(video)") !== -1)
 	throw new Error('Low-level example must not inject media elements through driver constructors');
+
+if (
+	lowLevel.indexOf("Ayle.CreateMediaProvider('http'") !== -1 ||
+	lowLevel.indexOf("new Ayle(driver") !== -1
+)
+	throw new Error('Low-level examples must not side-create providers or use the old constructor shape');
+
+if (
+	lowLevel.indexOf("File: 'example.mp4'") === -1 ||
+	lowLevel.indexOf("File: 'example.mp3'") === -1
+)
+	throw new Error('Minimal low-level examples must demonstrate direct-file provider mode');
 
 if (
 	(lowLevel.match(/class="ayle-artwork-slideshow"/g) || []).length !== 4 ||
@@ -410,8 +425,20 @@ for (const id of [
 ]) {
 	const config = embeddedConfigs[id];
 
-	if (!config.MediaProvider || config.MediaProvider.Type !== 'http')
-		throw new Error(id + ' must use MediaProvider.Type=http');
+	if (!config.MediaProvider)
+		throw new Error(id + ' must configure MediaProvider');
+
+	if (
+		id.indexOf('full-') !== -1 &&
+		config.MediaProvider.Type !== 'http'
+	)
+		throw new Error(id + ' full example must explicitly use MediaProvider.Type=http');
+
+	if (
+		id.indexOf('minimal-') !== -1 &&
+		config.MediaProvider.Type !== undefined
+	)
+		throw new Error(id + ' minimal example must rely on the default http provider');
 
 	if (hasOwn(config, 'HTTP'))
 		throw new Error(id + ' must not expose legacy HTTP config');
@@ -534,19 +561,19 @@ for (const token of fullMediaProviderOptions.concat(fullStreamOptions)) {
 		throw new Error('Low-level full MediaProvider example is missing ' + token);
 }
 
-if ((lowLevel.match(/^\t\tAutoPlay: false,/gm) || []).length !== 4)
+if ((lowLevel.match(/^\t{2}AutoPlay: false,/gm) || []).length !== 4)
 	throw new Error('Low-level minimal examples must not repeat default AutoPlay:false');
 
-if ((lowLevel.match(/^\t\tMuted: false,/gm) || []).length !== 4)
+if ((lowLevel.match(/^\t{2}Muted: false,/gm) || []).length !== 4)
 	throw new Error('Low-level minimal examples must not repeat default Muted:false');
 
-if ((lowLevel.match(/^\t\tStart: 0,/gm) || []).length !== 4)
+if ((lowLevel.match(/^\t{2}Start: 0,/gm) || []).length !== 4)
 	throw new Error('Low-level minimal examples must not repeat default Start:0');
 
-if ((lowLevel.match(/^				Layout: 'inline',/gm) || []).length !== 2)
+if ((lowLevel.match(/^\t{4}Layout: 'inline',/gm) || []).length !== 2)
 	throw new Error('Low-level full audio examples must explicitly use inline Toolbar.Layout');
 
-if ((lowLevel.match(/^				Layout: 'timeline-top',/gm) || []).length !== 2)
+if ((lowLevel.match(/^\t{4}Layout: 'timeline-top',/gm) || []).length !== 2)
 	throw new Error('Low-level full video examples must explicitly use timeline-top Toolbar.Layout');
 
 if (
@@ -564,6 +591,23 @@ if (
 	throw new Error('Core media provider contract or built-in HTTP provider is incomplete');
 
 if (
+	core.indexOf('Ayle.RegisterDriver = function') === -1 ||
+	core.indexOf('Ayle.GetDriver = function') === -1 ||
+	core.indexOf('Ayle.HasDriver = function') === -1 ||
+	core.indexOf('Ayle.RemoveDriver = function') === -1 ||
+	core.indexOf('Ayle.CreateDriver = function') === -1 ||
+	core.indexOf('AyleDriverRegistry.html5 = AyleHTML5MediaDriver;') === -1 ||
+	core.indexOf('AyleDriverRegistry.mse = AyleMSEMediaDriver;') === -1
+)
+	throw new Error('Core driver registry API is incomplete');
+
+if (
+	core.indexOf("this.Driver.SetEventTarget(this, 'driver:');") === -1 ||
+	core.indexOf("this.MediaProvider.SetEventTarget(this, 'provider:');") === -1
+)
+	throw new Error('Driver and MediaProvider events must share the Ayle event API');
+
+if (
 	core.indexOf('Ayle.RegisterMediaProvider = function') === -1 ||
 	core.indexOf('Ayle.GetMediaProvider = function') === -1 ||
 	core.indexOf('Ayle.HasMediaProvider = function') === -1 ||
@@ -577,11 +621,13 @@ if (new RegExp('\\b' + legacyHTTPClassName + '\\b').test(core))
 	throw new Error('Legacy HTTP-specific class name must not remain in core');
 
 if (
-	bootstrap.indexOf('MediaProvider: null') === -1 ||
-	bootstrap.indexOf('instance.MediaProvider = mediaProvider;') === -1 ||
-	bootstrap.indexOf('global.Ayle.CreateMediaProvider') === -1
+	core.indexOf('this.MediaProvider = null;') === -1 ||
+	core.indexOf('Ayle.prototype.SetMediaProvider = function') === -1 ||
+	core.indexOf("this.MediaProvider.SetEventTarget(this, 'provider:');") === -1 ||
+	bootstrap.indexOf('var mediaProvider = player.MediaProvider;') === -1 ||
+	bootstrap.indexOf('MediaProvider: mediaProvider') === -1
 )
-	throw new Error('Bootstrap must create media through instance.MediaProvider');
+	throw new Error('Ayle must own MediaProvider and Bootstrap must expose that owned instance');
 
 if (
 	bootstrap.indexOf('AyleBootstrap.MergeMediaProvider = function') === -1 ||
@@ -758,13 +804,14 @@ const initCore = await fs.readFile(path.join(root, 'ayle.js'), 'utf8');
 const initBootstrap = await fs.readFile(path.join(root, 'ayle-bootstrap.js'), 'utf8');
 
 for (const token of [
-	'Ayle.Init = function (target, Driver, options, driverOptions)',
+	'Ayle.Init = function (target, config)',
 	"document.querySelector(target)",
-	'var driver = new Driver();',
-	"typeof driver.SetOptions === 'function'",
-	'var player = new Ayle(driver, options || {});',
+	'var player = new Ayle(config || {});',
 	'new AyleUI(element, player);',
-	'player.Driver.SetUI(this);'
+	'player.Driver.SetUI(this);',
+	'Ayle.CreateDriver(driverType, driverOptions)',
+	"AyleDriverRegistry.html5 = AyleHTML5MediaDriver;",
+	"AyleDriverRegistry.mse = AyleMSEMediaDriver;"
 ]) {
 	if (initCore.indexOf(token) === -1)
 		throw new Error('Ayle.Init regression: missing token ' + token);

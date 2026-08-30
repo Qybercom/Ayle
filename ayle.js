@@ -44,20 +44,32 @@
 	AyleEventEmitter.prototype.Emit = function (name, data) {
 		var list = this._events[name];
 
-		if (!list)
-			return this;
+		if (list) {
+			// Make a copy so handlers can safely detach themselves while emitting.
+			list = list.slice(0);
 
-		// Make a copy so handlers can safely detach themselves while emitting.
-		list = list.slice(0);
+			var i = 0;
+			var count = list.length;
 
-		var i = 0;
-		var count = list.length;
-
-		while (i < count) {
-			list[i](data);
-			i++;
+			while (i < count) {
+				list[i](data);
+				i++;
+			}
 		}
 
+		if (
+			this._eventTarget &&
+			this._eventTarget !== this &&
+			this._eventPrefix
+		)
+			this._eventTarget.Emit(this._eventPrefix + name, data);
+
+		return this;
+	};
+
+	AyleEventEmitter.prototype.SetEventTarget = function (target, prefix) {
+		this._eventTarget = target || null;
+		this._eventPrefix = prefix || '';
 		return this;
 	};
 
@@ -4202,6 +4214,75 @@
 	}
 
 
+	var AyleDriverRegistry = {};
+	var AyleBuiltInDrivers = {
+		html5: true,
+		mse: true
+	};
+
+	function AyleNormalizeDriverName (name) {
+		return String(name || '').replace(/^\s+|\s+$/g, '').toLowerCase();
+	}
+
+	Ayle.RegisterDriver = function (name, Driver) {
+		name = AyleNormalizeDriverName(name);
+
+		if (!name)
+			throw new Error('Ayle driver name is empty');
+
+		if (AyleBuiltInDrivers[name])
+			throw new Error('Built-in Ayle driver cannot be overwritten: ' + name);
+
+		if (typeof Driver !== 'function')
+			throw new Error('Ayle driver must be a constructor: ' + name);
+
+		AyleDriverRegistry[name] = Driver;
+		return Ayle;
+	};
+
+	Ayle.GetDriver = function (name) {
+		name = AyleNormalizeDriverName(name);
+		return name && AyleDriverRegistry[name] ?
+			AyleDriverRegistry[name] : null;
+	};
+
+	Ayle.HasDriver = function (name) {
+		return !!Ayle.GetDriver(name);
+	};
+
+	Ayle.RemoveDriver = function (name) {
+		name = AyleNormalizeDriverName(name);
+
+		if (!name || AyleBuiltInDrivers[name])
+			return false;
+
+		if (!AyleDriverRegistry[name])
+			return false;
+
+		delete AyleDriverRegistry[name];
+		return true;
+	};
+
+	Ayle.CreateDriver = function (name, options) {
+		name = AyleNormalizeDriverName(name || 'html5');
+
+		var Driver = Ayle.GetDriver(name);
+
+		if (!Driver)
+			throw new Error('Unknown Ayle driver: ' + name);
+
+		var driver = new Driver();
+
+		if (options !== undefined && typeof driver.SetOptions === 'function')
+			driver.SetOptions(options || {});
+
+		return driver;
+	};
+
+	AyleDriverRegistry.html5 = AyleHTML5MediaDriver;
+	AyleDriverRegistry.mse = AyleMSEMediaDriver;
+
+
 	var AylePresetRegistry = {};
 	var AyleBuiltInPresets = {
 		video: true,
@@ -4371,10 +4452,50 @@
 	});
 
 
-function Ayle (driver, options) {
+function Ayle (config, internalOptions) {
 		AyleEventEmitter.call(this);
 
-		var explicitOptions = options || {};
+		var assembly = null;
+		var driver = null;
+		var mediaProviderConfig = null;
+		var explicitOptions;
+		var options;
+
+		if (
+			config &&
+			typeof config === 'object' &&
+			typeof config.Load !== 'function'
+		) {
+			assembly = config;
+			explicitOptions = assembly.Player || {};
+
+			if (
+				assembly.Driver &&
+				typeof assembly.Driver.Load === 'function'
+			)
+				driver = assembly.Driver;
+			else {
+				var driverConfig = assembly.Driver || {};
+				var driverType = driverConfig.Type || 'html5';
+				var driverOptions = driverConfig.Options || {};
+				driver = Ayle.CreateDriver(driverType, driverOptions);
+			}
+
+			mediaProviderConfig = assembly.MediaProvider || null;
+		}
+		else {
+			/*
+			 * Internal compatibility path used only by existing integrations
+			 * while all canonical public examples use the assembly form.
+			 */
+			driver = config;
+			explicitOptions = internalOptions || {};
+		}
+
+		if (!driver || typeof driver.Load !== 'function')
+			throw new Error('Ayle driver is not configured');
+
+		var requestedMediaMode = explicitOptions.MediaMode || 'auto';
 		var requestedMediaMode = explicitOptions.MediaMode || 'auto';
 		if (requestedMediaMode !== 'auto' && requestedMediaMode !== 'video' && requestedMediaMode !== 'audio')
 			requestedMediaMode = 'auto';
@@ -4574,6 +4695,10 @@ function Ayle (driver, options) {
 
 
 		this.Driver = driver;
+		this.Driver.SetEventTarget(this, 'driver:');
+		this.MediaProvider = null;
+		this.MediaProviderOptions = mediaProviderConfig ?
+			AylePresetCloneValue(mediaProviderConfig) : null;
 		this.Element = null;
 		this.MediaElement = driver && driver.Element ? driver.Element : null;
 		this.UI = null;
@@ -4622,6 +4747,9 @@ function Ayle (driver, options) {
 		this._switch = null;
 		this._restartPlayPending = false;
 		this._bindDriver();
+
+		if (mediaProviderConfig)
+			this.SetMediaProvider(mediaProviderConfig);
 	}
 
 	Ayle.prototype = Object.create(AyleEventEmitter.prototype);
@@ -5210,9 +5338,80 @@ function Ayle (driver, options) {
 		return this.Driver.GetSupportedCodecs(candidates || this.GetCodecCandidates()) || [];
 	};
 
+	Ayle.prototype.SetDriver = function (driver) {
+		if (!driver || typeof driver.Load !== 'function')
+			throw new Error('Invalid Ayle driver');
+
+		if (this.Driver === driver)
+			return this;
+
+		if (this.Driver && typeof this.Driver.SetEventTarget === 'function')
+			this.Driver.SetEventTarget(null, '');
+
+		if (this.Driver && typeof this.Driver.Destroy === 'function')
+			this.Driver.Destroy();
+
+		this.Driver = driver;
+		this.Driver.SetEventTarget(this, 'driver:');
+
+		if (this.UI && typeof this.Driver.SetUI === 'function')
+			this.Driver.SetUI(this.UI);
+
+		this._bindDriver();
+		return this;
+	};
+
+	Ayle.prototype.SetMediaProvider = function (provider) {
+		if (this.MediaProvider && typeof this.MediaProvider.Destroy === 'function')
+			this.MediaProvider.Destroy();
+
+		if (!provider) {
+			this.MediaProvider = null;
+			this.MediaProviderOptions = null;
+			return this;
+		}
+
+		if (typeof provider.Load === 'function') {
+			this.MediaProvider = provider;
+			this.MediaProviderOptions = provider.Options || {};
+		}
+		else {
+			var config = AylePresetCloneValue(provider || {});
+			var type = String(config.Type || 'http').toLowerCase();
+			delete config.Type;
+			this.MediaProvider = Ayle.CreateMediaProvider(type, this, config);
+			this.MediaProviderOptions = AylePresetCloneValue(provider || {});
+		}
+
+		this.MediaProvider.Player = this;
+
+		if (typeof this.MediaProvider.SetEventTarget === 'function')
+			this.MediaProvider.SetEventTarget(this, 'provider:');
+
+		var self = this;
+		this.MediaProvider.On('error', function (error) {
+			self.State.Error = error;
+			self.State.Loading = false;
+			self.Emit('error', error);
+			self.Emit('stateChange', self.State);
+		});
+
+		return this;
+	};
+
+	Ayle.prototype.LoadMedia = function (callback) {
+		if (!this.MediaProvider)
+			throw new Error('Ayle media provider is not configured');
+
+		return this.MediaProvider.Load(callback);
+	};
+
 	Ayle.prototype.Load = function (source) {
+		if (typeof source === 'function')
+			return this.LoadMedia(source);
+
 		if (!source)
-			return false;
+			return this.LoadMedia();
 
 		this._switch = null;
 		this.State.Source = source;
@@ -6297,6 +6496,8 @@ function Ayle (driver, options) {
 	}
 
 	function AyleMediaProvider (player, options) {
+		AyleEventEmitter.call(this);
+
 		if (!player)
 			throw new Error('AyleMediaProvider requires Ayle');
 
@@ -6306,13 +6507,18 @@ function Ayle (driver, options) {
 		this.Metadata = null;
 	}
 
+	AyleMediaProvider.prototype = Object.create(AyleEventEmitter.prototype);
+	AyleMediaProvider.prototype.constructor = AyleMediaProvider;
+
 	AyleMediaProvider.prototype.Load = function (callback) {
 		throw new Error('AyleMediaProvider.Load() is not implemented');
 	};
 
 	AyleMediaProvider.prototype.Destroy = function () {
+		this.SetEventTarget(null, '');
 		this.Source = null;
 		this.Metadata = null;
+		this._events = {};
 		return this;
 	};
 
@@ -6994,17 +7200,50 @@ function Ayle (driver, options) {
 
 		if (!file) {
 			var fileError = new Error('AyleHTTPMediaProvider file is empty');
+			this.Emit('error', fileError);
 			callback(fileError);
 			return null;
+		}
+
+		this.Emit('loadStart', {
+			File: file,
+			Mode: this.Options.MetadataURL ? 'metadata' : 'direct'
+		});
+
+		/*
+		 * No metadata endpoint means ordinary HTTP media. The provider resolves
+		 * the resource into an AyleSource; the selected driver decides how that
+		 * source is played.
+		 */
+		if (!this.Options.MetadataURL) {
+			var directSource = new AyleSource({
+				ID: file,
+				URL: file,
+				Title: file,
+				MediaMode: 'auto'
+			});
+
+			this.Source = directSource;
+			this.Metadata = null;
+			this.Player.Load(directSource);
+			this.Emit('ready', {
+				Source: directSource,
+				Metadata: null
+			});
+			callback(null, directSource, null);
+			return directSource;
 		}
 
 		this.UpdateCodecSupport();
 
 		return this.LoadMetadata(file, function (error, metadata) {
 			if (error) {
+				self.Emit('error', error);
 				callback(error);
 				return;
 			}
+
+			self.Emit('metadata', metadata);
 
 			var source;
 
@@ -7012,19 +7251,51 @@ function Ayle (driver, options) {
 				source = self.BuildSource(metadata, file);
 			}
 			catch (buildError) {
-				callback(buildError, metadata);
+				self.Emit('error', buildError);
+				callback(buildError, null, metadata);
 				return;
 			}
 
 			self.Source = source;
 			self.Metadata = metadata;
 			self.Player.Load(source);
+			self.Emit('ready', {
+				Source: source,
+				Metadata: metadata
+			});
 			callback(null, source, metadata);
 		});
 	};
 
 
 	AyleMediaProviderRegistry.http = AyleHTTPMediaProvider;
+
+
+	Ayle.prototype.Destroy = function () {
+		if (this.MediaProvider) {
+			if (typeof this.MediaProvider.SetEventTarget === 'function')
+				this.MediaProvider.SetEventTarget(null, '');
+
+			if (typeof this.MediaProvider.Destroy === 'function')
+				this.MediaProvider.Destroy();
+		}
+
+		if (this.Driver) {
+			if (typeof this.Driver.SetEventTarget === 'function')
+				this.Driver.SetEventTarget(null, '');
+
+			if (typeof this.Driver.Destroy === 'function')
+				this.Driver.Destroy();
+		}
+
+		this.MediaProvider = null;
+		this.Driver = null;
+		this.UI = null;
+		this.Element = null;
+		this.MediaElement = null;
+		this._events = {};
+		return this;
+	};
 
 
 	function AyleUI (element, player) {
@@ -12788,7 +13059,7 @@ function Ayle (driver, options) {
 	};
 
 
-	Ayle.Init = function (target, Driver, options, driverOptions) {
+	Ayle.Init = function (target, config) {
 		var element = target;
 
 		if (typeof target === 'string')
@@ -12797,18 +13068,7 @@ function Ayle (driver, options) {
 		if (!element || typeof element.querySelector !== 'function')
 			throw new Error('Ayle target element was not found');
 
-		if (typeof Driver !== 'function')
-			throw new Error('Ayle driver constructor is required');
-
-		var driver = new Driver();
-
-		if (
-			driverOptions !== undefined &&
-			typeof driver.SetOptions === 'function'
-		)
-			driver.SetOptions(driverOptions || {});
-
-		var player = new Ayle(driver, options || {});
+		var player = new Ayle(config || {});
 		new AyleUI(element, player);
 
 		return player;

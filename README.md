@@ -57,49 +57,85 @@ The minimal variants demonstrate the smallest practical configuration for each m
 
 ### Imperative initialization
 
-For normal imperative use, `Ayle.Init()` is the assembly entry point. It accepts either a CSS selector or the player root DOM element, resolves the media element internally, creates the driver, player and UI, and returns the `Ayle` instance:
+`Ayle` is the owner/orchestrator of the runtime assembly. `Driver` and
+`MediaProvider` are sibling dependencies owned by the player, while `Player`
+contains player behaviour/UI options.
 
-```js
-var player = Ayle.Init('#player-minimal-audio', AyleMSEMediaDriver, {
-	MediaMode: 'audio'
-});
-```
-
-The same call accepts a DOM element directly:
-
-```js
-var element = document.getElementById('player-minimal-audio');
-var player = Ayle.Init(element, AyleMSEMediaDriver, options);
-```
-
-An instance created this way exposes the assembled runtime objects as `player.Element`, `player.MediaElement`, `player.Driver`, and `player.UI`.
-
-`MediaMode` also selects the default UI composition. `video` defaults to an empty header, compact track overlay, and the core playback toolbar; `audio` defaults to an empty header, artwork/title/artist/album track content, compact track + subtitles overlays, and the same core playback toolbar. Any explicitly supplied `UI` field overrides only that field. An explicit empty array such as `UI.Header: []` always means exactly an empty header and is never treated as “use defaults”.
-
-Drivers are dependency-free at construction time. The driver contract receives its dependencies explicitly through `SetUI(ui)` and `SetOptions(options)`. `Ayle.Init()` calls `SetOptions()` for the optional fourth argument and `AyleUI` calls `SetUI()` after the media element is resolved:
-
-```js
-var player = Ayle.Init(
-	'#player',
-	AyleMSEMediaDriver,
-	playerOptions,
-	driverOptions
-);
-```
-
-The equivalent explicit low-level assembly is:
+The canonical low-level form is:
 
 ```js
 var root = document.querySelector('#player');
-var driver = new AyleMSEMediaDriver();
 
-driver.SetOptions(driverOptions);
+var player = new Ayle({
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: {
+		File: '/media/song.mp3'
+	},
+	Player: {
+		MediaMode: 'audio'
+	}
+});
 
-var player = new Ayle(driver, playerOptions);
 var ui = new AyleUI(root, player);
+
+player.On('ready', function () {
+	console.log('ready');
+});
+
+player.On('error', function (error) {
+	console.error(error);
+});
+
+player.Load();
 ```
 
-`new AyleUI(...)` supplies itself to the driver through `driver.SetUI(ui)`, so neither a media element nor options belong in a driver constructor. Both `Ayle.Init()` and the explicit assembly are demonstrated by `examples/low-level.html`.
+`http` is the default registered media provider, so minimal configurations do
+not need `MediaProvider.Type`. `html5` is the default driver when `Driver` is
+omitted, although canonical examples keep the driver descriptor visible when
+the driver choice matters.
+
+`Ayle.Init()` uses the same assembly object and only adds DOM/UI assembly:
+
+```js
+var player = Ayle.Init('#player', {
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: {
+		File: '/media/song.mp3'
+	},
+	Player: {
+		MediaMode: 'audio'
+	}
+});
+
+player.Load();
+```
+
+A ready driver or provider instance can also be supplied in the assembly when
+an integration needs to construct it itself. The normal application API should
+prefer descriptors so Ayle owns creation and lifecycle.
+
+The assembled objects are available as:
+
+```text
+player.Driver
+player.MediaProvider
+player.UI
+player.Element
+player.MediaElement
+```
+
+`player.SetDriver(...)` and `player.SetMediaProvider(...)` replace owned
+dependencies. `player.Destroy()` destroys the owned provider and driver.
+
+`MediaMode` selects the default UI composition. `video` defaults to an empty
+header, compact track overlay and the core playback toolbar; `audio` defaults
+to an empty header, artwork/title/artist/album track content, compact track +
+subtitles overlays and the same core playback toolbar. Explicit UI fields still
+override only those fields.
 
 ## Loader attributes
 
@@ -827,9 +863,14 @@ preset contract.
 Use a registered preset directly:
 
 ```js
-var player = new Ayle(driver, {
-	MediaMode: 'audio',
-	Preset: 'podcast'
+var player = new Ayle({
+	Driver: {
+		Type: 'html5'
+	},
+	Player: {
+		MediaMode: 'audio',
+		Preset: 'podcast'
+	}
 });
 ```
 
@@ -890,6 +931,26 @@ The current bootstrap exposes `AyleEmbed` and `AyleInstances` as the global
 bootstrap instance and instance collection used by declarative examples.
 
 ## Events API
+
+`Ayle`, `AyleMediaDriver` and `AyleMediaProvider` use the same emitter contract
+(`On`, `Off`, `Once`, `Emit`). Driver/provider events are also forwarded to the
+owning player with namespaces, so application code can subscribe through one
+object:
+
+```js
+player.On('ready', onReady);
+player.On('error', onError);
+
+player.On('driver:error', onDriverError);
+player.On('provider:error', onProviderError);
+player.On('provider:metadata', onProviderMetadata);
+
+player.Off('provider:error', onProviderError);
+```
+
+Normal semantic player events remain unprefixed. `driver:*` and `provider:*`
+are the lower-level diagnostic/component event streams.
+
 
 The tables below list **all statically visible event names emitted by the current `ayle.js` through `Emit()`**. Dynamic `hintAction:*` and `settingsAction:*` event families are documented explicitly in the tables.
 
@@ -1145,6 +1206,47 @@ sprite and loading spinner are embedded by `ayle-bootstrap.js`.
 `ayle-icons.svg` and `icons/*.svg` remain because the manual low-level
 examples contain hand-written UI markup and reference those assets directly.
 
+## Drivers
+
+Drivers and media providers have symmetrical registries. The built-in drivers
+are registered automatically by the library:
+
+```text
+html5
+mse
+```
+
+Registry API:
+
+```js
+Ayle.RegisterDriver(name, Driver);
+Ayle.GetDriver(name);
+Ayle.HasDriver(name);
+Ayle.CreateDriver(name, options);
+Ayle.RemoveDriver(name);
+```
+
+Built-in driver names are protected from overwrite/removal. Custom drivers
+should derive from `AyleMediaDriver`; this gives them the common event API and
+allows their events to be surfaced through the owning player.
+
+The architectural boundary is:
+
+```text
+developer media input
+        ↓
+MediaProvider
+        ↓
+     AyleSource
+        ↓
+      Driver
+        ↓
+ browser/media pipeline
+```
+
+The provider owns acquisition/resolution. The driver owns playback of the
+resolved `AyleSource`.
+
 ## Media providers
 
 Media acquisition is transport-independent. `AyleMediaProvider` is the base
@@ -1164,10 +1266,11 @@ MediaProvider: {
 }
 ```
 
-`Type` is reserved by Ayle and selects a registered provider. The remaining
-properties are passed to that provider. `AyleBootstrap` stores the created
-provider on `instance.MediaProvider`; provider-specific configuration is exposed
-as `instance.MediaProviderOptions`.
+`Type` is reserved by Ayle and selects a registered provider. If omitted it
+defaults to the built-in `http` provider. The remaining properties are passed
+to that provider. The `Ayle` instance owns the created provider as
+`player.MediaProvider`; Bootstrap/framework instances expose that same object
+rather than creating a second provider.
 
 The provider contract intentionally stays small:
 
@@ -1208,20 +1311,48 @@ Provider names are case-insensitive and normalized to lowercase. The built-in
 delegates for the same provider registry so declarative and framework bindings
 use the core registry rather than a second implementation.
 
-The low-level API can create the built-in provider through the registry:
+The registry creation API is primarily for integrations and advanced custom
+assembly. Normal application code declares the provider on `Ayle` and loads it
+through the player:
 
 ```js
-var mediaProvider = Ayle.CreateMediaProvider('http', player, {
-	File: 'example.mkv',
-	MetadataURL: '/media/metadata?file={file}',
-	TrackURL: '/media/track?file={file}&type={kind}&track={track}&start={time}'
+var player = new Ayle({
+	Driver: {
+		Type: 'mse'
+	},
+	MediaProvider: {
+		Type: 'http',
+		File: 'example.mkv',
+		MetadataURL: '/media/metadata?file={file}',
+		TrackURL: '/media/track?file={file}&type={kind}&track={track}&start={time}'
+	},
+	Player: {
+		MediaMode: 'video'
+	}
 });
 
-mediaProvider.Load(function (error, source, metadata) {
-	if (error)
-		console.error(error);
+player.Load();
+```
+
+For an ordinary browser-playable resource no specialized metadata server is
+required:
+
+```js
+var player = new Ayle({
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: {
+		File: '/media/movie.mp4'
+	}
 });
 ```
+
+With no `MetadataURL`, `AyleHTTPMediaProvider` runs in **direct mode** and
+resolves `File` directly to `AyleSource.URL`. With `MetadataURL`, it runs in
+**metadata mode** and uses the existing metadata/track protocol, codec
+negotiation and stream configuration. The provider resolves the source; the
+driver decides how that resolved source is played.
 
 `AyleHTTPMediaProvider` supports URL templates using:
 

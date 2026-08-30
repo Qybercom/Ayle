@@ -149,6 +149,48 @@
 		return AyleBootstrap.RemovePreset(name);
 	};
 
+	AyleBootstrap.RegisterDriver = function (name, Driver) {
+		global.Ayle.RegisterDriver(name, Driver);
+		return AyleBootstrap;
+	};
+
+	AyleBootstrap.GetDriver = function (name) {
+		return global.Ayle.GetDriver(name);
+	};
+
+	AyleBootstrap.HasDriver = function (name) {
+		return global.Ayle.HasDriver(name);
+	};
+
+	AyleBootstrap.RemoveDriver = function (name) {
+		return global.Ayle.RemoveDriver(name);
+	};
+
+	AyleBootstrap.CreateDriver = function (name, options) {
+		return global.Ayle.CreateDriver(name, options);
+	};
+
+	AyleBootstrap.prototype.RegisterDriver = function (name, Driver) {
+		AyleBootstrap.RegisterDriver(name, Driver);
+		return this;
+	};
+
+	AyleBootstrap.prototype.GetDriver = function (name) {
+		return AyleBootstrap.GetDriver(name);
+	};
+
+	AyleBootstrap.prototype.HasDriver = function (name) {
+		return AyleBootstrap.HasDriver(name);
+	};
+
+	AyleBootstrap.prototype.RemoveDriver = function (name) {
+		return AyleBootstrap.RemoveDriver(name);
+	};
+
+	AyleBootstrap.prototype.CreateDriver = function (name, options) {
+		return AyleBootstrap.CreateDriver(name, options);
+	};
+
 	AyleBootstrap.RegisterMediaProvider = function (name, Provider) {
 		if (!global.Ayle || typeof global.Ayle.RegisterMediaProvider !== 'function')
 			throw new Error('Ayle media provider registry is not available');
@@ -1122,37 +1164,21 @@
 
 		var mediaProviderConfig = AyleBootstrap.IsObject(config.MediaProvider) ?
 			AyleBootstrap.Clone(config.MediaProvider) : null;
-		var mediaProviderType = mediaProviderConfig ?
-			String(mediaProviderConfig.Type || 'http').toLowerCase() : '';
-		var mediaProviderOptions = mediaProviderConfig ?
-			AyleBootstrap.Clone(mediaProviderConfig) : null;
-
-		if (mediaProviderOptions)
-			delete mediaProviderOptions.Type;
 
 		this.CreateDOM(element, config);
-		if (!driverConfig.Type)
-			throw new Error(
-				'Player driver is not configured. ' +
-				'Use data-ayle-driver on the loader or on the Player instance.'
-			);
 
-		var type = String(driverConfig.Type).toLowerCase();
-		var Driver;
-		if (type === 'html5') Driver = global.AyleHTML5MediaDriver;
-		else if (type === 'mse') Driver = global.AyleMSEMediaDriver;
-		else throw new Error('Unknown player driver type: ' + driverConfig.Type);
-
-		var player = global.Ayle.Init(
-			element,
-			Driver,
-			playerOptions,
-			driverConfig.Options || {}
-		);
+		var player = global.Ayle.Init(element, {
+			Driver: {
+				Type: driverConfig.Type || 'html5',
+				Options: driverConfig.Options || {}
+			},
+			MediaProvider: mediaProviderConfig,
+			Player: playerOptions
+		});
 		var driver = player.Driver;
 		var ui = player.UI;
 		var video = player.MediaElement;
-		var mediaProvider = null;
+		var mediaProvider = player.MediaProvider;
 		var instance = {
 			ID: id,
 			Element: element,
@@ -1160,9 +1186,8 @@
 			Driver: driver,
 			Player: player,
 			UI: ui,
-			MediaProvider: null,
-			MediaProviderOptions: mediaProviderConfig ?
-				AyleBootstrap.Clone(mediaProviderConfig) : null,
+			MediaProvider: mediaProvider,
+			MediaProviderOptions: player.MediaProviderOptions,
 			Config: config
 		};
 		element.__playerInstance = instance;
@@ -1182,13 +1207,7 @@
 		this.BindDataEvents(instance, element);
 
 		if (mediaProviderConfig) {
-			mediaProvider = global.Ayle.CreateMediaProvider(
-				mediaProviderType,
-				player,
-				mediaProviderOptions || {}
-			);
-			instance.MediaProvider = mediaProvider;
-			mediaProvider.Load(function (error, source, metadata) {
+			player.LoadMedia(function (error, source, metadata) {
 				instance.Source = source || null;
 				instance.Metadata = metadata || null;
 				instance.Error = error || null;
@@ -1245,19 +1264,12 @@
 		if (!instance)
 			return false;
 
-		if (
-			instance.MediaProvider &&
-			typeof instance.MediaProvider.Destroy === 'function'
-		)
-			instance.MediaProvider.Destroy();
-
 		if (instance.UI && typeof instance.UI.Destroy === 'function')
 			instance.UI.Destroy();
 
-		if (instance.Driver && typeof instance.Driver.Destroy === 'function')
-			instance.Driver.Destroy();
-
-		if (instance.Player)
+		if (instance.Player && typeof instance.Player.Destroy === 'function')
+			instance.Player.Destroy();
+		else if (instance.Player)
 			instance.Player._events = {};
 
 		if (instance.Element) {

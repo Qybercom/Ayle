@@ -7,7 +7,12 @@ globalThis.location = { search: '' };
 const source = fs.readFileSync(new URL('../ayle.js', import.meta.url), 'utf8');
 vm.runInThisContext(source, { filename: 'ayle.js' });
 
-function Driver () {}
+function Driver () {
+	AyleMediaDriver.call(this);
+}
+
+Driver.prototype = Object.create(AyleMediaDriver.prototype);
+Driver.prototype.constructor = Driver;
 
 Driver.prototype.GetVolume = function () { return 1; };
 Driver.prototype.GetMuted = function () { return false; };
@@ -20,15 +25,17 @@ Driver.prototype.SetDebugMP4 = function () {};
 Driver.prototype.SetNativeSubtitles = function () {};
 Driver.prototype.SetVolume = function () {};
 Driver.prototype.SetMuted = function () {};
-Driver.prototype.On = function () {};
 
 function assert (value, message) {
 	if (!value)
 		throw new Error(message);
 }
 
-var player = new Ayle(new Driver(), {
-	MediaMode: 'video'
+var player = new Ayle({
+	Driver: new Driver(),
+	Player: {
+		MediaMode: 'video'
+	}
 });
 
 assert(typeof AyleMediaProvider === 'function', 'AyleMediaProvider global is missing');
@@ -190,6 +197,109 @@ assert(
 	switchedTypeMerge.TrackURL === undefined &&
 	switchedTypeMerge.RequestHeaders === undefined,
 	'provider Type switch must not inherit options from the previous provider type'
+);
+
+
+assert(Ayle.HasDriver('html5'), 'built-in html5 driver is not registered');
+assert(Ayle.HasDriver('MSE'), 'built-in mse driver lookup must be case-insensitive');
+assert(
+	Ayle.GetDriver('html5') === AyleHTML5MediaDriver,
+	'html5 registry entry is wrong'
+);
+assert(
+	Ayle.GetDriver('mse') === AyleMSEMediaDriver,
+	'mse registry entry is wrong'
+);
+assert(Ayle.RemoveDriver('html5') === false, 'built-in html5 driver must be protected');
+assert(Ayle.RemoveDriver('mse') === false, 'built-in mse driver must be protected');
+
+function CustomDriver () {
+	Driver.call(this);
+}
+
+CustomDriver.prototype = Object.create(Driver.prototype);
+CustomDriver.prototype.constructor = CustomDriver;
+CustomDriver.prototype.SetOptions = function (options) {
+	this.Options = options || {};
+	return this;
+};
+
+Ayle.RegisterDriver('custom', CustomDriver);
+assert(Ayle.HasDriver('CUSTOM'), 'custom driver registration failed');
+
+var createdDriver = Ayle.CreateDriver('custom', { Value: 7 });
+assert(createdDriver.Options.Value === 7, 'driver options were not forwarded');
+
+var eventPlayer = new Ayle({
+	Driver: createdDriver,
+	Player: {
+		MediaMode: 'video'
+	}
+});
+var driverEvent = null;
+
+eventPlayer.On('driver:testEvent', function (data) {
+	driverEvent = data;
+});
+createdDriver.Emit('testEvent', { Value: 11 });
+assert(driverEvent && driverEvent.Value === 11, 'driver namespaced event forwarding failed');
+
+function EventProvider (providerPlayer, options) {
+	AyleMediaProvider.call(this, providerPlayer, options);
+}
+EventProvider.prototype = Object.create(AyleMediaProvider.prototype);
+EventProvider.prototype.constructor = EventProvider;
+EventProvider.prototype.Load = function () { return true; };
+
+Ayle.RegisterMediaProvider('event-provider', EventProvider);
+eventPlayer.SetMediaProvider({
+	Type: 'event-provider'
+});
+
+var providerEvent = null;
+eventPlayer.On('provider:testEvent', function (data) {
+	providerEvent = data;
+});
+eventPlayer.MediaProvider.Emit('testEvent', { Value: 13 });
+assert(providerEvent && providerEvent.Value === 13, 'provider namespaced event forwarding failed');
+
+assert(Ayle.RemoveMediaProvider('event-provider') === true, 'event provider removal failed');
+assert(Ayle.RemoveDriver('custom') === true, 'custom driver removal failed');
+
+var directPlayer = new Ayle({
+	Driver: new Driver(),
+	MediaProvider: {
+		File: '/media/direct.mp3'
+	},
+	Player: {
+		MediaMode: 'audio'
+	}
+});
+
+assert(
+	directPlayer.MediaProvider instanceof AyleHTTPMediaProvider,
+	'omitting MediaProvider.Type must select the built-in http provider'
+);
+assert(
+	directPlayer.MediaProvider.Options.MetadataURL === '',
+	'direct HTTP mode must not require MetadataURL'
+);
+
+var directProviderReady = null;
+directPlayer.On('provider:ready', function (data) {
+	directProviderReady = data;
+});
+directPlayer.Load();
+
+assert(
+	directPlayer.State.Source &&
+	directPlayer.State.Source.URL === '/media/direct.mp3',
+	'direct HTTP provider must resolve File into AyleSource.URL'
+);
+assert(
+	directProviderReady &&
+	directProviderReady.Source === directPlayer.State.Source,
+	'direct provider ready event must flow through player.On()'
 );
 
 console.log('Ayle media provider registry validation passed.');

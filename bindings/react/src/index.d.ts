@@ -239,7 +239,16 @@ export interface AylePlayerCore {
 	Element: HTMLElement | null;
 	MediaElement: HTMLMediaElement | null;
 	Driver: AyleDriver;
+	MediaProvider: AyleMediaProvider | null;
+	MediaProviderOptions: Record<string, any> | null;
 	UI: AyleUI | null;
+	Load(): any;
+	Load(callback: (error?: Error | null, source?: AyleSource | null, metadata?: Record<string, any> | null) => void): any;
+	Load(source: AyleSource): boolean;
+	LoadMedia(callback?: (error?: Error | null, source?: AyleSource | null, metadata?: Record<string, any> | null) => void): any;
+	SetDriver(driver: AyleDriver): this;
+	SetMediaProvider(provider: AyleMediaProvider | Record<string, any> | null): this;
+	Destroy(): this;
 	Play(): boolean | Promise<any>;
 	Pause(): any;
 	Seek(position: number): boolean;

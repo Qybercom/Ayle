@@ -8,13 +8,7 @@ import {
 
 function minimalMediaProvider (file: string) {
 	return {
-		Type: 'http',
-		File: file,
-		MetadataURL: '/server/metadata.php?file={file}',
-		TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
-		Stream: {
-			SkipInit: true
-		}
+		File: file
 	};
 }
 
@@ -74,7 +68,7 @@ function fullMediaProvider (file: string) {
 };
 }
 
-const MINIMAL_VIDEO_MEDIA_PROVIDER = minimalMediaProvider('example.mkv');
+const MINIMAL_VIDEO_MEDIA_PROVIDER = minimalMediaProvider('example.mp4');
 const MINIMAL_AUDIO_MEDIA_PROVIDER = minimalMediaProvider('example.mp3');
 const FULL_VIDEO_MEDIA_PROVIDER = fullMediaProvider('example.mkv');
 const FULL_AUDIO_MEDIA_PROVIDER = fullMediaProvider('example.mp3');
@@ -378,13 +372,13 @@ export default function App () {
 				badge: 'minimal-video',
 				code: `<AylePlayer
 	id="react-minimal-video"
-	driver="mse"
+	driver="html5"
 	mediaProvider={MINIMAL_VIDEO_MEDIA_PROVIDER}
 	player={MINIMAL_VIDEO}
 />`,
 				player: {
 					id: 'react-minimal-video',
-					driver: 'mse',
+					driver: 'html5',
 					mediaProvider: MINIMAL_VIDEO_MEDIA_PROVIDER,
 					player: MINIMAL_VIDEO
 				}
@@ -395,13 +389,13 @@ export default function App () {
 				badge: 'minimal-audio',
 				code: `<AylePlayer
 	id="react-minimal-audio"
-	driver="mse"
+	driver="html5"
 	mediaProvider={MINIMAL_AUDIO_MEDIA_PROVIDER}
 	player={MINIMAL_AUDIO}
 />`,
 				player: {
 					id: 'react-minimal-audio',
-					driver: 'mse',
+					driver: 'html5',
 					mediaProvider: MINIMAL_AUDIO_MEDIA_PROVIDER,
 					player: MINIMAL_AUDIO
 				}
