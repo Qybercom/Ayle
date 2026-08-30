@@ -25,7 +25,6 @@ export class AppComponent {
 	};
 
 	readonly MinimalVideo = {
-		ShowCenterPlayButton: false,
 		MediaMode: 'video',
 		UI: {
 			Header: [],
@@ -37,7 +36,6 @@ export class AppComponent {
 	};
 
 	readonly MinimalAudio = {
-		ShowCenterPlayButton: false,
 		MediaMode: 'audio',
 		UI: {
 			Header: [],
@@ -176,7 +174,7 @@ export class AppComponent {
 			},
 			LoadingDelay: 180,
 			ForceShowQualityList: false,
-			ShowCenterPlayButton: true,
+			ShowCenterPlayButton: mediaMode !== 'audio',
 			AutoFocus: false,
 			MediaMode: mediaMode,
 			UI: {

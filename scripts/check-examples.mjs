@@ -374,6 +374,7 @@ const minimalDefaultNames = [
 	'SubtitleStyle',
 	'LoadingDelay',
 	'ForceShowQualityList',
+	'ShowCenterPlayButton',
 	'AutoFocus',
 	'AudioVisual',
 	'ArtworkSlideshow',
@@ -409,6 +410,12 @@ for (const id of ['embedded-minimal-video', 'embedded-minimal-audio']) {
 
 if (hasOwn(embeddedConfigs['embedded-minimal-video'].Player.UI, 'Track'))
 	throw new Error('embedded-minimal-video should inherit the default UI.Track');
+
+if (embeddedConfigs['embedded-full-video'].Player.ShowCenterPlayButton !== true)
+	throw new Error('embedded-full-video should explicitly set ShowCenterPlayButton to true');
+
+if (embeddedConfigs['embedded-full-audio'].Player.ShowCenterPlayButton !== false)
+	throw new Error('embedded-full-audio should explicitly set ShowCenterPlayButton to false');
 
 if (
 	embedded.indexOf('data-ayle="embedded-minimal-video"\n\t\tdata-ayle-settings=') !== -1 ||

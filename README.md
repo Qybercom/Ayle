@@ -60,7 +60,6 @@ For normal imperative use, `Ayle.Init()` is the assembly entry point. It accepts
 
 ```js
 var player = Ayle.Init('#player-minimal-audio', AyleMSEMediaDriver, {
-	ShowCenterPlayButton: false,
 	MediaMode: 'audio',
 	UI: {
 		Header: [],
@@ -229,7 +228,7 @@ A normal declarative config is an object with these top-level fields:
 | `SubtitleStyle` | object / `{}` | Custom subtitle-overlay style. See `Player.SubtitleStyle`. |
 | `LoadingDelay` | number / `180` | Delay in milliseconds before the loading indicator becomes visible. |
 | `ForceShowQualityList` | boolean / `false` | Keep the quality/variant selector available even when only one variant exists. |
-| `ShowCenterPlayButton` | boolean / `true` | Show the large center Play button. |
+| `ShowCenterPlayButton` | boolean / mode-dependent (`true` for video, `false` for audio) | Show the large center Play button. When omitted, the default follows the resolved media mode, including sources resolved through `MediaMode: 'auto'`. |
 | `AutoFocus` | boolean / `false` | Focus the player automatically when the user interacts with its controls/surface. |
 | `MediaMode` | `auto`, `video`, `audio` / `auto` | Select media mode. `auto` resolves from the loaded source. |
 | `UI` | object | Declarative UI composition: header, track, channel, overlay, and toolbar. |

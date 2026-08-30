@@ -70,7 +70,6 @@ function fullHTTP (file: string) {
 }
 
 const MINIMAL_VIDEO = {
-	ShowCenterPlayButton: false,
 	MediaMode: 'video',
 	UI: {
 		Header: [],
@@ -82,7 +81,6 @@ const MINIMAL_VIDEO = {
 };
 
 const MINIMAL_AUDIO = {
-	ShowCenterPlayButton: false,
 	MediaMode: 'audio',
 	UI: {
 		Header: [],
@@ -121,7 +119,7 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 		},
 		LoadingDelay: 180,
 		ForceShowQualityList: false,
-		ShowCenterPlayButton: true,
+		ShowCenterPlayButton: mediaMode !== 'audio',
 		AutoFocus: false,
 		MediaMode: mediaMode,
 		UI: {

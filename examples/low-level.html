@@ -271,7 +271,6 @@
 			<pre class="example-code"><code>var root = document.getElementById('player-minimal-video');
 var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
-	ShowCenterPlayButton: false,
 	MediaMode: 'video',
 	UI: {
 		Header: [],
@@ -308,7 +307,6 @@ http.Load(function (error, source, metadata) {
 });</code></pre>
 			<div class="example-code-title">Same player with Ayle.Init()</div>
 			<pre class="example-code"><code>var player = Ayle.Init('#player-minimal-video', AyleMSEMediaDriver, {
-	ShowCenterPlayButton: false,
 	MediaMode: 'video',
 	UI: {
 		Header: [],
@@ -572,7 +570,6 @@ http.Load(function (error, source, metadata) {
 			<pre class="example-code"><code>var root = document.getElementById('player-minimal-audio');
 var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
-	ShowCenterPlayButton: false,
 	MediaMode: 'audio',
 	UI: {
 		Header: [],
@@ -1454,7 +1451,7 @@ var player = new Ayle(driver, {
 		},
 		LoadingDelay: 180,
 		ForceShowQualityList: false,
-		ShowCenterPlayButton: true,
+		ShowCenterPlayButton: false,
 		AutoFocus: false,
 		MediaMode: 'audio',
 		UI: {
@@ -1869,7 +1866,6 @@ bootstrap.InitConfig(config);</code></pre>
 var root = document.getElementById('player-minimal-video');
 var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
-	ShowCenterPlayButton: false,
 	MediaMode: 'video',
 	UI: {
 		Header: [],
@@ -1907,7 +1903,6 @@ http.Load(function (error, source, metadata) {
 var root = document.getElementById('player-minimal-audio');
 var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
-	ShowCenterPlayButton: false,
 	MediaMode: 'audio',
 	UI: {
 		Header: [],
@@ -2287,7 +2282,7 @@ var player = new Ayle(driver, {
 		},
 		LoadingDelay: 180,
 		ForceShowQualityList: false,
-		ShowCenterPlayButton: true,
+		ShowCenterPlayButton: false,
 		AutoFocus: false,
 		MediaMode: 'audio',
 		UI: {

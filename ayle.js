@@ -4152,6 +4152,12 @@ function Ayle (driver, options) {
 		else
 			hintSafeArea = hintSafeArea || {};
 
+		var requestedMediaMode = options.MediaMode || 'auto';
+		if (requestedMediaMode !== 'auto' && requestedMediaMode !== 'video' && requestedMediaMode !== 'audio')
+			requestedMediaMode = 'auto';
+
+		this._showCenterPlayButtonExplicit = options.ShowCenterPlayButton !== undefined;
+
 		this.Options = {
 			AutoSelectFirstSubtitleTrack: !!options.AutoSelectFirstSubtitleTrack,
 			AutoPlay: !!options.AutoPlay,
@@ -4165,9 +4171,9 @@ function Ayle (driver, options) {
 			SubtitleStyle: options.SubtitleStyle || {},
 			LoadingDelay: options.LoadingDelay !== undefined ? Math.max(0, Number(options.LoadingDelay) || 0) : 180,
 			ForceShowQualityList: !!options.ForceShowQualityList,
-			ShowCenterPlayButton: options.ShowCenterPlayButton !== false,
+			ShowCenterPlayButton: this._showCenterPlayButtonExplicit ? !!options.ShowCenterPlayButton : requestedMediaMode !== 'audio',
 			AutoFocus: options.AutoFocus === true,
-			MediaMode: options.MediaMode || 'auto',
+			MediaMode: requestedMediaMode,
 			UI: {
 				Header: ui.Header instanceof Array ?
 					ui.Header.slice(0) : ['channel:card', 'track'],
@@ -4908,6 +4914,8 @@ function Ayle (driver, options) {
 		this.State.Source = source;
 		var previousMediaMode = this.State.MediaMode;
 		this.State.MediaMode = this.ResolveMediaMode(source);
+		if (!this._showCenterPlayButtonExplicit)
+			this.Options.ShowCenterPlayButton = this.State.MediaMode !== 'audio';
 		this.State.Ready = false;
 		this.State.Loading = true;
 		this.State.Playing = false;
@@ -5633,6 +5641,9 @@ function Ayle (driver, options) {
 		this.Options.MediaMode = mode;
 
 		var resolved = this.ResolveMediaMode(this.State.Source);
+		if (!this._showCenterPlayButtonExplicit)
+			this.Options.ShowCenterPlayButton = resolved !== 'audio';
+
 		if (this.State.MediaMode !== resolved) {
 			this.State.MediaMode = resolved;
 			this.Emit('mediaModeChange', resolved);
