@@ -31,7 +31,7 @@ The repository intentionally keeps four example entry points, each presented as 
 | `examples/angular/` | minimal-video, minimal-audio, full-video, full-audio |
 | `examples/react/` | minimal-video, minimal-audio, full-video, full-audio |
 
-The minimal variants demonstrate the smallest practical configuration for each media mode. The full variants are the study/reference examples and intentionally exercise the current broad feature surface: initialization state, subtitles, keyboard shortcuts, toolbar layouts, custom toolbar menus, timeline ranges, Media Session, hints, integration settings, channel metadata, localization and audio-specific visual behavior.
+The minimal variants demonstrate the smallest practical configuration for each media mode and intentionally omit values that already match Ayle defaults. The full variants are exhaustive reference examples: they explicitly enumerate the complete current Player and HTTP option surface, including nested/default-valued options, while also exercising integrations.
 
 ## Quick start
 
@@ -60,17 +60,13 @@ For normal imperative use, `Ayle.Init()` is the assembly entry point. It accepts
 
 ```js
 var player = Ayle.Init('#player-minimal-audio', AyleMSEMediaDriver, {
-	AutoPlay: false,
-	AutoFocus: true,
 	ShowCenterPlayButton: false,
 	MediaMode: 'audio',
 	UI: {
 		Header: [],
 		Track: ['artwork', 'title', 'artist', 'album'],
-		Channel: ['name', 'profile'],
 		Overlay: ['track:compact', 'subtitles'],
 		Toolbar: {
-			Layout: 'inline',
 			Items: ['play', 'timeline', 'time', 'volume']
 		}
 	}
@@ -358,6 +354,11 @@ UI: {
 
 ### `Player.AudioVisual`
 
+`AudioVisual` has no `Enabled` switch. Older examples that used
+`AudioVisual: {Enabled: true}` were ineffective because that property was never
+read by Ayle. The visual area is controlled by `Type`, while `auto` derives the
+result from the current source and declarative overlays.
+
 | Option | Type / default | Description |
 | --- | --- | --- |
 | `Type` | `auto`, `none`, `cover` / `auto` | Controls the visual area used in audio mode. |
@@ -569,6 +570,12 @@ A number may be supplied to apply the same padding to all sides, or an object ma
 | `InitValue` | any / `init` | In `time` mode, replacement for `{time}` when deriving the init request from the same URL template. |
 | `Segments` | array / `[]` | Descriptors for `segments` mode. Each entry may contain `Start`, `End`, `URL`, `RangeStart`, `RangeEnd`. |
 | `TimeURL` | string / track URL | Explicit URL template used for `time` requests; should contain `{time}`. |
+| `TimeParameter` | string / `time` | Query parameter appended when `TimeURL` does not contain a `{time}` placeholder. |
+| `TimePrecision` | number / `3` | Decimal precision used when formatting time-addressed request positions. |
+| `TimeStartHeader` | string / `X-Media-Start` | Response header containing the actual fragment start time. |
+| `TimeEndHeader` | string / `X-Media-End` | Response header containing the actual fragment end time. |
+| `TimeDurationHeader` | string / `X-Media-Duration` | Response header containing the total media duration when supplied by the endpoint. |
+| `TimeEOFHeader` | string / `X-Media-EOF` | Response header indicating the final time-addressed fragment. |
 | `AlignTimestamps` | boolean / `true` | Enable timestamp alignment logic for appended MSE media. |
 | `MaxNoProgressRequests` | number / `3` | Maximum consecutive time-mode requests that fail to advance buffering before the loader stops the request storm. |
 | `UseBufferedEndForNextTime` | boolean / `true` | Use the SourceBuffer's real buffered end as the authoritative next request point in time mode. |

@@ -14,33 +14,83 @@ const HTTP = {
 	}
 };
 
+function fullHTTP (file: string) {
+	return {
+	File: file,
+	MetadataURL: '/server/metadata.php?file={file}',
+	TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
+	VideoURL: '',
+	AudioURL: '',
+	SubtitleURL: '',
+	ArtworkURL: '',
+	CoverURL: '',
+	CodecHeader: 'X-Media-Codec',
+	CodecListHeader: 'X-Media-Codec-List',
+	CodecCandidates: null,
+	RequestHeaders: {},
+	Stream: {
+		Mode: 'time',
+		ChunkSize: 2097152,
+		BufferAhead: 30,
+		BufferBehind: 20,
+		SkipInit: true,
+		Init: {
+			URL: '',
+			RangeStart: 0,
+			RangeEnd: 0
+		},
+		InitValue: 'init',
+		Segments: [
+			{
+				Start: 0,
+				End: 0,
+				URL: '',
+				RangeStart: 0,
+				RangeEnd: 0
+			}
+		],
+		TimeURL: '',
+		TimeParameter: 'time',
+		TimePrecision: 3,
+		TimeStartHeader: 'X-Media-Start',
+		TimeEndHeader: 'X-Media-End',
+		TimeDurationHeader: 'X-Media-Duration',
+		TimeEOFHeader: 'X-Media-EOF',
+		AlignTimestamps: true,
+		MaxNoProgressRequests: 3,
+		UseBufferedEndForNextTime: true,
+		GapTolerance: 0.15,
+		MaxGapRetries: 2,
+		TimeEpsilon: 0.001
+	},
+	VideoType: 'video/mp4',
+	AudioType: 'audio/mp4',
+	SubtitleType: 'text/vtt'
+};
+}
+
 const MINIMAL_VIDEO = {
-	AutoPlay: false,
-	AutoFocus: true,
 	ShowCenterPlayButton: false,
 	MediaMode: 'video',
 	UI: {
 		Header: [],
-		Track: ['title', 'chapter'],
-		Channel: ['name', 'profile'],
 		Overlay: ['track:compact'],
 		Toolbar: {
-			Layout: 'inline',
 			Items: ['play', 'timeline', 'time', 'volume']
 		}
 	}
 };
 
 const MINIMAL_AUDIO = {
-	...MINIMAL_VIDEO,
+	ShowCenterPlayButton: false,
 	MediaMode: 'audio',
 	UI: {
-		...MINIMAL_VIDEO.UI,
+		Header: [],
 		Track: ['artwork', 'title', 'artist', 'album'],
-		Overlay: ['track:compact', 'subtitles']
-	},
-	AudioVisual: {
-		Enabled: true
+		Overlay: ['track:compact', 'subtitles'],
+		Toolbar: {
+			Items: ['play', 'timeline', 'time', 'volume']
+		}
 	}
 };
 
@@ -48,27 +98,67 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 	return {
 		AutoSelectFirstSubtitleTrack: false,
 		AutoPlay: false,
-		AutoPlayMode: 'muted',
-		Volume: 0.8,
+		AutoPlayMode: 'audible',
+		Volume: 1,
 		Muted: false,
 		Start: 0,
 		NativeSubtitles: false,
 		SubtitleOffset: 0,
-		AutoNativeSubtitlesInPictureInPicture: true,
+		AutoNativeSubtitlesInPictureInPicture: false,
 		SubtitleStyle: {
 			Color: '#fff',
-			Background: 'rgba(0,0,0,.72)',
-			FontFamily: 'Calibri, sans-serif',
-			FontWeight: 400,
-			FontSize: '16px',
-			LineHeight: '16px',
-			TextShadow: '0 1px 2px #000'
+			Background: 'rgba(0, 0, 0, .72)',
+			FontFamily: 'Arial, sans-serif',
+			FontSize: '1.15em',
+			FontWeight: '400',
+			LineHeight: '1.25',
+			TextShadow: 'none',
+			Padding: '8px',
+			BorderRadius: '8px',
+			LetterSpacing: 'normal',
+			Bottom: '64px',
+			MaxWidth: '90%'
 		},
 		LoadingDelay: 180,
-		ForceShowQualityList: true,
+		ForceShowQualityList: false,
 		ShowCenterPlayButton: true,
-		AutoFocus: true,
+		AutoFocus: false,
 		MediaMode: mediaMode,
+		UI: {
+			Header: ['channel:card', 'track'],
+			Track: mediaMode === 'audio' ?
+				['artwork', 'title', 'artist', 'album'] :
+				['title', 'chapter'],
+			Channel: ['name', 'profile'],
+			Overlay: [],
+			Toolbar: {
+				Layout: 'inline',
+				Items: [
+					'play',
+					'timeline',
+					'time',
+					'volume',
+					'chapters',
+					'quality',
+					'settings',
+					'pip',
+					'fullscreen'
+				]
+			}
+		},
+		AudioVisual: {
+			Type: 'auto',
+			Image: '',
+			Subtitles: true,
+			MinHeight: 240
+		},
+		ArtworkSlideshow: {
+			Enabled: true,
+			HideControls: false,
+			Interval: 3000,
+			FadeDuration: 500,
+			Fit: 'cover'
+		},
 		KeyboardArrowSeekStep: 10,
 		KeyboardAngleSeekStep: 'frame',
 		KeyboardFrameRateFallback: 30,
@@ -78,8 +168,30 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 			SeekAngle: true,
 			Volume: true,
 			Mute: true,
+			Subtitles: true,
 			Fullscreen: true,
 			PictureInPicture: true
+		},
+		Timeline: {
+			Ranges: [
+				{
+					ID: 'intro',
+					Start: 0,
+					End: 15,
+					Duration: 15,
+					Label: 'Intro',
+					ClassName: 'example-range-intro'
+				}
+			]
+		},
+		MediaSession: {
+			Enabled: true,
+			Metadata: {
+				Title: '',
+				Artist: '',
+				Album: '',
+				Artwork: null
+			}
 		},
 		SettingsOrder: [
 			'autoplay',
@@ -93,57 +205,22 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 			'',
 			'integration'
 		],
-		FontFamily: 'Calibri, sans-serif',
+		FontFamily: 'Arial, sans-serif',
 		Debug: false,
 		DebugMP4: false,
-		Localization: 'en-US',
+		Localization: {},
 		HintSafeArea: {
 			Top: 16,
 			Right: 16,
 			Bottom: 16,
 			Left: 16
 		},
-		UI: {
-			Header: ['channel:card', 'track'],
-			Track: mediaMode === 'audio' ?
-				['artwork', 'title', 'artist', 'album'] :
-				['title', 'chapter'],
-			Channel: ['name', 'profile'],
-			Toolbar: {
-				Layout: 'auto',
-				Items: [
-					'play',
-					'timeline',
-					'time',
-					'',
-					'volume',
-					'chapters',
-					'quality',
-					'settings',
-					'pip',
-					'fullscreen'
-				]
-			}
-		},
-		Timeline: {
-			Ranges: [
-				{
-					ID: 'intro',
-					Start: 0,
-					Duration: 15,
-					Label: 'Intro',
-					ClassName: 'example-range-intro'
-				}
-			]
-		},
-		MediaSession: {
-			Enabled: true,
-			Metadata: {}
-		},
 		Integration: {
 			Channel: {
 				Name: 'Nature Explorer',
 				Avatar: '/img/channel-avatar.png',
+				URL: '#',
+				Action: null,
 				Profile: {
 					Name: '@natureexplorer',
 					URL: '#',
@@ -152,30 +229,61 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 			},
 			Hints: [
 				{
-					ID: 'github',
-					Type: 'link',
-					Position: 'top-right-corner',
-					Label: 'Ayle on GitHub',
-					URL: 'https://github.com/Qybercom/Ayle',
-					Target: '_blank'
-				},
-				{
 					ID: 'info',
 					Type: 'info',
-					Position: 'top-right',
 					Start: 5,
+					End: 13,
 					Duration: 8,
+					Position: 'top-right',
+					Offset: {
+						X: 0,
+						Y: 0
+					},
 					Title: 'Information',
 					Text: 'A normal timed hint.',
-					Dismissible: true
+					Label: '',
+					URL: '',
+					Target: '_blank',
+					Image: '',
+					Action: null,
+					Actions: [
+						{
+							Type: 'callback',
+							Title: 'Action',
+							Label: 'Action',
+							Name: 'example-action',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
+						}
+					],
+					Dismissible: true,
+					Once: false,
+					Repeatable: false,
+					PauseOnShow: false,
+					ResumeOnAction: false,
+					HideOnAction: true,
+					ShowTitle: true,
+					ShowDescription: true,
+					ResultMode: 'off',
+					ResultDuration: 0
 				}
 			],
 			Settings: [
 				{
 					ID: 'integration-action',
 					Title: 'Integration action',
+					Label: 'Integration action',
 					Value: 'Run',
-					Event: 'integration-action'
+					Disabled: false,
+					Items: [],
+					Action: null,
+					OnSelect: null,
+					Event: 'integration-action',
+					CloseMenu: true
 				}
 			],
 			Toolbar: [
@@ -183,24 +291,32 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 					ID: 'favorite',
 					Type: 'button',
 					Before: 'settings',
+					After: '',
+					Icon: '',
 					Label: '★',
 					Title: 'Favorite',
+					ClassName: '',
+					Visible: true,
+					Disabled: false,
+					Event: '',
 					Menu: [
 						{
+							ID: 'add',
+							Title: 'Add to favorites',
 							Label: 'Add to favorites',
-							Event: 'add'
+							Value: '',
+							Event: 'add',
+							ClassName: '',
+							Disabled: false,
+							CloseMenu: true,
+							Action: null,
+							OnClick: null
 						},
-						{
-							Label: 'Save for later',
-							Event: 'later'
-						},
-						'',
-						{
-							Label: 'Manage favorites',
-							Value: '↗',
-							Event: 'manage'
-						}
-					]
+						''
+					],
+					OnClick: null,
+					OnCreate: null,
+					OnDestroy: null
 				}
 			],
 			TimelineRanges: [
@@ -208,24 +324,28 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 					ID: 'integration-range',
 					Start: 45,
 					End: 75,
+					Duration: 30,
 					Label: 'Integration range',
 					ClassName: 'example-range-integration'
 				}
-			]
+			],
+			MediaSession: {
+				Metadata: {
+					Title: '',
+					Artist: '',
+					Album: '',
+					Artwork: null
+				}
+			},
+			Data: {
+				Example: 'full'
+			}
 		}
 	};
 }
 
 const FULL_VIDEO = fullPlayer('video');
-const FULL_AUDIO = {
-	...fullPlayer('audio'),
-	AudioVisual: {
-		Enabled: true
-	},
-	ArtworkSlideshow: {
-		Enabled: true
-	}
-};
+const FULL_AUDIO = fullPlayer('audio');
 
 type ExampleCardProps = {
 	title: string;
@@ -259,7 +379,7 @@ export default function App () {
 		return [
 			{
 				title: 'Minimal video',
-				description: 'Minimal UI + video media mode.',
+				description: 'Minimal configuration + video media mode.',
 				badge: 'minimal-video',
 				code: `<AylePlayer
 	id="react-minimal-video"
@@ -278,7 +398,7 @@ export default function App () {
 			},
 			{
 				title: 'Minimal audio',
-				description: 'Minimal UI + audio media mode.',
+				description: 'Minimal configuration + audio media mode.',
 				badge: 'minimal-audio',
 				code: `<AylePlayer
 	id="react-minimal-audio"
@@ -304,7 +424,7 @@ export default function App () {
 	file="example.mkv"
 	driver="mse"
 	settings="localStorage"
-	http={HTTP}
+	http={fullHTTP('example.mkv')}
 	player={FULL_VIDEO}
 	onEvent={handleEvent}
 />`,
@@ -313,7 +433,7 @@ export default function App () {
 					file: 'example.mkv',
 					driver: 'mse',
 					settings: 'localStorage',
-					http: HTTP,
+					http: fullHTTP('example.mkv'),
 					player: FULL_VIDEO,
 					onEvent: function (event) {
 						console.log('Ayle React event:', event.Type, event.Data);
@@ -329,7 +449,7 @@ export default function App () {
 	file="example.mp3"
 	driver="mse"
 	settings="localStorage"
-	http={HTTP}
+	http={fullHTTP('example.mp3')}
 	player={FULL_AUDIO}
 	onEvent={handleEvent}
 />`,
@@ -338,7 +458,7 @@ export default function App () {
 					file: 'example.mp3',
 					driver: 'mse',
 					settings: 'localStorage',
-					http: HTTP,
+					http: fullHTTP('example.mp3'),
 					player: FULL_AUDIO,
 					onEvent: function (event) {
 						console.log('Ayle React event:', event.Type, event.Data);

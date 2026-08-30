@@ -117,6 +117,343 @@ while (i < configurationSources.length) {
 	i++;
 }
 
+for (const source of configurationSources) {
+	if (/AudioVisual\s*:\s*\{\s*Enabled\s*:/.test(source))
+		throw new Error('AudioVisual.Enabled is not a supported option and must not appear in examples');
+
+	if (/"AudioVisual"\s*:\s*\{\s*"Enabled"\s*:/.test(source))
+		throw new Error('AudioVisual.Enabled is not a supported option and must not appear in examples');
+}
+
+const fullPlayerOptions = [
+	'AutoSelectFirstSubtitleTrack',
+	'AutoPlay',
+	'AutoPlayMode',
+	'Volume',
+	'Muted',
+	'Start',
+	'NativeSubtitles',
+	'SubtitleOffset',
+	'AutoNativeSubtitlesInPictureInPicture',
+	'SubtitleStyle',
+	'LoadingDelay',
+	'ForceShowQualityList',
+	'ShowCenterPlayButton',
+	'AutoFocus',
+	'MediaMode',
+	'UI',
+	'AudioVisual',
+	'ArtworkSlideshow',
+	'KeyboardArrowSeekStep',
+	'KeyboardAngleSeekStep',
+	'KeyboardFrameRateFallback',
+	'Shortcuts',
+	'Timeline',
+	'MediaSession',
+	'SettingsOrder',
+	'FontFamily',
+	'Debug',
+	'DebugMP4',
+	'Localization',
+	'HintSafeArea',
+	'Integration'
+];
+
+const fullStructuredOptions = {
+	SubtitleStyle: [
+		'Color', 'Background', 'FontFamily', 'FontSize', 'FontWeight',
+		'LineHeight', 'TextShadow', 'Padding', 'BorderRadius',
+		'LetterSpacing', 'Bottom', 'MaxWidth'
+	],
+	UI: ['Header', 'Track', 'Channel', 'Overlay', 'Toolbar'],
+	AudioVisual: ['Type', 'Image', 'Subtitles', 'MinHeight'],
+	ArtworkSlideshow: ['Enabled', 'HideControls', 'Interval', 'FadeDuration', 'Fit'],
+	Shortcuts: [
+		'PlayPause', 'SeekArrows', 'SeekAngle', 'Volume', 'Mute',
+		'Subtitles', 'Fullscreen', 'PictureInPicture'
+	],
+	MediaSession: ['Enabled', 'Metadata'],
+	HintSafeArea: ['Top', 'Right', 'Bottom', 'Left'],
+	Integration: [
+		'Channel', 'Hints', 'Settings', 'Toolbar',
+		'TimelineRanges', 'MediaSession', 'Data'
+	]
+};
+
+const fullHTTPOptions = [
+	'File',
+	'MetadataURL',
+	'TrackURL',
+	'VideoURL',
+	'AudioURL',
+	'SubtitleURL',
+	'ArtworkURL',
+	'CoverURL',
+	'CodecHeader',
+	'CodecListHeader',
+	'CodecCandidates',
+	'RequestHeaders',
+	'Stream',
+	'VideoType',
+	'AudioType',
+	'SubtitleType'
+];
+
+const fullStreamOptions = [
+	'Mode',
+	'ChunkSize',
+	'BufferAhead',
+	'BufferBehind',
+	'SkipInit',
+	'Init',
+	'InitValue',
+	'Segments',
+	'TimeURL',
+	'TimeParameter',
+	'TimePrecision',
+	'TimeStartHeader',
+	'TimeEndHeader',
+	'TimeDurationHeader',
+	'TimeEOFHeader',
+	'AlignTimestamps',
+	'MaxNoProgressRequests',
+	'UseBufferedEndForNextTime',
+	'GapTolerance',
+	'MaxGapRetries',
+	'TimeEpsilon'
+];
+
+const hasOwn = function (object, name) {
+	return Object.prototype.hasOwnProperty.call(object || {}, name);
+};
+
+const validateFullObject = function (player, http, label) {
+	for (const name of fullPlayerOptions) {
+		if (!hasOwn(player, name))
+			throw new Error(label + ' full Player is missing option ' + name);
+	}
+
+	for (const group in fullStructuredOptions) {
+		for (const name of fullStructuredOptions[group]) {
+			if (!hasOwn(player[group], name))
+				throw new Error(label + ' full Player.' + group + ' is missing suboption ' + name);
+		}
+	}
+
+	for (const name of fullHTTPOptions) {
+		if (!hasOwn(http, name))
+			throw new Error(label + ' full HTTP is missing option ' + name);
+	}
+
+	for (const name of fullStreamOptions) {
+		if (!hasOwn(http.Stream, name))
+			throw new Error(label + ' full HTTP.Stream is missing suboption ' + name);
+	}
+
+	for (const name of ['URL', 'RangeStart', 'RangeEnd']) {
+		if (!hasOwn(http.Stream.Init, name))
+			throw new Error(label + ' full HTTP.Stream.Init is missing suboption ' + name);
+	}
+
+	if (!(http.Stream.Segments instanceof Array) || !http.Stream.Segments.length)
+		throw new Error(label + ' full HTTP.Stream.Segments must demonstrate a descriptor');
+
+	for (const name of ['Start', 'End', 'URL', 'RangeStart', 'RangeEnd']) {
+		if (!hasOwn(http.Stream.Segments[0], name))
+			throw new Error(label + ' full HTTP.Stream.Segments[] is missing suboption ' + name);
+	}
+
+	for (const name of ['Title', 'Artist', 'Album', 'Artwork']) {
+		if (!hasOwn(player.MediaSession.Metadata, name))
+			throw new Error(label + ' full Player.MediaSession.Metadata is missing suboption ' + name);
+
+		if (!hasOwn(player.Integration.MediaSession.Metadata, name))
+			throw new Error(label + ' full Player.Integration.MediaSession.Metadata is missing suboption ' + name);
+	}
+
+	for (const name of ['Name', 'Avatar', 'URL', 'Action', 'Profile']) {
+		if (!hasOwn(player.Integration.Channel, name))
+			throw new Error(label + ' full Integration.Channel is missing suboption ' + name);
+	}
+
+	for (const name of ['Name', 'URL', 'Target']) {
+		if (!hasOwn(player.Integration.Channel.Profile, name))
+			throw new Error(label + ' full Integration.Channel.Profile is missing suboption ' + name);
+	}
+
+	const hint = player.Integration.Hints[0];
+	for (const name of [
+		'ID', 'Type', 'Start', 'End', 'Duration', 'Position', 'Offset',
+		'Title', 'Text', 'Label', 'URL', 'Target', 'Image', 'Action',
+		'Actions', 'Dismissible', 'Once', 'Repeatable', 'PauseOnShow',
+		'ResumeOnAction', 'HideOnAction', 'ShowTitle', 'ShowDescription',
+		'ResultMode', 'ResultDuration'
+	]) {
+		if (!hasOwn(hint, name))
+			throw new Error(label + ' full Integration.Hints[] is missing suboption ' + name);
+	}
+
+	for (const name of ['X', 'Y']) {
+		if (!hasOwn(hint.Offset, name))
+			throw new Error(label + ' full Hint.Offset is missing suboption ' + name);
+	}
+
+	const hintAction = hint.Actions[0];
+	for (const name of [
+		'Type', 'Title', 'Label', 'Name', 'URL', 'Target',
+		'Time', 'Source', 'Callback', 'Correct'
+	]) {
+		if (!hasOwn(hintAction, name))
+			throw new Error(label + ' full Hint action is missing suboption ' + name);
+	}
+
+	const setting = player.Integration.Settings[0];
+	for (const name of [
+		'ID', 'Title', 'Label', 'Value', 'Disabled', 'Items',
+		'Action', 'OnSelect', 'Event', 'CloseMenu'
+	]) {
+		if (!hasOwn(setting, name))
+			throw new Error(label + ' full Integration.Settings[] is missing suboption ' + name);
+	}
+
+	const toolbarItem = player.Integration.Toolbar[0];
+	for (const name of [
+		'ID', 'Type', 'Before', 'After', 'Icon', 'Label', 'Title',
+		'ClassName', 'Visible', 'Disabled', 'Event', 'Menu',
+		'OnClick', 'OnCreate', 'OnDestroy'
+	]) {
+		if (!hasOwn(toolbarItem, name))
+			throw new Error(label + ' full Integration.Toolbar[] is missing suboption ' + name);
+	}
+
+	const menuItem = toolbarItem.Menu[0];
+	for (const name of [
+		'ID', 'Title', 'Label', 'Value', 'Event', 'ClassName',
+		'Disabled', 'CloseMenu', 'Action', 'OnClick'
+	]) {
+		if (!hasOwn(menuItem, name))
+			throw new Error(label + ' full toolbar Menu[] is missing suboption ' + name);
+	}
+
+	for (const range of [player.Timeline.Ranges[0], player.Integration.TimelineRanges[0]]) {
+		for (const name of ['ID', 'Start', 'End', 'Duration', 'Label', 'ClassName']) {
+			if (!hasOwn(range, name))
+				throw new Error(label + ' full timeline range is missing suboption ' + name);
+		}
+	}
+};
+
+const embeddedConfigs = {};
+const embeddedConfigPattern = /<script\s+type="application\/json"\s+data-ayle="([^"]+)"(?:\s+data-ayle-settings="[^"]*")?>([\s\S]*?)<\/script>/g;
+let embeddedMatch;
+
+while ((embeddedMatch = embeddedConfigPattern.exec(embedded)) !== null)
+	embeddedConfigs[embeddedMatch[1]] = JSON.parse(embeddedMatch[2]);
+
+validateFullObject(
+	embeddedConfigs['embedded-full-video'].Player,
+	embeddedConfigs['embedded-full-video'].HTTP,
+	'embedded-full-video'
+);
+validateFullObject(
+	embeddedConfigs['embedded-full-audio'].Player,
+	embeddedConfigs['embedded-full-audio'].HTTP,
+	'embedded-full-audio'
+);
+
+const minimalDefaultNames = [
+	'AutoSelectFirstSubtitleTrack',
+	'AutoPlay',
+	'AutoPlayMode',
+	'Volume',
+	'Muted',
+	'Start',
+	'NativeSubtitles',
+	'SubtitleOffset',
+	'AutoNativeSubtitlesInPictureInPicture',
+	'SubtitleStyle',
+	'LoadingDelay',
+	'ForceShowQualityList',
+	'AutoFocus',
+	'AudioVisual',
+	'ArtworkSlideshow',
+	'KeyboardArrowSeekStep',
+	'KeyboardAngleSeekStep',
+	'KeyboardFrameRateFallback',
+	'Shortcuts',
+	'Timeline',
+	'MediaSession',
+	'SettingsOrder',
+	'FontFamily',
+	'Debug',
+	'DebugMP4',
+	'Localization',
+	'HintSafeArea',
+	'Integration'
+];
+
+for (const id of ['embedded-minimal-video', 'embedded-minimal-audio']) {
+	const player = embeddedConfigs[id].Player;
+
+	for (const name of minimalDefaultNames) {
+		if (hasOwn(player, name))
+			throw new Error(id + ' should omit default/nonessential Player option ' + name);
+	}
+
+	if (hasOwn(player.UI, 'Channel'))
+		throw new Error(id + ' should inherit the default UI.Channel');
+
+	if (hasOwn(player.UI.Toolbar, 'Layout'))
+		throw new Error(id + ' should inherit the default UI.Toolbar.Layout');
+}
+
+if (hasOwn(embeddedConfigs['embedded-minimal-video'].Player.UI, 'Track'))
+	throw new Error('embedded-minimal-video should inherit the default UI.Track');
+
+if (
+	embedded.indexOf('data-ayle="embedded-minimal-video"\n\t\tdata-ayle-settings=') !== -1 ||
+	embedded.indexOf('data-ayle="embedded-minimal-audio"\n\t\tdata-ayle-settings=') !== -1
+)
+	throw new Error('Minimal embedded examples should not enable settings persistence');
+
+const reactSource = configurationSources[3];
+const angularSource = configurationSources[2];
+
+for (const token of fullPlayerOptions.concat([
+	'Padding', 'BorderRadius', 'LetterSpacing', 'Bottom', 'MaxWidth',
+	'Overlay', 'AudioVisual', 'ArtworkSlideshow', 'Subtitles',
+	'TimelineRanges', 'Data'
+])) {
+	if (reactSource.indexOf(token) === -1)
+		throw new Error('React full example is missing ' + token);
+
+	if (angularSource.indexOf(token) === -1)
+		throw new Error('Angular full example is missing ' + token);
+}
+
+for (const token of fullHTTPOptions.concat(fullStreamOptions)) {
+	if (reactSource.indexOf(token) === -1)
+		throw new Error('React full HTTP example is missing ' + token);
+
+	if (angularSource.indexOf(token) === -1)
+		throw new Error('Angular full HTTP example is missing ' + token);
+
+	if (lowLevel.indexOf(token + ':') === -1)
+		throw new Error('Low-level full HTTP example is missing ' + token);
+}
+
+if ((lowLevel.match(/^\t\tAutoPlay: false,/gm) || []).length !== 4)
+	throw new Error('Low-level minimal examples must not repeat default AutoPlay:false');
+
+if ((lowLevel.match(/^\t\tMuted: false,/gm) || []).length !== 4)
+	throw new Error('Low-level minimal examples must not repeat default Muted:false');
+
+if ((lowLevel.match(/^\t\tStart: 0,/gm) || []).length !== 4)
+	throw new Error('Low-level minimal examples must not repeat default Start:0');
+
+if ((lowLevel.match(/^\t\t\t\tLayout: 'inline',/gm) || []).length !== 4)
+	throw new Error('Low-level minimal examples must inherit default Toolbar.Layout');
+
 if (core.indexOf("headerItem === 'channel:contact'") === -1)
 	throw new Error('Core UI composition is missing channel:contact');
 

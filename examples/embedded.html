@@ -23,7 +23,7 @@
 			<div class="example-card-header">
 				<div>
 					<h2>Minimal video</h2>
-					<p>Minimal UI + video media mode.</p>
+					<p>Minimal configuration + video media mode.</p>
 				</div>
 				<span class="example-badge">minimal-video</span>
 			</div>
@@ -31,69 +31,65 @@
 				<div class="example-embedded-player">
 	<script
 		type="application/json"
-		data-ayle="embedded-minimal-video"
-		data-ayle-settings="localStorage">
-	{
-		"File": "example.mkv",
-		"Driver": {
-			"Type": "mse"
-		},
-		"Player": {
-			"AutoPlay": false,
-			"AutoFocus": true,
-			"MediaMode": "video",
-			"ShowCenterPlayButton": false,
-			"Volume": 0.8,
-			"Muted": false,
-			"Start": 0,
-			"UI": {
-				"Header": [],
-				"Track": ["title", "chapter"],
-				"Channel": ["name", "profile"],
-				"Overlay": ["track:compact"],
-				"Toolbar": {
-					"Layout": "inline",
-					"Items": ["play", "timeline", "time", "volume"]
-				}
-			}
-		},
-		"HTTP": {
-			"MetadataURL": "../../server/metadata.php?file={file}",
-			"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
-			"Stream": {
-				"SkipInit": true
-			}
-		}
-	}
-	</script>
-				</div>
-			</div>
-			<div class="example-code-title">Declarative embed</div>
-			<pre class="example-code"><code>&lt;script
-	type="application/json"
-	data-ayle="embedded-minimal-video"
-	data-ayle-settings="localStorage"&gt;
+		data-ayle="embedded-minimal-video">
 {
 	"File": "example.mkv",
 	"Driver": {
 		"Type": "mse"
 	},
 	"Player": {
-		"AutoPlay": false,
-		"AutoFocus": true,
+		"ShowCenterPlayButton": false,
 		"MediaMode": "video",
-			"ShowCenterPlayButton": false,
-		"Volume": 0.8,
-		"Muted": false,
-		"Start": 0,
 		"UI": {
 			"Header": [],
-			"Track": ["title", "chapter"],
-			"Channel": ["name", "profile"],
-			"Overlay": ["track:compact"],
+			"Overlay": [
+				"track:compact"
+			],
 			"Toolbar": {
-				"Layout": "inline",
-				"Items": ["play", "timeline", "time", "volume"]
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"volume"
+				]
+			}
+		}
+	},
+	"HTTP": {
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+		"Stream": {
+			"SkipInit": true
+		}
+	}
+}
+	</script>
+				</div>
+			</div>
+			<div class="example-code-title">Declarative embed</div>
+			<pre class="example-code"><code>&lt;script
+	type="application/json"
+	data-ayle="embedded-minimal-video"&gt;
+{
+	"File": "example.mkv",
+	"Driver": {
+		"Type": "mse"
+	},
+	"Player": {
+		"ShowCenterPlayButton": false,
+		"MediaMode": "video",
+		"UI": {
+			"Header": [],
+			"Overlay": [
+				"track:compact"
+			],
+			"Toolbar": {
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"volume"
+				]
 			}
 		}
 	},
@@ -111,7 +107,7 @@
 			<div class="example-card-header">
 				<div>
 					<h2>Minimal audio</h2>
-					<p>Minimal UI + audio media mode.</p>
+					<p>Minimal configuration + audio media mode.</p>
 				</div>
 				<span class="example-badge">minimal-audio</span>
 			</div>
@@ -119,69 +115,15 @@
 				<div class="example-embedded-player">
 	<script
 		type="application/json"
-		data-ayle="embedded-minimal-audio"
-		data-ayle-settings="localStorage">
-	{
-		"File": "example.mp3",
-		"Driver": {
-			"Type": "mse"
-		},
-		"Player": {
-			"AutoPlay": false,
-			"AutoFocus": true,
-			"MediaMode": "audio",
-			"ShowCenterPlayButton": false,
-			"Volume": 0.8,
-			"Muted": false,
-			"Start": 0,
-			"UI": {
-				"Header": [],
-				"Track": [
-				"artwork",
-				"title",
-				"artist",
-				"album"
-			],
-				"Channel": ["name", "profile"],
-				"Toolbar": {
-					"Layout": "inline",
-					"Items": ["play", "timeline", "time", "volume"]
-				},
-				"Overlay": ["track:compact", "subtitles"]
-			},
-			"AudioVisual": {
-				"Enabled": true
-			}
-		},
-		"HTTP": {
-			"MetadataURL": "../../server/metadata.php?file={file}",
-			"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
-			"Stream": {
-				"SkipInit": true
-			}
-		}
-	}
-	</script>
-				</div>
-			</div>
-			<div class="example-code-title">Declarative embed</div>
-			<pre class="example-code"><code>&lt;script
-	type="application/json"
-	data-ayle="embedded-minimal-audio"
-	data-ayle-settings="localStorage"&gt;
+		data-ayle="embedded-minimal-audio">
 {
 	"File": "example.mp3",
 	"Driver": {
 		"Type": "mse"
 	},
 	"Player": {
-		"AutoPlay": false,
-		"AutoFocus": true,
+		"ShowCenterPlayButton": false,
 		"MediaMode": "audio",
-			"ShowCenterPlayButton": false,
-		"Volume": 0.8,
-		"Muted": false,
-		"Start": 0,
 		"UI": {
 			"Header": [],
 			"Track": [
@@ -190,15 +132,63 @@
 				"artist",
 				"album"
 			],
-			"Channel": ["name", "profile"],
+			"Overlay": [
+				"track:compact",
+				"subtitles"
+			],
 			"Toolbar": {
-				"Layout": "inline",
-				"Items": ["play", "timeline", "time", "volume"]
-			},
-			"Overlay": ["track:compact", "subtitles"]
-		},
-		"AudioVisual": {
-			"Enabled": true
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"volume"
+				]
+			}
+		}
+	},
+	"HTTP": {
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+		"Stream": {
+			"SkipInit": true
+		}
+	}
+}
+	</script>
+				</div>
+			</div>
+			<div class="example-code-title">Declarative embed</div>
+			<pre class="example-code"><code>&lt;script
+	type="application/json"
+	data-ayle="embedded-minimal-audio"&gt;
+{
+	"File": "example.mp3",
+	"Driver": {
+		"Type": "mse"
+	},
+	"Player": {
+		"ShowCenterPlayButton": false,
+		"MediaMode": "audio",
+		"UI": {
+			"Header": [],
+			"Track": [
+				"artwork",
+				"title",
+				"artist",
+				"album"
+			],
+			"Overlay": [
+				"track:compact",
+				"subtitles"
+			],
+			"Toolbar": {
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"volume"
+				]
+			}
 		}
 	},
 	"HTTP": {
@@ -225,186 +215,318 @@
 		type="application/json"
 		data-ayle="embedded-full-video"
 		data-ayle-settings="localStorage">
-	{
-		"File": "example.mkv",
-		"Driver": {
-			"Type": "mse"
+{
+	"File": "example.mkv",
+	"Driver": {
+		"Type": "mse"
+	},
+	"Player": {
+		"AutoSelectFirstSubtitleTrack": false,
+		"AutoPlay": false,
+		"AutoPlayMode": "audible",
+		"Volume": 1,
+		"Muted": false,
+		"Start": 0,
+		"NativeSubtitles": false,
+		"SubtitleOffset": 0,
+		"AutoNativeSubtitlesInPictureInPicture": false,
+		"SubtitleStyle": {
+			"Color": "#fff",
+			"Background": "rgba(0, 0, 0, .72)",
+			"FontFamily": "Arial, sans-serif",
+			"FontSize": "1.15em",
+			"FontWeight": "400",
+			"LineHeight": "1.25",
+			"TextShadow": "none",
+			"Padding": "8px",
+			"BorderRadius": "8px",
+			"LetterSpacing": "normal",
+			"Bottom": "64px",
+			"MaxWidth": "90%"
 		},
-		"Player": {
-			"AutoSelectFirstSubtitleTrack": false,
-			"AutoPlay": false,
-			"AutoPlayMode": "muted",
-			"Volume": 0.8,
-			"Muted": false,
-			"Start": 0,
-			"NativeSubtitles": false,
-			"SubtitleOffset": 0,
-			"AutoNativeSubtitlesInPictureInPicture": true,
-			"SubtitleStyle": {
-				"Color": "#fff",
-				"Background": "rgba(0,0,0,.72)",
-				"FontFamily": "Calibri, sans-serif",
-				"FontWeight": 400,
-				"FontSize": "16px",
-				"LineHeight": "16px",
-				"TextShadow": "0 1px 2px #000"
-			},
-			"LoadingDelay": 180,
-			"ForceShowQualityList": true,
-			"ShowCenterPlayButton": true,
-			"AutoFocus": true,
-			"MediaMode": "video",
-			"KeyboardArrowSeekStep": 10,
-			"KeyboardAngleSeekStep": "frame",
-			"KeyboardFrameRateFallback": 30,
-			"Shortcuts": {
-				"PlayPause": true,
-				"SeekArrows": true,
-				"SeekAngle": true,
-				"Volume": true,
-				"Mute": true,
-				"Fullscreen": true,
-				"PictureInPicture": true
-			},
-			"SettingsOrder": [
-				"autoplay",
-				"audio",
-				"subtitles",
-				"nativeSubtitles",
-				"nativeSubtitlesInPiP",
-				"",
-				"shortcuts",
-				"debug",
-				"",
-				"integration"
+		"LoadingDelay": 180,
+		"ForceShowQualityList": false,
+		"ShowCenterPlayButton": true,
+		"AutoFocus": false,
+		"MediaMode": "video",
+		"UI": {
+			"Header": [
+				"channel:card",
+				"track"
 			],
-			"FontFamily": "Calibri, sans-serif",
-			"Debug": false,
-			"DebugMP4": false,
-			"Localization": "en-US",
-			"HintSafeArea": {
-				"Top": 16,
-				"Right": 16,
-				"Bottom": 16,
-				"Left": 16
-			},
-			"UI": {
-				"Header": ["channel:card", "track"],
-				"Track": ["title", "chapter"],
-				"Channel": ["name", "profile"],
-				"Toolbar": {
-					"Layout": "auto",
-					"Items": [
-						"play",
-						"timeline",
-						"time",
-						"",
-						"volume",
-						"chapters",
-						"quality",
-						"settings",
-						"pip",
-						"fullscreen"
-					]
+			"Track": [
+				"title",
+				"chapter"
+			],
+			"Channel": [
+				"name",
+				"profile"
+			],
+			"Overlay": [],
+			"Toolbar": {
+				"Layout": "inline",
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"volume",
+					"chapters",
+					"quality",
+					"settings",
+					"pip",
+					"fullscreen"
+				]
+			}
+		},
+		"AudioVisual": {
+			"Type": "auto",
+			"Image": "",
+			"Subtitles": true,
+			"MinHeight": 240
+		},
+		"ArtworkSlideshow": {
+			"Enabled": true,
+			"HideControls": false,
+			"Interval": 3000,
+			"FadeDuration": 500,
+			"Fit": "cover"
+		},
+		"KeyboardArrowSeekStep": 10,
+		"KeyboardAngleSeekStep": "frame",
+		"KeyboardFrameRateFallback": 30,
+		"Shortcuts": {
+			"PlayPause": true,
+			"SeekArrows": true,
+			"SeekAngle": true,
+			"Volume": true,
+			"Mute": true,
+			"Subtitles": true,
+			"Fullscreen": true,
+			"PictureInPicture": true
+		},
+		"Timeline": {
+			"Ranges": [
+				{
+					"ID": "intro",
+					"Start": 0,
+					"End": 15,
+					"Duration": 15,
+					"Label": "Intro",
+					"ClassName": "example-range-intro"
+				}
+			]
+		},
+		"MediaSession": {
+			"Enabled": true,
+			"Metadata": {
+				"Title": "",
+				"Artist": "",
+				"Album": "",
+				"Artwork": null
+			}
+		},
+		"SettingsOrder": [
+			"autoplay",
+			"audio",
+			"subtitles",
+			"nativeSubtitles",
+			"nativeSubtitlesInPiP",
+			"",
+			"shortcuts",
+			"debug",
+			"",
+			"integration"
+		],
+		"FontFamily": "Arial, sans-serif",
+		"Debug": false,
+		"DebugMP4": false,
+		"Localization": {},
+		"HintSafeArea": {
+			"Top": 16,
+			"Right": 16,
+			"Bottom": 16,
+			"Left": 16
+		},
+		"Integration": {
+			"Channel": {
+				"Name": "Nature Explorer",
+				"Avatar": "../../img/channel-avatar.png",
+				"URL": "#",
+				"Action": null,
+				"Profile": {
+					"Name": "@natureexplorer",
+					"URL": "#",
+					"Target": "_blank"
 				}
 			},
-			"Timeline": {
-				"Ranges": [
-					{
-						"ID": "intro",
-						"Start": 0,
-						"Duration": 15,
-						"Label": "Intro",
-						"ClassName": "example-range-intro"
-					}
-				]
-			},
-			"MediaSession": {
-				"Enabled": true,
-				"Metadata": {}
-			},
-			"Integration": {
-				"Channel": {
-					"Name": "Nature Explorer",
-					"Avatar": "../../img/channel-avatar.png",
-					"Profile": {
-						"Name": "@natureexplorer",
-						"URL": "#",
-						"Target": "_blank"
-					}
-				},
-				"Hints": [
-					{
-						"ID": "github",
-						"Type": "link",
-						"Position": "top-right-corner",
-						"Label": "Ayle on GitHub",
-						"URL": "https://github.com/Qybercom/Ayle",
-						"Target": "_blank"
+			"Hints": [
+				{
+					"ID": "info",
+					"Type": "info",
+					"Start": 5,
+					"End": 13,
+					"Duration": 8,
+					"Position": "top-right",
+					"Offset": {
+						"X": 0,
+						"Y": 0
 					},
-					{
-						"ID": "info",
-						"Type": "info",
-						"Position": "top-right",
-						"Start": 5,
-						"Duration": 8,
-						"Title": "Information",
-						"Text": "A normal timed hint.",
-						"Dismissible": true
-					}
-				],
-				"Settings": [
-					{
-						"ID": "integration-action",
-						"Title": "Integration action",
-						"Value": "Run",
-						"Event": "integration-action"
-					}
-				],
-				"Toolbar": [
-					{
-						"ID": "favorite",
-						"Type": "button",
-						"Before": "settings",
-						"Label": "★",
-						"Title": "Favorite",
-						"Menu": [
-							{
-								"Label": "Add to favorites",
-								"Event": "add"
-							},
-							{
-								"Label": "Save for later",
-								"Event": "later"
-							},
-							"",
-							{
-								"Label": "Manage favorites",
-								"Value": "↗",
-								"Event": "manage"
-							}
-						]
-					}
-				],
-				"TimelineRanges": [
-					{
-						"ID": "integration-range",
-						"Start": 45,
-						"End": 75,
-						"Label": "Integration range",
-						"ClassName": "example-range-integration"
-					}
-				]
-			}
-		},
-		"HTTP": {
-			"MetadataURL": "../../server/metadata.php?file={file}",
-			"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
-			"Stream": {
-				"SkipInit": true
+					"Title": "Information",
+					"Text": "A normal timed hint.",
+					"Label": "",
+					"URL": "",
+					"Target": "_blank",
+					"Image": "",
+					"Action": null,
+					"Actions": [
+						{
+							"Type": "callback",
+							"Title": "Action",
+							"Label": "Action",
+							"Name": "example-action",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
+						}
+					],
+					"Dismissible": true,
+					"Once": false,
+					"Repeatable": false,
+					"PauseOnShow": false,
+					"ResumeOnAction": false,
+					"HideOnAction": true,
+					"ShowTitle": true,
+					"ShowDescription": true,
+					"ResultMode": "off",
+					"ResultDuration": 0
+				}
+			],
+			"Settings": [
+				{
+					"ID": "integration-action",
+					"Title": "Integration action",
+					"Label": "Integration action",
+					"Value": "Run",
+					"Disabled": false,
+					"Items": [],
+					"Action": null,
+					"OnSelect": null,
+					"Event": "integration-action",
+					"CloseMenu": true
+				}
+			],
+			"Toolbar": [
+				{
+					"ID": "favorite",
+					"Type": "button",
+					"Before": "settings",
+					"After": "",
+					"Icon": "",
+					"Label": "★",
+					"Title": "Favorite",
+					"ClassName": "",
+					"Visible": true,
+					"Disabled": false,
+					"Event": "",
+					"Menu": [
+						{
+							"ID": "add",
+							"Title": "Add to favorites",
+							"Label": "Add to favorites",
+							"Value": "",
+							"Event": "add",
+							"ClassName": "",
+							"Disabled": false,
+							"CloseMenu": true,
+							"Action": null,
+							"OnClick": null
+						},
+						""
+					],
+					"OnClick": null,
+					"OnCreate": null,
+					"OnDestroy": null
+				}
+			],
+			"TimelineRanges": [
+				{
+					"ID": "integration-range",
+					"Start": 45,
+					"End": 75,
+					"Duration": 30,
+					"Label": "Integration range",
+					"ClassName": "example-range-integration"
+				}
+			],
+			"MediaSession": {
+				"Metadata": {
+					"Title": "",
+					"Artist": "",
+					"Album": "",
+					"Artwork": null
+				}
+			},
+			"Data": {
+				"Example": "full"
 			}
 		}
+	},
+	"HTTP": {
+		"File": "example.mkv",
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+		"VideoURL": "",
+		"AudioURL": "",
+		"SubtitleURL": "",
+		"ArtworkURL": "",
+		"CoverURL": "",
+		"CodecHeader": "X-Media-Codec",
+		"CodecListHeader": "X-Media-Codec-List",
+		"CodecCandidates": null,
+		"RequestHeaders": {},
+		"Stream": {
+			"Mode": "time",
+			"ChunkSize": 2097152,
+			"BufferAhead": 30,
+			"BufferBehind": 20,
+			"SkipInit": true,
+			"Init": {
+				"URL": "",
+				"RangeStart": 0,
+				"RangeEnd": 0
+			},
+			"InitValue": "init",
+			"Segments": [
+				{
+					"Start": 0,
+					"End": 0,
+					"URL": "",
+					"RangeStart": 0,
+					"RangeEnd": 0
+				}
+			],
+			"TimeURL": "",
+			"TimeParameter": "time",
+			"TimePrecision": 3,
+			"TimeStartHeader": "X-Media-Start",
+			"TimeEndHeader": "X-Media-End",
+			"TimeDurationHeader": "X-Media-Duration",
+			"TimeEOFHeader": "X-Media-EOF",
+			"AlignTimestamps": true,
+			"MaxNoProgressRequests": 3,
+			"UseBufferedEndForNextTime": true,
+			"GapTolerance": 0.15,
+			"MaxGapRetries": 2,
+			"TimeEpsilon": 0.001
+		},
+		"VideoType": "video/mp4",
+		"AudioType": "audio/mp4",
+		"SubtitleType": "text/vtt"
 	}
+}
 	</script>
 				</div>
 			</div>
@@ -421,27 +543,74 @@
 	"Player": {
 		"AutoSelectFirstSubtitleTrack": false,
 		"AutoPlay": false,
-		"AutoPlayMode": "muted",
-		"Volume": 0.8,
+		"AutoPlayMode": "audible",
+		"Volume": 1,
 		"Muted": false,
 		"Start": 0,
 		"NativeSubtitles": false,
 		"SubtitleOffset": 0,
-		"AutoNativeSubtitlesInPictureInPicture": true,
+		"AutoNativeSubtitlesInPictureInPicture": false,
 		"SubtitleStyle": {
 			"Color": "#fff",
-			"Background": "rgba(0,0,0,.72)",
-			"FontFamily": "Calibri, sans-serif",
-			"FontWeight": 400,
-			"FontSize": "16px",
-			"LineHeight": "16px",
-			"TextShadow": "0 1px 2px #000"
+			"Background": "rgba(0, 0, 0, .72)",
+			"FontFamily": "Arial, sans-serif",
+			"FontSize": "1.15em",
+			"FontWeight": "400",
+			"LineHeight": "1.25",
+			"TextShadow": "none",
+			"Padding": "8px",
+			"BorderRadius": "8px",
+			"LetterSpacing": "normal",
+			"Bottom": "64px",
+			"MaxWidth": "90%"
 		},
 		"LoadingDelay": 180,
-		"ForceShowQualityList": true,
+		"ForceShowQualityList": false,
 		"ShowCenterPlayButton": true,
-		"AutoFocus": true,
+		"AutoFocus": false,
 		"MediaMode": "video",
+		"UI": {
+			"Header": [
+				"channel:card",
+				"track"
+			],
+			"Track": [
+				"title",
+				"chapter"
+			],
+			"Channel": [
+				"name",
+				"profile"
+			],
+			"Overlay": [],
+			"Toolbar": {
+				"Layout": "inline",
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"volume",
+					"chapters",
+					"quality",
+					"settings",
+					"pip",
+					"fullscreen"
+				]
+			}
+		},
+		"AudioVisual": {
+			"Type": "auto",
+			"Image": "",
+			"Subtitles": true,
+			"MinHeight": 240
+		},
+		"ArtworkSlideshow": {
+			"Enabled": true,
+			"HideControls": false,
+			"Interval": 3000,
+			"FadeDuration": 500,
+			"Fit": "cover"
+		},
 		"KeyboardArrowSeekStep": 10,
 		"KeyboardAngleSeekStep": "frame",
 		"KeyboardFrameRateFallback": 30,
@@ -451,8 +620,30 @@
 			"SeekAngle": true,
 			"Volume": true,
 			"Mute": true,
+			"Subtitles": true,
 			"Fullscreen": true,
 			"PictureInPicture": true
+		},
+		"Timeline": {
+			"Ranges": [
+				{
+					"ID": "intro",
+					"Start": 0,
+					"End": 15,
+					"Duration": 15,
+					"Label": "Intro",
+					"ClassName": "example-range-intro"
+				}
+			]
+		},
+		"MediaSession": {
+			"Enabled": true,
+			"Metadata": {
+				"Title": "",
+				"Artist": "",
+				"Album": "",
+				"Artwork": null
+			}
 		},
 		"SettingsOrder": [
 			"autoplay",
@@ -466,55 +657,22 @@
 			"",
 			"integration"
 		],
-		"FontFamily": "Calibri, sans-serif",
+		"FontFamily": "Arial, sans-serif",
 		"Debug": false,
 		"DebugMP4": false,
-		"Localization": "en-US",
+		"Localization": {},
 		"HintSafeArea": {
 			"Top": 16,
 			"Right": 16,
 			"Bottom": 16,
 			"Left": 16
 		},
-		"UI": {
-			"Header": ["channel:card", "track"],
-			"Track": ["title", "chapter"],
-			"Channel": ["name", "profile"],
-			"Toolbar": {
-				"Layout": "auto",
-				"Items": [
-					"play",
-					"timeline",
-					"time",
-					"",
-					"volume",
-					"chapters",
-					"quality",
-					"settings",
-					"pip",
-					"fullscreen"
-				]
-			}
-		},
-		"Timeline": {
-			"Ranges": [
-				{
-					"ID": "intro",
-					"Start": 0,
-					"Duration": 15,
-					"Label": "Intro",
-					"ClassName": "example-range-intro"
-				}
-			]
-		},
-		"MediaSession": {
-			"Enabled": true,
-			"Metadata": {}
-		},
 		"Integration": {
 			"Channel": {
 				"Name": "Nature Explorer",
 				"Avatar": "../../img/channel-avatar.png",
+				"URL": "#",
+				"Action": null,
 				"Profile": {
 					"Name": "@natureexplorer",
 					"URL": "#",
@@ -523,30 +681,61 @@
 			},
 			"Hints": [
 				{
-					"ID": "github",
-					"Type": "link",
-					"Position": "top-right-corner",
-					"Label": "Ayle on GitHub",
-					"URL": "https://github.com/Qybercom/Ayle",
-					"Target": "_blank"
-				},
-				{
 					"ID": "info",
 					"Type": "info",
-					"Position": "top-right",
 					"Start": 5,
+					"End": 13,
 					"Duration": 8,
+					"Position": "top-right",
+					"Offset": {
+						"X": 0,
+						"Y": 0
+					},
 					"Title": "Information",
 					"Text": "A normal timed hint.",
-					"Dismissible": true
+					"Label": "",
+					"URL": "",
+					"Target": "_blank",
+					"Image": "",
+					"Action": null,
+					"Actions": [
+						{
+							"Type": "callback",
+							"Title": "Action",
+							"Label": "Action",
+							"Name": "example-action",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
+						}
+					],
+					"Dismissible": true,
+					"Once": false,
+					"Repeatable": false,
+					"PauseOnShow": false,
+					"ResumeOnAction": false,
+					"HideOnAction": true,
+					"ShowTitle": true,
+					"ShowDescription": true,
+					"ResultMode": "off",
+					"ResultDuration": 0
 				}
 			],
 			"Settings": [
 				{
 					"ID": "integration-action",
 					"Title": "Integration action",
+					"Label": "Integration action",
 					"Value": "Run",
-					"Event": "integration-action"
+					"Disabled": false,
+					"Items": [],
+					"Action": null,
+					"OnSelect": null,
+					"Event": "integration-action",
+					"CloseMenu": true
 				}
 			],
 			"Toolbar": [
@@ -554,24 +743,32 @@
 					"ID": "favorite",
 					"Type": "button",
 					"Before": "settings",
+					"After": "",
+					"Icon": "",
 					"Label": "★",
 					"Title": "Favorite",
+					"ClassName": "",
+					"Visible": true,
+					"Disabled": false,
+					"Event": "",
 					"Menu": [
 						{
+							"ID": "add",
+							"Title": "Add to favorites",
 							"Label": "Add to favorites",
-							"Event": "add"
+							"Value": "",
+							"Event": "add",
+							"ClassName": "",
+							"Disabled": false,
+							"CloseMenu": true,
+							"Action": null,
+							"OnClick": null
 						},
-						{
-							"Label": "Save for later",
-							"Event": "later"
-						},
-						"",
-						{
-							"Label": "Manage favorites",
-							"Value": "↗",
-							"Event": "manage"
-						}
-					]
+						""
+					],
+					"OnClick": null,
+					"OnCreate": null,
+					"OnDestroy": null
 				}
 			],
 			"TimelineRanges": [
@@ -579,18 +776,75 @@
 					"ID": "integration-range",
 					"Start": 45,
 					"End": 75,
+					"Duration": 30,
 					"Label": "Integration range",
 					"ClassName": "example-range-integration"
 				}
-			]
+			],
+			"MediaSession": {
+				"Metadata": {
+					"Title": "",
+					"Artist": "",
+					"Album": "",
+					"Artwork": null
+				}
+			},
+			"Data": {
+				"Example": "full"
+			}
 		}
 	},
 	"HTTP": {
+		"File": "example.mkv",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
+		"VideoURL": "",
+		"AudioURL": "",
+		"SubtitleURL": "",
+		"ArtworkURL": "",
+		"CoverURL": "",
+		"CodecHeader": "X-Media-Codec",
+		"CodecListHeader": "X-Media-Codec-List",
+		"CodecCandidates": null,
+		"RequestHeaders": {},
 		"Stream": {
-			"SkipInit": true
-		}
+			"Mode": "time",
+			"ChunkSize": 2097152,
+			"BufferAhead": 30,
+			"BufferBehind": 20,
+			"SkipInit": true,
+			"Init": {
+				"URL": "",
+				"RangeStart": 0,
+				"RangeEnd": 0
+			},
+			"InitValue": "init",
+			"Segments": [
+				{
+					"Start": 0,
+					"End": 0,
+					"URL": "",
+					"RangeStart": 0,
+					"RangeEnd": 0
+				}
+			],
+			"TimeURL": "",
+			"TimeParameter": "time",
+			"TimePrecision": 3,
+			"TimeStartHeader": "X-Media-Start",
+			"TimeEndHeader": "X-Media-End",
+			"TimeDurationHeader": "X-Media-Duration",
+			"TimeEOFHeader": "X-Media-EOF",
+			"AlignTimestamps": true,
+			"MaxNoProgressRequests": 3,
+			"UseBufferedEndForNextTime": true,
+			"GapTolerance": 0.15,
+			"MaxGapRetries": 2,
+			"TimeEpsilon": 0.001
+		},
+		"VideoType": "video/mp4",
+		"AudioType": "audio/mp4",
+		"SubtitleType": "text/vtt"
 	}
 }
 &lt;/script&gt;</code></pre>
@@ -609,197 +863,320 @@
 		type="application/json"
 		data-ayle="embedded-full-audio"
 		data-ayle-settings="localStorage">
-	{
-		"File": "example.mp3",
-		"Driver": {
-			"Type": "mse"
+{
+	"File": "example.mp3",
+	"Driver": {
+		"Type": "mse"
+	},
+	"Player": {
+		"AutoSelectFirstSubtitleTrack": false,
+		"AutoPlay": false,
+		"AutoPlayMode": "audible",
+		"Volume": 1,
+		"Muted": false,
+		"Start": 0,
+		"NativeSubtitles": false,
+		"SubtitleOffset": 0,
+		"AutoNativeSubtitlesInPictureInPicture": false,
+		"SubtitleStyle": {
+			"Color": "#fff",
+			"Background": "rgba(0, 0, 0, .72)",
+			"FontFamily": "Arial, sans-serif",
+			"FontSize": "1.15em",
+			"FontWeight": "400",
+			"LineHeight": "1.25",
+			"TextShadow": "none",
+			"Padding": "8px",
+			"BorderRadius": "8px",
+			"LetterSpacing": "normal",
+			"Bottom": "64px",
+			"MaxWidth": "90%"
 		},
-		"Player": {
-			"AutoSelectFirstSubtitleTrack": false,
-			"AutoPlay": false,
-			"AutoPlayMode": "muted",
-			"Volume": 0.8,
-			"Muted": false,
-			"Start": 0,
-			"NativeSubtitles": false,
-			"SubtitleOffset": 0,
-			"AutoNativeSubtitlesInPictureInPicture": true,
-			"SubtitleStyle": {
-				"Color": "#fff",
-				"Background": "rgba(0,0,0,.72)",
-				"FontFamily": "Calibri, sans-serif",
-				"FontWeight": 400,
-				"FontSize": "16px",
-				"LineHeight": "16px",
-				"TextShadow": "0 1px 2px #000"
-			},
-			"LoadingDelay": 180,
-			"ForceShowQualityList": true,
-			"ShowCenterPlayButton": true,
-			"AutoFocus": true,
-			"MediaMode": "audio",
-			"KeyboardArrowSeekStep": 10,
-			"KeyboardAngleSeekStep": "frame",
-			"KeyboardFrameRateFallback": 30,
-			"Shortcuts": {
-				"PlayPause": true,
-				"SeekArrows": true,
-				"SeekAngle": true,
-				"Volume": true,
-				"Mute": true,
-				"Fullscreen": true,
-				"PictureInPicture": true
-			},
-			"SettingsOrder": [
-				"autoplay",
-				"audio",
-				"subtitles",
-				"nativeSubtitles",
-				"nativeSubtitlesInPiP",
-				"",
-				"shortcuts",
-				"debug",
-				"",
-				"integration"
+		"LoadingDelay": 180,
+		"ForceShowQualityList": false,
+		"ShowCenterPlayButton": true,
+		"AutoFocus": false,
+		"MediaMode": "audio",
+		"UI": {
+			"Header": [
+				"channel:card",
+				"track"
 			],
-			"FontFamily": "Calibri, sans-serif",
-			"Debug": false,
-			"DebugMP4": false,
-			"Localization": "en-US",
-			"HintSafeArea": {
-				"Top": 16,
-				"Right": 16,
-				"Bottom": 16,
-				"Left": 16
-			},
-			"UI": {
-				"Header": ["channel:card", "track"],
-				"Track": [
+			"Track": [
 				"artwork",
 				"title",
 				"artist",
 				"album"
 			],
-				"Channel": ["name", "profile"],
-				"Toolbar": {
-					"Layout": "auto",
-					"Items": [
-						"play",
-						"timeline",
-						"time",
-						"",
-						"volume",
-						"chapters",
-						"quality",
-						"settings",
-						"pip",
-						"fullscreen"
-					]
-				}
-			},
-			"Timeline": {
-				"Ranges": [
-					{
-						"ID": "intro",
-						"Start": 0,
-						"Duration": 15,
-						"Label": "Intro",
-						"ClassName": "example-range-intro"
-					}
+			"Channel": [
+				"name",
+				"profile"
+			],
+			"Overlay": [],
+			"Toolbar": {
+				"Layout": "inline",
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"volume",
+					"chapters",
+					"quality",
+					"settings",
+					"pip",
+					"fullscreen"
 				]
-			},
-			"MediaSession": {
-				"Enabled": true,
-				"Metadata": {}
-			},
-			"Integration": {
-				"Channel": {
-					"Name": "Nature Explorer",
-					"Avatar": "../../img/channel-avatar.png",
-					"Profile": {
-						"Name": "@natureexplorer",
-						"URL": "#",
-						"Target": "_blank"
-					}
-				},
-				"Hints": [
-					{
-						"ID": "github",
-						"Type": "link",
-						"Position": "top-right-corner",
-						"Label": "Ayle on GitHub",
-						"URL": "https://github.com/Qybercom/Ayle",
-						"Target": "_blank"
-					},
-					{
-						"ID": "info",
-						"Type": "info",
-						"Position": "top-right",
-						"Start": 5,
-						"Duration": 8,
-						"Title": "Information",
-						"Text": "A normal timed hint.",
-						"Dismissible": true
-					}
-				],
-				"Settings": [
-					{
-						"ID": "integration-action",
-						"Title": "Integration action",
-						"Value": "Run",
-						"Event": "integration-action"
-					}
-				],
-				"Toolbar": [
-					{
-						"ID": "favorite",
-						"Type": "button",
-						"Before": "settings",
-						"Label": "★",
-						"Title": "Favorite",
-						"Menu": [
-							{
-								"Label": "Add to favorites",
-								"Event": "add"
-							},
-							{
-								"Label": "Save for later",
-								"Event": "later"
-							},
-							"",
-							{
-								"Label": "Manage favorites",
-								"Value": "↗",
-								"Event": "manage"
-							}
-						]
-					}
-				],
-				"TimelineRanges": [
-					{
-						"ID": "integration-range",
-						"Start": 45,
-						"End": 75,
-						"Label": "Integration range",
-						"ClassName": "example-range-integration"
-					}
-				]
-			},
-			"AudioVisual": {
-				"Enabled": true
-			},
-			"ArtworkSlideshow": {
-				"Enabled": true
 			}
 		},
-		"HTTP": {
-			"MetadataURL": "../../server/metadata.php?file={file}",
-			"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
-			"Stream": {
-				"SkipInit": true
+		"AudioVisual": {
+			"Type": "auto",
+			"Image": "",
+			"Subtitles": true,
+			"MinHeight": 240
+		},
+		"ArtworkSlideshow": {
+			"Enabled": true,
+			"HideControls": false,
+			"Interval": 3000,
+			"FadeDuration": 500,
+			"Fit": "cover"
+		},
+		"KeyboardArrowSeekStep": 10,
+		"KeyboardAngleSeekStep": "frame",
+		"KeyboardFrameRateFallback": 30,
+		"Shortcuts": {
+			"PlayPause": true,
+			"SeekArrows": true,
+			"SeekAngle": true,
+			"Volume": true,
+			"Mute": true,
+			"Subtitles": true,
+			"Fullscreen": true,
+			"PictureInPicture": true
+		},
+		"Timeline": {
+			"Ranges": [
+				{
+					"ID": "intro",
+					"Start": 0,
+					"End": 15,
+					"Duration": 15,
+					"Label": "Intro",
+					"ClassName": "example-range-intro"
+				}
+			]
+		},
+		"MediaSession": {
+			"Enabled": true,
+			"Metadata": {
+				"Title": "",
+				"Artist": "",
+				"Album": "",
+				"Artwork": null
+			}
+		},
+		"SettingsOrder": [
+			"autoplay",
+			"audio",
+			"subtitles",
+			"nativeSubtitles",
+			"nativeSubtitlesInPiP",
+			"",
+			"shortcuts",
+			"debug",
+			"",
+			"integration"
+		],
+		"FontFamily": "Arial, sans-serif",
+		"Debug": false,
+		"DebugMP4": false,
+		"Localization": {},
+		"HintSafeArea": {
+			"Top": 16,
+			"Right": 16,
+			"Bottom": 16,
+			"Left": 16
+		},
+		"Integration": {
+			"Channel": {
+				"Name": "Nature Explorer",
+				"Avatar": "../../img/channel-avatar.png",
+				"URL": "#",
+				"Action": null,
+				"Profile": {
+					"Name": "@natureexplorer",
+					"URL": "#",
+					"Target": "_blank"
+				}
+			},
+			"Hints": [
+				{
+					"ID": "info",
+					"Type": "info",
+					"Start": 5,
+					"End": 13,
+					"Duration": 8,
+					"Position": "top-right",
+					"Offset": {
+						"X": 0,
+						"Y": 0
+					},
+					"Title": "Information",
+					"Text": "A normal timed hint.",
+					"Label": "",
+					"URL": "",
+					"Target": "_blank",
+					"Image": "",
+					"Action": null,
+					"Actions": [
+						{
+							"Type": "callback",
+							"Title": "Action",
+							"Label": "Action",
+							"Name": "example-action",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
+						}
+					],
+					"Dismissible": true,
+					"Once": false,
+					"Repeatable": false,
+					"PauseOnShow": false,
+					"ResumeOnAction": false,
+					"HideOnAction": true,
+					"ShowTitle": true,
+					"ShowDescription": true,
+					"ResultMode": "off",
+					"ResultDuration": 0
+				}
+			],
+			"Settings": [
+				{
+					"ID": "integration-action",
+					"Title": "Integration action",
+					"Label": "Integration action",
+					"Value": "Run",
+					"Disabled": false,
+					"Items": [],
+					"Action": null,
+					"OnSelect": null,
+					"Event": "integration-action",
+					"CloseMenu": true
+				}
+			],
+			"Toolbar": [
+				{
+					"ID": "favorite",
+					"Type": "button",
+					"Before": "settings",
+					"After": "",
+					"Icon": "",
+					"Label": "★",
+					"Title": "Favorite",
+					"ClassName": "",
+					"Visible": true,
+					"Disabled": false,
+					"Event": "",
+					"Menu": [
+						{
+							"ID": "add",
+							"Title": "Add to favorites",
+							"Label": "Add to favorites",
+							"Value": "",
+							"Event": "add",
+							"ClassName": "",
+							"Disabled": false,
+							"CloseMenu": true,
+							"Action": null,
+							"OnClick": null
+						},
+						""
+					],
+					"OnClick": null,
+					"OnCreate": null,
+					"OnDestroy": null
+				}
+			],
+			"TimelineRanges": [
+				{
+					"ID": "integration-range",
+					"Start": 45,
+					"End": 75,
+					"Duration": 30,
+					"Label": "Integration range",
+					"ClassName": "example-range-integration"
+				}
+			],
+			"MediaSession": {
+				"Metadata": {
+					"Title": "",
+					"Artist": "",
+					"Album": "",
+					"Artwork": null
+				}
+			},
+			"Data": {
+				"Example": "full"
 			}
 		}
+	},
+	"HTTP": {
+		"File": "example.mp3",
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+		"VideoURL": "",
+		"AudioURL": "",
+		"SubtitleURL": "",
+		"ArtworkURL": "",
+		"CoverURL": "",
+		"CodecHeader": "X-Media-Codec",
+		"CodecListHeader": "X-Media-Codec-List",
+		"CodecCandidates": null,
+		"RequestHeaders": {},
+		"Stream": {
+			"Mode": "time",
+			"ChunkSize": 2097152,
+			"BufferAhead": 30,
+			"BufferBehind": 20,
+			"SkipInit": true,
+			"Init": {
+				"URL": "",
+				"RangeStart": 0,
+				"RangeEnd": 0
+			},
+			"InitValue": "init",
+			"Segments": [
+				{
+					"Start": 0,
+					"End": 0,
+					"URL": "",
+					"RangeStart": 0,
+					"RangeEnd": 0
+				}
+			],
+			"TimeURL": "",
+			"TimeParameter": "time",
+			"TimePrecision": 3,
+			"TimeStartHeader": "X-Media-Start",
+			"TimeEndHeader": "X-Media-End",
+			"TimeDurationHeader": "X-Media-Duration",
+			"TimeEOFHeader": "X-Media-EOF",
+			"AlignTimestamps": true,
+			"MaxNoProgressRequests": 3,
+			"UseBufferedEndForNextTime": true,
+			"GapTolerance": 0.15,
+			"MaxGapRetries": 2,
+			"TimeEpsilon": 0.001
+		},
+		"VideoType": "video/mp4",
+		"AudioType": "audio/mp4",
+		"SubtitleType": "text/vtt"
 	}
+}
 	</script>
 				</div>
 			</div>
@@ -816,27 +1193,76 @@
 	"Player": {
 		"AutoSelectFirstSubtitleTrack": false,
 		"AutoPlay": false,
-		"AutoPlayMode": "muted",
-		"Volume": 0.8,
+		"AutoPlayMode": "audible",
+		"Volume": 1,
 		"Muted": false,
 		"Start": 0,
 		"NativeSubtitles": false,
 		"SubtitleOffset": 0,
-		"AutoNativeSubtitlesInPictureInPicture": true,
+		"AutoNativeSubtitlesInPictureInPicture": false,
 		"SubtitleStyle": {
 			"Color": "#fff",
-			"Background": "rgba(0,0,0,.72)",
-			"FontFamily": "Calibri, sans-serif",
-			"FontWeight": 400,
-			"FontSize": "16px",
-			"LineHeight": "16px",
-			"TextShadow": "0 1px 2px #000"
+			"Background": "rgba(0, 0, 0, .72)",
+			"FontFamily": "Arial, sans-serif",
+			"FontSize": "1.15em",
+			"FontWeight": "400",
+			"LineHeight": "1.25",
+			"TextShadow": "none",
+			"Padding": "8px",
+			"BorderRadius": "8px",
+			"LetterSpacing": "normal",
+			"Bottom": "64px",
+			"MaxWidth": "90%"
 		},
 		"LoadingDelay": 180,
-		"ForceShowQualityList": true,
+		"ForceShowQualityList": false,
 		"ShowCenterPlayButton": true,
-		"AutoFocus": true,
+		"AutoFocus": false,
 		"MediaMode": "audio",
+		"UI": {
+			"Header": [
+				"channel:card",
+				"track"
+			],
+			"Track": [
+				"artwork",
+				"title",
+				"artist",
+				"album"
+			],
+			"Channel": [
+				"name",
+				"profile"
+			],
+			"Overlay": [],
+			"Toolbar": {
+				"Layout": "inline",
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"volume",
+					"chapters",
+					"quality",
+					"settings",
+					"pip",
+					"fullscreen"
+				]
+			}
+		},
+		"AudioVisual": {
+			"Type": "auto",
+			"Image": "",
+			"Subtitles": true,
+			"MinHeight": 240
+		},
+		"ArtworkSlideshow": {
+			"Enabled": true,
+			"HideControls": false,
+			"Interval": 3000,
+			"FadeDuration": 500,
+			"Fit": "cover"
+		},
 		"KeyboardArrowSeekStep": 10,
 		"KeyboardAngleSeekStep": "frame",
 		"KeyboardFrameRateFallback": 30,
@@ -846,8 +1272,30 @@
 			"SeekAngle": true,
 			"Volume": true,
 			"Mute": true,
+			"Subtitles": true,
 			"Fullscreen": true,
 			"PictureInPicture": true
+		},
+		"Timeline": {
+			"Ranges": [
+				{
+					"ID": "intro",
+					"Start": 0,
+					"End": 15,
+					"Duration": 15,
+					"Label": "Intro",
+					"ClassName": "example-range-intro"
+				}
+			]
+		},
+		"MediaSession": {
+			"Enabled": true,
+			"Metadata": {
+				"Title": "",
+				"Artist": "",
+				"Album": "",
+				"Artwork": null
+			}
 		},
 		"SettingsOrder": [
 			"autoplay",
@@ -861,60 +1309,22 @@
 			"",
 			"integration"
 		],
-		"FontFamily": "Calibri, sans-serif",
+		"FontFamily": "Arial, sans-serif",
 		"Debug": false,
 		"DebugMP4": false,
-		"Localization": "en-US",
+		"Localization": {},
 		"HintSafeArea": {
 			"Top": 16,
 			"Right": 16,
 			"Bottom": 16,
 			"Left": 16
 		},
-		"UI": {
-			"Header": ["channel:card", "track"],
-			"Track": [
-				"artwork",
-				"title",
-				"artist",
-				"album"
-			],
-			"Channel": ["name", "profile"],
-			"Toolbar": {
-				"Layout": "auto",
-				"Items": [
-					"play",
-					"timeline",
-					"time",
-					"",
-					"volume",
-					"chapters",
-					"quality",
-					"settings",
-					"pip",
-					"fullscreen"
-				]
-			}
-		},
-		"Timeline": {
-			"Ranges": [
-				{
-					"ID": "intro",
-					"Start": 0,
-					"Duration": 15,
-					"Label": "Intro",
-					"ClassName": "example-range-intro"
-				}
-			]
-		},
-		"MediaSession": {
-			"Enabled": true,
-			"Metadata": {}
-		},
 		"Integration": {
 			"Channel": {
 				"Name": "Nature Explorer",
 				"Avatar": "../../img/channel-avatar.png",
+				"URL": "#",
+				"Action": null,
 				"Profile": {
 					"Name": "@natureexplorer",
 					"URL": "#",
@@ -923,30 +1333,61 @@
 			},
 			"Hints": [
 				{
-					"ID": "github",
-					"Type": "link",
-					"Position": "top-right-corner",
-					"Label": "Ayle on GitHub",
-					"URL": "https://github.com/Qybercom/Ayle",
-					"Target": "_blank"
-				},
-				{
 					"ID": "info",
 					"Type": "info",
-					"Position": "top-right",
 					"Start": 5,
+					"End": 13,
 					"Duration": 8,
+					"Position": "top-right",
+					"Offset": {
+						"X": 0,
+						"Y": 0
+					},
 					"Title": "Information",
 					"Text": "A normal timed hint.",
-					"Dismissible": true
+					"Label": "",
+					"URL": "",
+					"Target": "_blank",
+					"Image": "",
+					"Action": null,
+					"Actions": [
+						{
+							"Type": "callback",
+							"Title": "Action",
+							"Label": "Action",
+							"Name": "example-action",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
+						}
+					],
+					"Dismissible": true,
+					"Once": false,
+					"Repeatable": false,
+					"PauseOnShow": false,
+					"ResumeOnAction": false,
+					"HideOnAction": true,
+					"ShowTitle": true,
+					"ShowDescription": true,
+					"ResultMode": "off",
+					"ResultDuration": 0
 				}
 			],
 			"Settings": [
 				{
 					"ID": "integration-action",
 					"Title": "Integration action",
+					"Label": "Integration action",
 					"Value": "Run",
-					"Event": "integration-action"
+					"Disabled": false,
+					"Items": [],
+					"Action": null,
+					"OnSelect": null,
+					"Event": "integration-action",
+					"CloseMenu": true
 				}
 			],
 			"Toolbar": [
@@ -954,24 +1395,32 @@
 					"ID": "favorite",
 					"Type": "button",
 					"Before": "settings",
+					"After": "",
+					"Icon": "",
 					"Label": "★",
 					"Title": "Favorite",
+					"ClassName": "",
+					"Visible": true,
+					"Disabled": false,
+					"Event": "",
 					"Menu": [
 						{
+							"ID": "add",
+							"Title": "Add to favorites",
 							"Label": "Add to favorites",
-							"Event": "add"
+							"Value": "",
+							"Event": "add",
+							"ClassName": "",
+							"Disabled": false,
+							"CloseMenu": true,
+							"Action": null,
+							"OnClick": null
 						},
-						{
-							"Label": "Save for later",
-							"Event": "later"
-						},
-						"",
-						{
-							"Label": "Manage favorites",
-							"Value": "↗",
-							"Event": "manage"
-						}
-					]
+						""
+					],
+					"OnClick": null,
+					"OnCreate": null,
+					"OnDestroy": null
 				}
 			],
 			"TimelineRanges": [
@@ -979,24 +1428,75 @@
 					"ID": "integration-range",
 					"Start": 45,
 					"End": 75,
+					"Duration": 30,
 					"Label": "Integration range",
 					"ClassName": "example-range-integration"
 				}
-			]
-		},
-		"AudioVisual": {
-			"Enabled": true
-		},
-		"ArtworkSlideshow": {
-			"Enabled": true
+			],
+			"MediaSession": {
+				"Metadata": {
+					"Title": "",
+					"Artist": "",
+					"Album": "",
+					"Artwork": null
+				}
+			},
+			"Data": {
+				"Example": "full"
+			}
 		}
 	},
 	"HTTP": {
+		"File": "example.mp3",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
+		"VideoURL": "",
+		"AudioURL": "",
+		"SubtitleURL": "",
+		"ArtworkURL": "",
+		"CoverURL": "",
+		"CodecHeader": "X-Media-Codec",
+		"CodecListHeader": "X-Media-Codec-List",
+		"CodecCandidates": null,
+		"RequestHeaders": {},
 		"Stream": {
-			"SkipInit": true
-		}
+			"Mode": "time",
+			"ChunkSize": 2097152,
+			"BufferAhead": 30,
+			"BufferBehind": 20,
+			"SkipInit": true,
+			"Init": {
+				"URL": "",
+				"RangeStart": 0,
+				"RangeEnd": 0
+			},
+			"InitValue": "init",
+			"Segments": [
+				{
+					"Start": 0,
+					"End": 0,
+					"URL": "",
+					"RangeStart": 0,
+					"RangeEnd": 0
+				}
+			],
+			"TimeURL": "",
+			"TimeParameter": "time",
+			"TimePrecision": 3,
+			"TimeStartHeader": "X-Media-Start",
+			"TimeEndHeader": "X-Media-End",
+			"TimeDurationHeader": "X-Media-Duration",
+			"TimeEOFHeader": "X-Media-EOF",
+			"AlignTimestamps": true,
+			"MaxNoProgressRequests": 3,
+			"UseBufferedEndForNextTime": true,
+			"GapTolerance": 0.15,
+			"MaxGapRetries": 2,
+			"TimeEpsilon": 0.001
+		},
+		"VideoType": "video/mp4",
+		"AudioType": "audio/mp4",
+		"SubtitleType": "text/vtt"
 	}
 }
 &lt;/script&gt;</code></pre>
