@@ -59,13 +59,23 @@ if (declarations !== sourceDeclarations)
 	throw new Error('React dist/index.d.ts is stale; run npm run build:react');
 
 for (const token of [
-	"error?: (data: AyleEventMap['error'], instance: AyleInstance) => void;",
+	"from '@qybercom/ayle';",
+	'config?: AyleConfig;',
+	'events?: AyleEventHandlers;',
 	'onReady?: (instance: AyleInstance) => void;',
-	'export interface AyleInstance {',
-	'export interface AyleEventMap {'
+	'export type AyleEventWrapper ='
 ]) {
 	if (!declarations.includes(token))
 		throw new Error('React declarations are missing expected token: ' + token);
+}
+
+for (const legacy of [
+	'preset?:', 'file?:', 'playerConfig?:', 'mediaConfig?:', 'player?:',
+	'mediaProvider?:', 'playlist?:', 'driver?:', 'driverOptions?:',
+	'localization?:', 'volume?:', 'start?:', 'muted?:', 'debug?:'
+]) {
+	if (declarations.includes('\t' + legacy))
+		throw new Error('React declarations still expose legacy prop: ' + legacy);
 }
 
 const exampleInstalledDeclarations = path.join(

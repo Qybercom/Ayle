@@ -4453,6 +4453,54 @@
 		return result;
 	}
 
+	function AyleMergeIntegrationOverlays (base, override) {
+		base = base instanceof Array ? base : [];
+		override = override instanceof Array ? override : [];
+
+		var result = AylePresetCloneValue(base);
+		var indexes = {};
+		var i = 0;
+
+		while (i < result.length) {
+			var baseItem = result[i];
+
+			if (
+				baseItem &&
+				baseItem.ID !== undefined &&
+				baseItem.ID !== null &&
+				baseItem.ID !== ''
+			)
+				indexes[String(baseItem.ID)] = i;
+
+			i++;
+		}
+
+		i = 0;
+		while (i < override.length) {
+			var item = AylePresetCloneValue(override[i]);
+			var hasID = !!(
+				item &&
+				item.ID !== undefined &&
+				item.ID !== null &&
+				item.ID !== ''
+			);
+			var id = hasID ? String(item.ID) : '';
+
+			if (hasID && indexes[id] !== undefined)
+				result[indexes[id]] = item;
+			else {
+				result.push(item);
+
+				if (hasID)
+					indexes[id] = result.length - 1;
+			}
+
+			i++;
+		}
+
+		return result;
+	}
+
 	function AyleNormalizePreset (preset) {
 		preset = preset || {};
 
@@ -4727,10 +4775,6 @@ function Ayle (config, internalOptions) {
 				Subtitles: shortcuts.Subtitles !== false,
 				Fullscreen: shortcuts.Fullscreen !== false,
 				PictureInPicture: shortcuts.PictureInPicture !== false
-			},
-			Timeline: {
-				Ranges: options.Timeline && options.Timeline.Ranges instanceof Array ?
-					options.Timeline.Ranges.slice(0) : []
 			},
 			MediaSession: options.MediaSession === false ? { Enabled: false } : {
 				Enabled: !options.MediaSession || options.MediaSession.Enabled !== false,
@@ -5062,10 +5106,35 @@ function Ayle (config, internalOptions) {
 	};
 
 	Ayle.prototype._playlistPlayerOptions = function (item) {
-		return AylePresetMerge(
-			this._basePlayerOptions || {},
-			item && item.Player ? item.Player : {}
-		);
+		var base = this._basePlayerOptions || {};
+		var override = item && item.Player ? item.Player : {};
+		var result = AylePresetMerge(base, override);
+		var baseIntegration = base.Integration || {};
+		var itemIntegration = override.Integration || {};
+
+		if (
+			baseIntegration.Hints instanceof Array ||
+			itemIntegration.Hints instanceof Array
+		) {
+			result.Integration = result.Integration || {};
+			result.Integration.Hints = AyleMergeIntegrationOverlays(
+				baseIntegration.Hints,
+				itemIntegration.Hints
+			);
+		}
+
+		if (
+			baseIntegration.TimelineRanges instanceof Array ||
+			itemIntegration.TimelineRanges instanceof Array
+		) {
+			result.Integration = result.Integration || {};
+			result.Integration.TimelineRanges = AyleMergeIntegrationOverlays(
+				baseIntegration.TimelineRanges,
+				itemIntegration.TimelineRanges
+			);
+		}
+
+		return result;
 	};
 
 	Ayle.prototype._sameDriverConfig = function (a, b) {
@@ -5155,6 +5224,15 @@ function Ayle (config, internalOptions) {
 				baseVisual.MinHeight !== undefined ?
 					Math.max(0, Number(baseVisual.MinHeight) || 0) : 240
 			);
+
+		/*
+		 * Integration overlays are platform state, not AyleSource metadata.
+		 * _playlistPlayerOptions() has already combined global Hints and
+		 * TimelineRanges with the current item's overlays by ID. Applying the
+		 * effective Integration here makes both collections follow the same
+		 * item-local timeline and restores the global set on the next item.
+		 */
+		this.SetIntegration(options.Integration || {}, false);
 
 		var previousMode = this.State.MediaMode;
 		var resolved = this.ResolveMediaMode(this.State.Source);
@@ -7295,7 +7373,7 @@ function Ayle (config, internalOptions) {
 		return this;
 	};
 
-	Ayle.prototype.SetIntegration = function (integration) {
+	Ayle.prototype.SetIntegration = function (integration, synchronizeHints) {
 		integration = integration || {};
 		this.Options.Integration = {
 			Channel: integration.Channel || null,
@@ -7306,7 +7384,14 @@ function Ayle (config, internalOptions) {
 			MediaSession: integration.MediaSession || null,
 			Data: integration.Data !== undefined ? integration.Data : null
 		};
-		this._syncHints(this.State.Position);
+
+		if (synchronizeHints === false) {
+			this.State.ActiveHints = [];
+			this.Emit('hintsChange', this.State.ActiveHints);
+		}
+		else
+			this._syncHints(this.State.Position);
+
 		this.Emit('integrationChange', this.Options.Integration);
 		return this;
 	};
@@ -9630,23 +9715,9 @@ function Ayle (config, internalOptions) {
 
 		this.TimelineRanges.innerHTML = '';
 
-		var ranges = [];
-		var configured = this.Player.Options.Timeline && this.Player.Options.Timeline.Ranges instanceof Array ?
-			this.Player.Options.Timeline.Ranges : [];
-		var integrated = this.Player.Options.Integration && this.Player.Options.Integration.TimelineRanges instanceof Array ?
+		var ranges = this.Player.Options.Integration && this.Player.Options.Integration.TimelineRanges instanceof Array ?
 			this.Player.Options.Integration.TimelineRanges : [];
 		var i = 0;
-
-		while (i < configured.length) {
-			ranges.push(configured[i]);
-			i++;
-		}
-
-		i = 0;
-		while (i < integrated.length) {
-			ranges.push(integrated[i]);
-			i++;
-		}
 
 		var duration = Number(this.Player.State.Duration) || 0;
 		if (!duration)

@@ -220,18 +220,6 @@
 			"Fullscreen": true,
 			"PictureInPicture": true
 		},
-		"Timeline": {
-			"Ranges": [
-				{
-					"ID": "intro",
-					"Start": 0,
-					"End": 15,
-					"Duration": 15,
-					"Label": "Intro",
-					"ClassName": "example-range-intro"
-				}
-			]
-		},
 		"MediaSession": {
 			"Enabled": true,
 			"Metadata": {
@@ -490,7 +478,41 @@
 					"File": "example2.mkv"
 				},
 				"Player": {
-					"MediaMode": "video"
+					"MediaMode": "video",
+					"Integration": {
+						"Hints": [
+							{
+								"ID": "info",
+								"Start": 8,
+								"Duration": 8,
+								"Title": "Second item information",
+								"Text": "This item overrides the global info hint."
+							},
+							{
+								"ID": "second-item-hint",
+								"Start": 20,
+								"Duration": 5,
+								"Title": "Playlist item hint",
+								"Text": "This hint exists only on the second playlist item."
+							}
+						],
+						"TimelineRanges": [
+							{
+								"ID": "integration-range",
+								"Start": 30,
+								"End": 45,
+								"Label": "Second item range override",
+								"ClassName": "example-range-item-override"
+							},
+							{
+								"ID": "second-item-range",
+								"Start": 80,
+								"End": 100,
+								"Label": "Second item range",
+								"ClassName": "example-range-item"
+							}
+						]
+					}
 				}
 			}
 		]
@@ -593,18 +615,6 @@
 			"Subtitles": true,
 			"Fullscreen": true,
 			"PictureInPicture": true
-		},
-		"Timeline": {
-			"Ranges": [
-				{
-					"ID": "intro",
-					"Start": 0,
-					"End": 15,
-					"Duration": 15,
-					"Label": "Intro",
-					"ClassName": "example-range-intro"
-				}
-			]
 		},
 		"MediaSession": {
 			"Enabled": true,
@@ -864,7 +874,41 @@
 					"File": "example2.mkv"
 				},
 				"Player": {
-					"MediaMode": "video"
+					"MediaMode": "video",
+					"Integration": {
+						"Hints": [
+							{
+								"ID": "info",
+								"Start": 8,
+								"Duration": 8,
+								"Title": "Second item information",
+								"Text": "This item overrides the global info hint."
+							},
+							{
+								"ID": "second-item-hint",
+								"Start": 20,
+								"Duration": 5,
+								"Title": "Playlist item hint",
+								"Text": "This hint exists only on the second playlist item."
+							}
+						],
+						"TimelineRanges": [
+							{
+								"ID": "integration-range",
+								"Start": 30,
+								"End": 45,
+								"Label": "Second item range override",
+								"ClassName": "example-range-item-override"
+							},
+							{
+								"ID": "second-item-range",
+								"Start": 80,
+								"End": 100,
+								"Label": "Second item range",
+								"ClassName": "example-range-item"
+							}
+						]
+					}
 				}
 			}
 		]
@@ -977,18 +1021,6 @@
 			"Fullscreen": true,
 			"PictureInPicture": true
 		},
-		"Timeline": {
-			"Ranges": [
-				{
-					"ID": "intro",
-					"Start": 0,
-					"End": 15,
-					"Duration": 15,
-					"Label": "Intro",
-					"ClassName": "example-range-intro"
-				}
-			]
-		},
 		"MediaSession": {
 			"Enabled": true,
 			"Metadata": {
@@ -1247,7 +1279,41 @@
 					"File": "example2.mp3"
 				},
 				"Player": {
-					"MediaMode": "audio"
+					"MediaMode": "audio",
+					"Integration": {
+						"Hints": [
+							{
+								"ID": "info",
+								"Start": 8,
+								"Duration": 8,
+								"Title": "Second item information",
+								"Text": "This item overrides the global info hint."
+							},
+							{
+								"ID": "second-item-hint",
+								"Start": 20,
+								"Duration": 5,
+								"Title": "Playlist item hint",
+								"Text": "This hint exists only on the second playlist item."
+							}
+						],
+						"TimelineRanges": [
+							{
+								"ID": "integration-range",
+								"Start": 30,
+								"End": 45,
+								"Label": "Second item range override",
+								"ClassName": "example-range-item-override"
+							},
+							{
+								"ID": "second-item-range",
+								"Start": 80,
+								"End": 100,
+								"Label": "Second item range",
+								"ClassName": "example-range-item"
+							}
+						]
+					}
 				}
 			}
 		]
@@ -1352,18 +1418,6 @@
 			"Subtitles": true,
 			"Fullscreen": true,
 			"PictureInPicture": true
-		},
-		"Timeline": {
-			"Ranges": [
-				{
-					"ID": "intro",
-					"Start": 0,
-					"End": 15,
-					"Duration": 15,
-					"Label": "Intro",
-					"ClassName": "example-range-intro"
-				}
-			]
 		},
 		"MediaSession": {
 			"Enabled": true,
@@ -1623,7 +1677,41 @@
 					"File": "example2.mp3"
 				},
 				"Player": {
-					"MediaMode": "audio"
+					"MediaMode": "audio",
+					"Integration": {
+						"Hints": [
+							{
+								"ID": "info",
+								"Start": 8,
+								"Duration": 8,
+								"Title": "Second item information",
+								"Text": "This item overrides the global info hint."
+							},
+							{
+								"ID": "second-item-hint",
+								"Start": 20,
+								"Duration": 5,
+								"Title": "Playlist item hint",
+								"Text": "This hint exists only on the second playlist item."
+							}
+						],
+						"TimelineRanges": [
+							{
+								"ID": "integration-range",
+								"Start": 30,
+								"End": 45,
+								"Label": "Second item range override",
+								"ClassName": "example-range-item-override"
+							},
+							{
+								"ID": "second-item-range",
+								"Start": 80,
+								"End": 100,
+								"Label": "Second item range",
+								"ClassName": "example-range-item"
+							}
+						]
+					}
 				}
 			}
 		]

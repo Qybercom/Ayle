@@ -2,15 +2,6 @@
 
 Angular binding for Ayle.
 
-Build locally:
-
-```bash
-npm install
-npm run build
-```
-
-Install as a package:
-
 ```bash
 npm install @qybercom/ayle @qybercom/ayle-angular
 ```
@@ -21,73 +12,96 @@ Import the Ayle stylesheet once:
 @import '@qybercom/ayle/ayle.css';
 ```
 
-The binding exports the standalone `AylePlayerComponent`. It keeps playback,
-media providers, tracks, subtitles, hints and UI inside Ayle core; Angular only owns
-component lifecycle, inputs and outputs.
+The standalone `AylePlayerComponent` has one canonical Ayle assembly input:
+`config`. Driver, MediaProvider, Playlist and Player options are not duplicated
+as Angular inputs.
 
-`mediaProvider` maps to `config.MediaProvider`; its `Type` selects a registered
-core provider. The optional `file` input is only a convenience shortcut for
-`MediaProvider.File` and defaults the provider type to `http` when needed.
+```ts
+import type { AyleConfig } from '@qybercom/ayle';
 
-Common outputs are strongly typed: `ready`, `play`, `playing`, `pause`,
-`ended`, `error`, `buffering`, `timeUpdate`, `volumeChange`, `sourceChange`.
-The generic `ayleEvent` output exposes the complete built-in event stream.
-
-The component also exposes `Instance`, `Player`, `UI`, `MediaProvider`, `Element` and
-`Reload()` for `@ViewChild` access.
-
-For local development, `@qybercom/ayle` remains a `peerDependency` for the
-published package, but is also present in `devDependencies` as `file:../..`.
-That lets `npm install` inside `bindings/angular/` resolve the current local
-Ayle core instead of trying to download the not-yet-published package from npm.
-
-Repository build helpers:
-
-```bash
-npm run build
-npm run check
-npm run pack:check
+readonly Config: AyleConfig = {
+	Driver: {
+		Type: 'mse'
+	},
+	MediaProvider: {
+		Type: 'http',
+		File: 'example.mkv',
+		MetadataURL: '/media/metadata.php?file={file}',
+		TrackURL: '/media/track.php?file={file}&type={kind}&track={track}&start={time}'
+	},
+	Player: {
+		MediaMode: 'video'
+	}
+};
 ```
 
-The root package exposes the corresponding `build:angular` and
-`check:angular` commands, and the main `build`, `check`, and `pack:check`
-commands include Angular alongside core and React.
+```html
+<ayle-player
+	id="movie"
+	[config]="Config"
+	(ayleEvent)="OnAyleEvent($event)">
+</ayle-player>
+```
 
-`build-angular.mjs` resolves the installed `ng-packagr` package from
-`bindings/angular`, reads its actual CLI path from the package `bin` field, and
-runs that file through the current Node executable. No internal
-`node_modules/ng-packagr/...` path is hard-coded, and no `npm.cmd` process is
-spawned.
+There are deliberately no legacy `file`, `driver`, `driverOptions`, `player`,
+`mediaProvider`, `playlist`, `preset`, `localization`, `volume`, `start`,
+`muted`, `debug`, `playerConfig`, or `mediaConfig` inputs. Binding compilation
+therefore exposes stale configuration immediately instead of silently merging
+old and new APIs.
 
-The component uses its own `<ayle-player>` host element as the Ayle mount point.
-It does not use an internal `@ViewChild` query. This keeps the wrapper simpler
-and avoids Angular view-query initialization issues when consuming a partially
-compiled library.
+Framework-only inputs remain separate:
 
-When testing changes in `examples/angular`, rebuilding this package alone is
-not enough after the example has already been installed: npm's local `file:`
-dependency is a copy under the example's `node_modules`. Use
-`npm run prepare:ayle` from `examples/angular`, or
-`npm run prepare:angular-example` from the repository root, to rebuild and
-synchronize the package.
+| Input | Description |
+| --- | --- |
+| `id` | Host/bootstrap instance ID. |
+| `config` | Complete typed `AyleConfig`. |
+| `settings` | Bootstrap settings persistence. |
+| `events` | Typed event-handler map, including dynamic application event names. |
+| `reloadKey` | Explicit value that may be changed to recreate the instance. |
 
-The Angular example also clears its `.angular/` build cache whenever the
-binding is synchronized, because Angular's persistent cache can otherwise keep
-an older linked version of a local `file:` library.
+Common outputs remain strongly typed (`ready`, `play`, `playing`, `pause`,
+`ended`, `error`, `buffering`, `timeUpdate`, `volumeChange`, `sourceChange`,
+`toolbarMenuAction`, `toolbarMenuSelect`). `ayleEvent` exposes the unified
+event wrapper stream.
 
-## Core feature parity
+The component also exposes `Instance`, `Player`, `UI`, `MediaProvider`,
+`Element`, and `Reload()` for `@ViewChild` access.
 
-The binding passes the complete Ayle configuration object through to the core, so core features such as Toolbar layouts/custom menus, Timeline Ranges, Media Session, Hints, Settings integrations, localization, subtitles, variants, and driver options remain available without binding-specific wrappers.
+## Shared TypeScript model
 
-The initialization shortcuts `volume`, `start`, and `muted` are also exposed directly by the binding and map to the core `data-ayle-volume`, `data-ayle-start`, and `data-ayle-muted` initialization behavior. Core events are forwarded by the binding, including `toolbarMenuAction` and `toolbarMenuSelect`; dynamic integration-specific event names can also be subscribed to through the binding event API.
+Configuration/runtime declarations now live in the core `@qybercom/ayle`
+package:
 
-### Playlist
+```ts
+import type {
+	AyleConfig,
+	AylePlayerOptions,
+	AylePlaylistConfig,
+	AyleHTTPMediaProviderConfig,
+	AyleEventMap
+} from '@qybercom/ayle';
+```
 
-Playlist configuration is passed at the Ayle assembly level. Each item may
-override `Driver`, `MediaProvider` and `Player`:
+The Angular package re-exports these types for convenience rather than
+maintaining its own duplicate model. Known configuration structures use
+concrete interfaces/literal unions; extensibility points use `unknown` where
+the application owns the payload.
 
-```js
-{
+## Playlist
+
+Playlist is part of the same assembly config:
+
+```ts
+readonly Config: AyleConfig = {
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: {
+		Type: 'http'
+	},
+	Player: {
+		MediaMode: 'audio'
+	},
 	Playlist: {
 		AutoAdvance: true,
 		AutoAdvanceDelay: 5000,
@@ -98,13 +112,34 @@ override `Driver`, `MediaProvider` and `Player`:
 			{ ID: 'two', MediaProvider: { File: 'two.mp3' } }
 		]
 	}
-}
+};
 ```
 
-Use `Player.Next()`, `Player.Previous()`, `Player.SetPlaylistIndex(index)` and
-`Player.SetPlaylistItemByID(id)` for navigation. Playlist lifecycle events are
-forwarded through the binding's generic event API.
+The Angular wrapper owns component lifecycle and event bridging only; Ayle core
+owns playback, providers, playlist state and UI.
 
-Hints can navigate playlist items with `Type: 'next'` and `Type: 'previous'`.
-The generic binding event API also forwards `playlistAutoAdvanceStart`,
-`playlistAutoAdvanceCancel`, and `playlistAutoAdvanceComplete`.
+## Build and local development
+
+Build locally:
+
+```bash
+npm install
+npm run build
+```
+
+For local development, `@qybercom/ayle` remains a `peerDependency` for the
+published package and is also present in `devDependencies` as `file:../..`.
+The root package exposes `build:angular` and `check:angular`, and the main
+build/check/pack workflows include Angular alongside core and React.
+
+`build-angular.mjs` resolves the installed `ng-packagr` package from
+`bindings/angular`, reads its CLI path from the package `bin` field and runs it
+through the current Node executable.
+
+The component uses its own `<ayle-player>` host element as the Ayle mount point;
+there is no internal `@ViewChild` mount query.
+
+When testing changes in `examples/angular`, use `npm run prepare:ayle` from the
+example or `npm run prepare:angular-example` from the repository root so the
+example receives the current local package. The synchronization helper also
+clears Angular's persistent build cache to avoid stale local-library output.

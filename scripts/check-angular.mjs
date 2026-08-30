@@ -21,15 +21,28 @@ const sourceTypes = await fs.readFile(
 	'utf8'
 );
 
-const knownEventMatches = sourceTypes.match(
-	/export type AyleKnownEventName = keyof AyleEventMap;/g
-) || [];
+if (
+	!sourceTypes.includes("from '@qybercom/ayle'") ||
+	!sourceTypes.includes('AyleAnyAngularEvent')
+)
+	throw new Error('Angular types must consume the shared @qybercom/ayle type model');
 
-if (knownEventMatches.length !== 1)
-	throw new Error(
-		'Angular source must declare AyleKnownEventName exactly once; found ' +
-		knownEventMatches.length
-	);
+const component = await fs.readFile(
+	path.join(source, 'lib', 'ayle-player.component.ts'),
+	'utf8'
+);
+
+if (!component.includes('@Input() config?: AyleConfig;'))
+	throw new Error('Angular component must expose the canonical AyleConfig input');
+
+for (const legacy of [
+	'preset', 'file', 'playerConfig', 'mediaConfig', 'player',
+	'mediaProvider', 'playlist', 'driver', 'driverOptions',
+	'localization', 'volume', 'start', 'muted', 'debug'
+]) {
+	if (component.includes('@Input() ' + legacy))
+		throw new Error('Angular component still exposes legacy input: ' + legacy);
+}
 
 const publicAPI = await fs.readFile(
 	path.join(source, 'public-api.ts'),

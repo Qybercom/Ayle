@@ -21,7 +21,6 @@
 		"strictTemplates": true
 	},
 	"files": [
-		"src/public-api.ts",
-		"src/lib/ayle-core.d.ts"
+		"src/public-api.ts"
 	]
 }

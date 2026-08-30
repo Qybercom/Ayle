@@ -1,21 +1,26 @@
 import {
 	useMemo
 } from 'react';
+import type {
+	AyleConfig,
+	AyleHTTPMediaProviderConfig,
+	AylePlayerOptions,
+	AylePlaylistConfig
+} from '@qybercom/ayle';
 import {
 	AylePlayer,
 	type AylePlayerProps
 } from '@qybercom/ayle-react';
 
-function minimalMediaProvider (file: string) {
+function minimalMediaProvider (file: string): AyleHTTPMediaProviderConfig {
 	return {
 		File: file
 	};
 }
 
-function fullMediaProvider () {
+function fullMediaProvider (): AyleHTTPMediaProviderConfig {
 	return {
 	Type: 'http',
-	File: file,
 	MetadataURL: '/server/metadata.php?file={file}',
 	TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
 	VideoURL: '',
@@ -68,16 +73,31 @@ function fullMediaProvider () {
 };
 }
 
-const MINIMAL_VIDEO_MEDIA_PROVIDER = minimalMediaProvider('example.mp4');
-const MINIMAL_AUDIO_MEDIA_PROVIDER = minimalMediaProvider('example.mp3');
-const FULL_VIDEO_MEDIA_PROVIDER = fullMediaProvider();
-const FULL_AUDIO_MEDIA_PROVIDER = fullMediaProvider();
+const MINIMAL_VIDEO_CONFIG: AyleConfig = {
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: minimalMediaProvider('example.mp4'),
+	Player: {
+		MediaMode: 'video'
+	}
+};
+
+const MINIMAL_AUDIO_CONFIG: AyleConfig = {
+	Driver: {
+		Type: 'html5'
+	},
+	MediaProvider: minimalMediaProvider('example.mp3'),
+	Player: {
+		MediaMode: 'audio'
+	}
+};
 
 function fullPlaylist (
 	file: string,
 	nextFile: string,
 	mediaMode: 'video' | 'audio'
-) {
+): AylePlaylistConfig {
 	return {
 		AutoAdvance: true,
 		AutoAdvanceDelay: 5000,
@@ -100,25 +120,48 @@ function fullPlaylist (
 					File: nextFile
 				},
 				Player: {
-					MediaMode: mediaMode
+					MediaMode: mediaMode,
+					Integration: {
+						Hints: [
+							{
+								ID: 'info',
+								Start: 8,
+								Duration: 8,
+								Title: 'Second item information',
+								Text: 'This item overrides the global info hint.'
+							},
+							{
+								ID: 'second-item-hint',
+								Start: 20,
+								Duration: 5,
+								Title: 'Playlist item hint',
+								Text: 'This hint exists only on the second playlist item.'
+							}
+						],
+						TimelineRanges: [
+							{
+								ID: 'integration-range',
+								Start: 30,
+								End: 45,
+								Label: 'Second item range override',
+								ClassName: 'example-range-item-override'
+							},
+							{
+								ID: 'second-item-range',
+								Start: 80,
+								End: 100,
+								Label: 'Second item range',
+								ClassName: 'example-range-item'
+							}
+						]
+					}
 				}
 			}
 		]
 	};
 }
 
-const FULL_VIDEO_PLAYLIST = fullPlaylist('example.mkv', 'example2.mkv', 'video');
-const FULL_AUDIO_PLAYLIST = fullPlaylist('example.mp3', 'example2.mp3', 'audio');
-
-const MINIMAL_VIDEO = {
-    MediaMode: 'video'
-};
-
-const MINIMAL_AUDIO = {
-    MediaMode: 'audio'
-};
-
-function fullPlayer (mediaMode: 'video' | 'audio') {
+function fullPlayer (mediaMode: 'video' | 'audio'): AylePlayerOptions {
 	return {
 		AutoSelectFirstSubtitleTrack: false,
 		AutoPlay: false,
@@ -193,18 +236,6 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 			Subtitles: true,
 			Fullscreen: true,
 			PictureInPicture: true
-		},
-		Timeline: {
-			Ranges: [
-				{
-					ID: 'intro',
-					Start: 0,
-					End: 15,
-					Duration: 15,
-					Label: 'Intro',
-					ClassName: 'example-range-intro'
-				}
-			]
 		},
 		MediaSession: {
 			Enabled: true,
@@ -390,8 +421,24 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 	};
 }
 
-const FULL_VIDEO = fullPlayer('video');
-const FULL_AUDIO = fullPlayer('audio');
+const FULL_VIDEO_CONFIG: AyleConfig = {
+	Driver: {
+		Type: 'mse'
+	},
+	MediaProvider: fullMediaProvider(),
+	Playlist: fullPlaylist('example.mkv', 'example2.mkv', 'video'),
+	Player: fullPlayer('video')
+};
+
+const FULL_AUDIO_CONFIG: AyleConfig = {
+	Driver: {
+		Type: 'mse'
+	},
+	MediaProvider: fullMediaProvider(),
+	Playlist: fullPlaylist('example.mp3', 'example2.mp3', 'audio'),
+	Player: fullPlayer('audio')
+};
+
 const FULL_EVENTS = {
 	favoriteAction: function (context: any) {
 		console.log('Ayle React favorite button clicked:', context.Item.ID);
@@ -435,15 +482,11 @@ export default function App () {
 				badge: 'minimal-video',
 				code: `<AylePlayer
 	id="react-minimal-video"
-	driver="html5"
-	mediaProvider={MINIMAL_VIDEO_MEDIA_PROVIDER}
-	player={MINIMAL_VIDEO}
+	config={MINIMAL_VIDEO_CONFIG}
 />`,
 				player: {
 					id: 'react-minimal-video',
-					driver: 'html5',
-					mediaProvider: MINIMAL_VIDEO_MEDIA_PROVIDER,
-					player: MINIMAL_VIDEO
+					config: MINIMAL_VIDEO_CONFIG
 				}
 			},
 			{
@@ -452,15 +495,11 @@ export default function App () {
 				badge: 'minimal-audio',
 				code: `<AylePlayer
 	id="react-minimal-audio"
-	driver="html5"
-	mediaProvider={MINIMAL_AUDIO_MEDIA_PROVIDER}
-	player={MINIMAL_AUDIO}
+	config={MINIMAL_AUDIO_CONFIG}
 />`,
 				player: {
 					id: 'react-minimal-audio',
-					driver: 'html5',
-					mediaProvider: MINIMAL_AUDIO_MEDIA_PROVIDER,
-					player: MINIMAL_AUDIO
+					config: MINIMAL_AUDIO_CONFIG
 				}
 			},
 			{
@@ -469,21 +508,15 @@ export default function App () {
 				badge: 'full-video',
 				code: `<AylePlayer
 	id="react-full-video"
-	driver="mse"
+	config={FULL_VIDEO_CONFIG}
 	settings="localStorage"
-	mediaProvider={FULL_VIDEO_MEDIA_PROVIDER}
-	playlist={FULL_VIDEO_PLAYLIST}
-	player={FULL_VIDEO}
 	events={FULL_EVENTS}
 	onEvent={handleEvent}
 />`,
 				player: {
 					id: 'react-full-video',
-					driver: 'mse',
+					config: FULL_VIDEO_CONFIG,
 					settings: 'localStorage',
-					mediaProvider: FULL_VIDEO_MEDIA_PROVIDER,
-					playlist: FULL_VIDEO_PLAYLIST,
-					player: FULL_VIDEO,
 					events: FULL_EVENTS,
 					onEvent: function (event) {
 						console.log('Ayle React event:', event.Type, event.Data);
@@ -496,21 +529,15 @@ export default function App () {
 				badge: 'full-audio',
 				code: `<AylePlayer
 	id="react-full-audio"
-	driver="mse"
+	config={FULL_AUDIO_CONFIG}
 	settings="localStorage"
-	mediaProvider={FULL_AUDIO_MEDIA_PROVIDER}
-	playlist={FULL_AUDIO_PLAYLIST}
-	player={FULL_AUDIO}
 	events={FULL_EVENTS}
 	onEvent={handleEvent}
 />`,
 				player: {
 					id: 'react-full-audio',
-					driver: 'mse',
+					config: FULL_AUDIO_CONFIG,
 					settings: 'localStorage',
-					mediaProvider: FULL_AUDIO_MEDIA_PROVIDER,
-					playlist: FULL_AUDIO_PLAYLIST,
-					player: FULL_AUDIO,
 					events: FULL_EVENTS,
 					onEvent: function (event) {
 						console.log('Ayle React event:', event.Type, event.Data);
@@ -535,7 +562,7 @@ export default function App () {
 			</div>
 
 			<div className="example-note">
-				The complete reusable Player objects live at the top of App.tsx so the full examples remain readable without hiding any Ayle configuration.
+				The complete reusable Ayle config objects live at the top of App.tsx; React only receives config plus framework integration props.
 			</div>
 		</main>
 	);

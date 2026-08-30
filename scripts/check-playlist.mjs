@@ -327,6 +327,112 @@ assert(
 	'base forced playlist controls must survive item Player overrides'
 );
 
+var baseHints = new ArrayInContext();
+baseHints.push(
+	{ ID: 'shared-hint', Start: 5, Duration: 5, Title: 'Global shared' },
+	{ ID: 'global-hint', Start: 10, Duration: 5, Title: 'Global only' }
+);
+var baseRanges = new ArrayInContext();
+baseRanges.push(
+	{ ID: 'shared-range', Start: 10, End: 20, Label: 'Global shared range' },
+	{ ID: 'global-range', Start: 30, End: 40, Label: 'Global only range' }
+);
+var itemHints = new ArrayInContext();
+itemHints.push(
+	{ ID: 'shared-hint', Start: 15, Duration: 5, Title: 'Item override' },
+	{ ID: 'item-hint', Start: 25, Duration: 5, Title: 'Item only' }
+);
+var itemRanges = new ArrayInContext();
+itemRanges.push(
+	{ ID: 'shared-range', Start: 50, End: 60, Label: 'Item override range' },
+	{ ID: 'item-range', Start: 70, End: 80, Label: 'Item only range' }
+);
+var overlayItems = new ArrayInContext();
+overlayItems.push(
+	{ ID: 'overlay-one', MediaProvider: { Type: 'playlist-test', File: 'overlay-one.mp3' } },
+	{
+		ID: 'overlay-two',
+		MediaProvider: { Type: 'playlist-test', File: 'overlay-two.mp3' },
+		Player: {
+			Integration: {
+				Hints: itemHints,
+				TimelineRanges: itemRanges
+			}
+		}
+	}
+);
+var overlayPlayer = new Ayle({
+	Driver: { Type: 'playlist-test' },
+	Player: {
+		MediaMode: 'audio',
+		Integration: {
+			Hints: baseHints,
+			TimelineRanges: baseRanges
+		}
+	},
+	Playlist: { Items: overlayItems }
+});
+overlayPlayer.UI = {};
+overlayPlayer.Load();
+
+assert(
+	overlayPlayer.Options.Integration.Hints.length === 2 &&
+	overlayPlayer.Options.Integration.TimelineRanges.length === 2,
+	'first playlist item must inherit global Integration overlays unchanged'
+);
+assert(
+	!Object.prototype.hasOwnProperty.call(overlayPlayer.State.Source, 'Hints') &&
+	!Object.prototype.hasOwnProperty.call(overlayPlayer.State.Source, 'TimelineRanges'),
+	'platform overlays must not be stored in AyleSource metadata'
+);
+
+assert(overlayPlayer.Next() === true, 'overlay playlist must advance');
+var effectiveHints = overlayPlayer.Options.Integration.Hints;
+var effectiveRanges = overlayPlayer.Options.Integration.TimelineRanges;
+var sharedHintCount = 0;
+var sharedRangeCount = 0;
+var itemHintFound = false;
+var itemRangeFound = false;
+var iOverlay = 0;
+
+while (iOverlay < effectiveHints.length) {
+	if (effectiveHints[iOverlay].ID === 'shared-hint') {
+		sharedHintCount++;
+		assert(effectiveHints[iOverlay].Start === 15, 'item Hint must override global Hint with same ID');
+	}
+
+	if (effectiveHints[iOverlay].ID === 'item-hint')
+		itemHintFound = true;
+
+	iOverlay++;
+}
+
+iOverlay = 0;
+while (iOverlay < effectiveRanges.length) {
+	if (effectiveRanges[iOverlay].ID === 'shared-range') {
+		sharedRangeCount++;
+		assert(effectiveRanges[iOverlay].Start === 50, 'item TimelineRange must override global range with same ID');
+	}
+
+	if (effectiveRanges[iOverlay].ID === 'item-range')
+		itemRangeFound = true;
+
+	iOverlay++;
+}
+
+assert(sharedHintCount === 1 && itemHintFound, 'effective Hints must merge global + item overlays by ID');
+assert(sharedRangeCount === 1 && itemRangeFound, 'effective TimelineRanges must merge global + item overlays by ID');
+assert(effectiveHints.length === 3, 'item Hint addition must preserve unrelated global Hints');
+assert(effectiveRanges.length === 3, 'item range addition must preserve unrelated global TimelineRanges');
+
+assert(overlayPlayer.Previous() === true, 'overlay playlist must return to first item');
+assert(
+	overlayPlayer.Options.Integration.Hints.length === 2 &&
+	overlayPlayer.Options.Integration.Hints[0].Start === 5 &&
+	overlayPlayer.Options.Integration.TimelineRanges.length === 2 &&
+	overlayPlayer.Options.Integration.TimelineRanges[0].Start === 10,
+	'leaving an item must restore the inherited global Integration overlays without leakage'
+);
 
 
 var hintItems = new ArrayInContext();

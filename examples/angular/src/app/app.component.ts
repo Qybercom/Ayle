@@ -1,6 +1,12 @@
 import {
 	Component
 } from '@angular/core';
+import type {
+	AyleConfig,
+	AyleHTTPMediaProviderConfig,
+	AylePlayerOptions,
+	AylePlaylistConfig
+} from '@qybercom/ayle';
 import {
 	AylePlayerComponent,
 	type AyleAnyAngularEvent
@@ -16,62 +22,72 @@ import {
 	styleUrl: './app.component.css'
 })
 export class AppComponent {
-	readonly MinimalVideoMediaProvider = this.MinimalMediaProvider('example.mp4');
-	readonly MinimalAudioMediaProvider = this.MinimalMediaProvider('example.mp3');
-
-	readonly MinimalVideo = {
-		MediaMode: 'video'
+	readonly MinimalVideoConfig: AyleConfig = {
+		Driver: {
+			Type: 'html5'
+		},
+		MediaProvider: this.MinimalMediaProvider('example.mp4'),
+		Player: {
+			MediaMode: 'video'
+		}
 	};
 
-	readonly MinimalAudio = {
-		MediaMode: 'audio'
+	readonly MinimalAudioConfig: AyleConfig = {
+		Driver: {
+			Type: 'html5'
+		},
+		MediaProvider: this.MinimalMediaProvider('example.mp3'),
+		Player: {
+			MediaMode: 'audio'
+		}
 	};
 
-	readonly FullVideoMediaProvider = this.FullMediaProvider();
-	readonly FullAudioMediaProvider = this.FullMediaProvider();
-	readonly FullVideoPlaylist = this.FullPlaylist('example.mkv', 'example2.mkv', 'video');
-	readonly FullAudioPlaylist = this.FullPlaylist('example.mp3', 'example2.mp3', 'audio');
-	readonly FullVideo = this.FullPlayer('video');
-	readonly FullAudio = this.FullPlayer('audio');
+	readonly FullVideoConfig: AyleConfig = {
+		Driver: {
+			Type: 'mse'
+		},
+		MediaProvider: this.FullMediaProvider(),
+		Playlist: this.FullPlaylist('example.mkv', 'example2.mkv', 'video'),
+		Player: this.FullPlayer('video')
+	};
+
+	readonly FullAudioConfig: AyleConfig = {
+		Driver: {
+			Type: 'mse'
+		},
+		MediaProvider: this.FullMediaProvider(),
+		Playlist: this.FullPlaylist('example.mp3', 'example2.mp3', 'audio'),
+		Player: this.FullPlayer('audio')
+	};
+
 	readonly FullEvents = {
 		favoriteAction: function (context: any): void {
 			console.log('Ayle Angular favorite button clicked:', context.Item.ID);
 		}
 	};
 
-
 	readonly MinimalVideoCode = `<ayle-player
 	id="angular-minimal-video"
-	driver="html5"
-	[mediaProvider]="MinimalVideoMediaProvider"
-	[player]="MinimalVideo">
+	[config]="MinimalVideoConfig">
 </ayle-player>`;
 
 	readonly MinimalAudioCode = `<ayle-player
 	id="angular-minimal-audio"
-	driver="html5"
-	[mediaProvider]="MinimalAudioMediaProvider"
-	[player]="MinimalAudio">
+	[config]="MinimalAudioConfig">
 </ayle-player>`;
 
 	readonly FullVideoCode = `<ayle-player
 	id="angular-full-video"
-	driver="mse"
+	[config]="FullVideoConfig"
 	settings="localStorage"
-	[mediaProvider]="FullVideoMediaProvider"
-	[playlist]="FullVideoPlaylist"
-	[player]="FullVideo"
 	[events]="FullEvents"
 	(ayleEvent)="OnEvent($event)">
 </ayle-player>`;
 
 	readonly FullAudioCode = `<ayle-player
 	id="angular-full-audio"
-	driver="mse"
+	[config]="FullAudioConfig"
 	settings="localStorage"
-	[mediaProvider]="FullAudioMediaProvider"
-	[playlist]="FullAudioPlaylist"
-	[player]="FullAudio"
 	[events]="FullEvents"
 	(ayleEvent)="OnEvent($event)">
 </ayle-player>`;
@@ -80,13 +96,13 @@ export class AppComponent {
 		console.log('Ayle Angular event:', event.Type, event.Data);
 	}
 
-	private MinimalMediaProvider (file: string) {
+	private MinimalMediaProvider (file: string): AyleHTTPMediaProviderConfig {
 		return {
 			File: file
 		};
 	}
 
-	private FullMediaProvider () {
+	private FullMediaProvider (): AyleHTTPMediaProviderConfig {
 		return {
 		Type: 'http',
 		MetadataURL: '/server/metadata.php?file={file}',
@@ -145,7 +161,7 @@ export class AppComponent {
 		file: string,
 		nextFile: string,
 		mediaMode: 'video' | 'audio'
-	) {
+	): AylePlaylistConfig {
 		return {
 			AutoAdvance: true,
 			AutoAdvanceDelay: 5000,
@@ -168,14 +184,48 @@ export class AppComponent {
 						File: nextFile
 					},
 					Player: {
-						MediaMode: mediaMode
+						MediaMode: mediaMode,
+						Integration: {
+							Hints: [
+								{
+									ID: 'info',
+									Start: 8,
+									Duration: 8,
+									Title: 'Second item information',
+									Text: 'This item overrides the global info hint.'
+								},
+								{
+									ID: 'second-item-hint',
+									Start: 20,
+									Duration: 5,
+									Title: 'Playlist item hint',
+									Text: 'This hint exists only on the second playlist item.'
+								}
+							],
+							TimelineRanges: [
+								{
+									ID: 'integration-range',
+									Start: 30,
+									End: 45,
+									Label: 'Second item range override',
+									ClassName: 'example-range-item-override'
+								},
+								{
+									ID: 'second-item-range',
+									Start: 80,
+									End: 100,
+									Label: 'Second item range',
+									ClassName: 'example-range-item'
+								}
+							]
+						}
 					}
 				}
 			]
 		};
 	}
 
-	private FullPlayer (mediaMode: 'video' | 'audio') {
+	private FullPlayer (mediaMode: 'video' | 'audio'): AylePlayerOptions {
 		return {
 			AutoSelectFirstSubtitleTrack: false,
 			AutoPlay: false,
@@ -250,18 +300,6 @@ export class AppComponent {
 				Subtitles: true,
 				Fullscreen: true,
 				PictureInPicture: true
-			},
-			Timeline: {
-				Ranges: [
-					{
-						ID: 'intro',
-						Start: 0,
-						End: 15,
-						Duration: 15,
-						Label: 'Intro',
-						ClassName: 'example-range-intro'
-					}
-				]
 			},
 			MediaSession: {
 				Enabled: true,

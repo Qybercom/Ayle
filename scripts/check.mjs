@@ -14,7 +14,9 @@ const required = [
 	'ayle-bootstrap.min.js',
 	'ayle.css',
 	'ayle.min.css',
-	'ayle-icons.svg'
+	'ayle-icons.svg',
+	'index.d.ts',
+	'bootstrap.d.ts'
 ];
 
 for (const name of required)
@@ -28,6 +30,8 @@ const requiredIcons = [
 	'pause.svg',
 	'pip.svg',
 	'play.svg',
+	'previous.svg',
+	'next.svg',
 	'settings.svg',
 	'volume.svg'
 ];
@@ -89,6 +93,24 @@ if (!bootstrapESM.AyleBootstrap)
 	throw new Error('Missing ESM export: AyleBootstrap');
 
 console.log('Bootstrap ESM export: AyleBootstrap');
+
+const declarations = await fs.readFile(
+	path.join(dist, 'index.d.ts'),
+	'utf8'
+);
+const bootstrapDeclarations = await fs.readFile(
+	path.join(dist, 'bootstrap.d.ts'),
+	'utf8'
+);
+
+if (
+	!declarations.includes('export interface AyleConfig') ||
+	declarations.includes('Record<string, any>')
+)
+	throw new Error('Core TypeScript declarations are missing canonical typed AyleConfig');
+
+if (!bootstrapDeclarations.includes('config?: AyleConfig'))
+	throw new Error('Bootstrap declarations must consume canonical AyleConfig');
 
 const corePackage = JSON.parse(
 	await fs.readFile(path.join(root, 'package.json'), 'utf8')

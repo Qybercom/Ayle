@@ -17,9 +17,7 @@
 			<div class="example-preview">
 				<ayle-player
 					id="angular-minimal-video"
-					driver="html5"
-					[mediaProvider]="MinimalVideoMediaProvider"
-					[player]="MinimalVideo">
+					[config]="MinimalVideoConfig">
 				</ayle-player>
 			</div>
 			<div class="example-code-title">Angular template</div>
@@ -37,9 +35,7 @@
 			<div class="example-preview">
 				<ayle-player
 					id="angular-minimal-audio"
-					driver="html5"
-					[mediaProvider]="MinimalAudioMediaProvider"
-					[player]="MinimalAudio">
+					[config]="MinimalAudioConfig">
 				</ayle-player>
 			</div>
 			<div class="example-code-title">Angular template</div>
@@ -57,11 +53,8 @@
 			<div class="example-preview">
 				<ayle-player
 					id="angular-full-video"
-					driver="mse"
+					[config]="FullVideoConfig"
 					settings="localStorage"
-					[mediaProvider]="FullVideoMediaProvider"
-					[playlist]="FullVideoPlaylist"
-					[player]="FullVideo"
 					[events]="FullEvents"
 					(ayleEvent)="OnEvent($event)">
 				</ayle-player>
@@ -81,11 +74,8 @@
 			<div class="example-preview">
 				<ayle-player
 					id="angular-full-audio"
-					driver="mse"
+					[config]="FullAudioConfig"
 					settings="localStorage"
-					[mediaProvider]="FullAudioMediaProvider"
-					[playlist]="FullAudioPlaylist"
-					[player]="FullAudio"
 					[events]="FullEvents"
 					(ayleEvent)="OnEvent($event)">
 				</ayle-player>
@@ -96,6 +86,6 @@
 	</div>
 
 	<div class="example-note">
-		The complete reusable Player objects are intentionally kept in <code>app.component.ts</code>, so the full examples remain readable while still exposing the entire current Ayle feature surface.
+		The complete reusable Ayle config objects are kept in <code>app.component.ts</code>; Angular receives one config plus framework integration inputs.
 	</div>
 </main>

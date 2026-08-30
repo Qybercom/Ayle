@@ -17,7 +17,11 @@
 		"LICENSE"
 	],
 	"exports": {
-		".": "./dist/ayle.esm.js",
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/ayle.esm.js",
+			"default": "./dist/ayle.esm.js"
+		},
 		"./ayle.js": "./dist/ayle.js",
 		"./ayle.min.js": "./dist/ayle.min.js",
 		"./ayle-bootstrap.js": "./dist/ayle-bootstrap.js",
@@ -26,7 +30,11 @@
 		"./ayle.min.css": "./dist/ayle.min.css",
 		"./ayle-icons.svg": "./dist/ayle-icons.svg",
 		"./package.json": "./package.json",
-		"./bootstrap": "./dist/ayle-bootstrap.esm.js",
+		"./bootstrap": {
+			"types": "./dist/bootstrap.d.ts",
+			"import": "./dist/ayle-bootstrap.esm.js",
+			"default": "./dist/ayle-bootstrap.esm.js"
+		},
 		"./icons": "./dist/ayle-icons.svg",
 		"./icons/chapters.svg": "./dist/icons/chapters.svg",
 		"./icons/fullscreen-enter.svg": "./dist/icons/fullscreen-enter.svg",
@@ -36,7 +44,9 @@
 		"./icons/pip.svg": "./dist/icons/pip.svg",
 		"./icons/play.svg": "./dist/icons/play.svg",
 		"./icons/settings.svg": "./dist/icons/settings.svg",
-		"./icons/volume.svg": "./dist/icons/volume.svg"
+		"./icons/volume.svg": "./dist/icons/volume.svg",
+		"./icons/previous.svg": "./dist/icons/previous.svg",
+		"./icons/next.svg": "./dist/icons/next.svg"
 	},
 	"scripts": {
 		"clean": "node scripts/build.mjs --clean",
@@ -76,5 +86,6 @@
 	"homepage": "https://github.com/Qybercom/Ayle#readme",
 	"bugs": {
 		"url": "https://github.com/Qybercom/Ayle/issues"
-	}
+	},
+	"types": "./dist/index.d.ts"
 }

@@ -152,6 +152,16 @@ if (
 	throw new Error('Low-level full playlists must use example/example2 as distinct media items');
 
 if (
+	(lowLevel.match(/ID: 'second-item-hint'/g) || []).length !== 4 ||
+	(lowLevel.match(/ID: 'second-item-range'/g) || []).length !== 4 ||
+	(lowLevel.match(/ID: 'integration-range',\n\s*Start: 30/g) || []).length !== 4
+)
+	throw new Error('Low-level full playlists must demonstrate item-specific Integration Hints/TimelineRanges and ID override');
+
+if (/\bTimeline\s*:\s*\{/.test(lowLevel))
+	throw new Error('Low-level examples must not expose removed Player.Timeline');
+
+if (
 	(embedded.match(/"AutoAdvanceDelay": 5000/g) || []).length !== 4 ||
 	(embedded.match(/"ForceShowPreviousButton": true/g) || []).length !== 4 ||
 	(embedded.match(/"ForceShowNextButton": true/g) || []).length !== 4 ||
@@ -166,6 +176,16 @@ if (
 	(embedded.match(/"File": "example2\.mp3"/g) || []).length !== 2
 )
 	throw new Error('Embedded full playlists must use example/example2 as distinct media items');
+
+if (
+	(embedded.match(/"ID": "second-item-hint"/g) || []).length !== 4 ||
+	(embedded.match(/"ID": "second-item-range"/g) || []).length !== 4 ||
+	(embedded.match(/"ID": "integration-range",\n\s*"Start": 30/g) || []).length !== 4
+)
+	throw new Error('Embedded full playlists must demonstrate item-specific Integration Hints/TimelineRanges and ID override');
+
+if (/"Timeline"\s*:\s*\{/.test(embedded))
+	throw new Error('Embedded examples must not expose removed Player.Timeline');
 
 if (embedded.indexOf('embedded-config-source') !== -1)
 	throw new Error('Embedded canonical example must not use a hidden staging container');
@@ -218,6 +238,8 @@ const fullPlayerOptions = [
 	'LoadingDelay',
 	'ForceShowQualityList',
 	'ForceShowChaptersList',
+	'ForceShowPreviousButton',
+	'ForceShowNextButton',
 	'ShowCenterPlayButton',
 	'AutoFocus',
 	'MediaMode',
@@ -229,7 +251,6 @@ const fullPlayerOptions = [
 	'KeyboardAngleSeekStep',
 	'KeyboardFrameRateFallback',
 	'Shortcuts',
-	'Timeline',
 	'MediaSession',
 	'SettingsOrder',
 	'FontFamily',
@@ -416,11 +437,10 @@ const validateFullObject = function (player, mediaProvider, label) {
 			throw new Error(label + ' full toolbar Menu[] is missing suboption ' + name);
 	}
 
-	for (const range of [player.Timeline.Ranges[0], player.Integration.TimelineRanges[0]]) {
-		for (const name of ['ID', 'Start', 'End', 'Duration', 'Label', 'ClassName']) {
-			if (!hasOwn(range, name))
-				throw new Error(label + ' full timeline range is missing suboption ' + name);
-		}
+	const range = player.Integration.TimelineRanges[0];
+	for (const name of ['ID', 'Start', 'End', 'Duration', 'Label', 'ClassName']) {
+		if (!hasOwn(range, name))
+			throw new Error(label + ' full Integration.TimelineRanges[] is missing suboption ' + name);
 	}
 };
 
@@ -460,6 +480,16 @@ for (const [name, firstFile, secondFile] of [
 		config.Playlist.Items[1].MediaProvider.File !== secondFile
 	)
 		throw new Error(name + ' Playlist.Items must be the authoritative example/example2 media sequence');
+
+	const itemIntegration = config.Playlist.Items[1].Player.Integration;
+	if (
+		!itemIntegration ||
+		itemIntegration.Hints[0].ID !== 'info' ||
+		itemIntegration.Hints[1].ID !== 'second-item-hint' ||
+		itemIntegration.TimelineRanges[0].ID !== 'integration-range' ||
+		itemIntegration.TimelineRanges[1].ID !== 'second-item-range'
+	)
+		throw new Error(name + ' second item must carry Integration overlay additions/ID overrides');
 }
 
 const minimalDefaultNames = [
@@ -485,7 +515,6 @@ const minimalDefaultNames = [
 	'KeyboardAngleSeekStep',
 	'KeyboardFrameRateFallback',
 	'Shortcuts',
-	'Timeline',
 	'MediaSession',
 	'SettingsOrder',
 	'FontFamily',
@@ -574,6 +603,39 @@ if (
 const reactSource = configurationSources[3];
 const angularSource = configurationSources[2];
 
+const angularTemplate = await fs.readFile(
+	path.join(examples, 'angular/src/app/app.component.html'),
+	'utf8'
+);
+
+for (const token of [
+	'driver="', 'mediaProvider={', 'player={', 'playlist={',
+	'file="', 'preset="'
+]) {
+	if (reactSource.indexOf(token) !== -1)
+		throw new Error('React canonical examples still expose legacy binding syntax: ' + token);
+}
+
+for (const token of [
+	'[mediaProvider]=', '[player]=', '[playlist]=', '[driverOptions]=',
+	'driver="', 'file="', 'preset="'
+]) {
+	if (
+		angularSource.indexOf(token) !== -1 ||
+		angularTemplate.indexOf(token) !== -1
+	)
+		throw new Error('Angular canonical examples still expose legacy binding syntax: ' + token);
+}
+
+if (
+	reactSource.indexOf("AyleConfig") === -1 ||
+	angularSource.indexOf("AyleConfig") === -1 ||
+	reactSource.indexOf("from '@qybercom/ayle'") === -1 ||
+	angularSource.indexOf("from '@qybercom/ayle'") === -1
+)
+	throw new Error('Framework examples must consume shared AyleConfig from the core package');
+
+
 if (
 	reactSource.indexOf("ForceShowQualityList: mediaMode === 'video'") === -1 ||
 	angularSource.indexOf("ForceShowQualityList: mediaMode === 'video'") === -1
@@ -592,10 +654,10 @@ if (
 if (
 	reactSource.indexOf('AutoAdvanceDelay: 5000') === -1 ||
 	angularSource.indexOf('AutoAdvanceDelay: 5000') === -1 ||
-	reactSource.indexOf('playlist={FULL_VIDEO_PLAYLIST}') === -1 ||
-	angularSource.indexOf('[playlist]="FullVideoPlaylist"') === -1
+	reactSource.indexOf('config={FULL_VIDEO_CONFIG}') === -1 ||
+	angularSource.indexOf('[config]="FullVideoConfig"') === -1
 )
-	throw new Error('Framework full examples must demonstrate Playlist + AutoAdvanceDelay');
+	throw new Error('Framework full examples must demonstrate Playlist + AutoAdvanceDelay through canonical config');
 
 
 if (
@@ -605,6 +667,20 @@ if (
 	angularSource.indexOf("this.FullPlaylist('example.mp3', 'example2.mp3', 'audio')") === -1
 )
 	throw new Error('Framework full playlists must demonstrate distinct example/example2 files');
+
+if (
+	reactSource.indexOf("ID: 'second-item-hint'") === -1 ||
+	reactSource.indexOf("ID: 'second-item-range'") === -1 ||
+	angularSource.indexOf("ID: 'second-item-hint'") === -1 ||
+	angularSource.indexOf("ID: 'second-item-range'") === -1
+)
+	throw new Error('Framework full playlists must demonstrate item-specific Integration Hints/TimelineRanges');
+
+if (
+	/\bTimeline\s*:\s*\{/.test(reactSource) ||
+	/\bTimeline\s*:\s*\{/.test(angularSource)
+)
+	throw new Error('Framework examples must not expose removed Player.Timeline');
 
 if (
 	reactSource.indexOf("Type: 'next'") === -1 ||

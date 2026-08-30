@@ -510,9 +510,12 @@ A number may be supplied to apply the same padding to all sides, or an object ma
 | Option | Type / default | Description |
 | --- | --- | --- |
 | `Channel` | object or `null` / `null` | Channel/owner information displayed by the normal UI. |
-| `Hints` | array / `[]` | Timed interactive hints. |
+| `Hints` | array / `[]` | Timed platform hints relative to the current media item's local timeline. |
 | `Settings` | array / `[]` | Application-defined Settings items. |
-| `Data` | any / `null` | Opaque application data stored with the integration configuration; Ayle does not interpret it. |
+| `Toolbar` | array / `[]` | Application-defined toolbar controls. |
+| `TimelineRanges` | array / `[]` | Platform-owned visual ranges relative to the current media item's local timeline. |
+| `MediaSession` | object or `null` / `null` | Integration-level Media Session metadata overrides. |
+| `Data` | unknown / `null` | Opaque application data stored with the integration configuration; Ayle does not interpret it. |
 
 #### `Integration.Channel`
 
@@ -1465,6 +1468,57 @@ Actions: [
 `playlist-next` and `playlist-previous` are accepted aliases for integrations
 that prefer explicit action names.
 
+`Integration.Hints` and `Integration.TimelineRanges` use the same playlist
+semantics. Top-level `Player.Integration` is the inherited platform overlay set
+for every item. A playlist item may add or override overlays through
+`Playlist.Items[].Player.Integration`. Both collections are merged by `ID`:
+unrelated global entries are preserved, item-only entries are appended, and an
+item entry with the same non-empty `ID` replaces the global entry for that item
+only. Leaving the item restores the inherited global version. Entries without
+an `ID` are independent and are appended.
+
+All hint/range times are relative to the **current media item's local timeline**.
+There is no synthetic playlist-wide clock, and these overlays are deliberately
+not part of `AyleSource`/MediaProvider metadata: they belong to the platform
+integration layer.
+
+```js
+Player: {
+	Integration: {
+		Hints: [
+			{ ID: 'help', Start: 10, Duration: 5 }
+		],
+		TimelineRanges: [
+			{ ID: 'sponsor', Start: 30, End: 45 }
+		]
+	}
+},
+Playlist: {
+	Items: [
+		{
+			ID: 'one',
+			MediaProvider: { File: 'one.mp4' }
+		},
+		{
+			ID: 'two',
+			MediaProvider: { File: 'two.mp4' },
+			Player: {
+				Integration: {
+					Hints: [
+						{ ID: 'help', Start: 20, Duration: 5 },
+						{ ID: 'two-only', Start: 40, Duration: 5 }
+					],
+					TimelineRanges: [
+						{ ID: 'sponsor', Start: 50, End: 65 },
+						{ ID: 'two-only-range', Start: 80, End: 100 }
+					]
+				}
+			}
+		}
+	]
+}
+```
+
 Single-file configuration remains unchanged; `Playlist` is optional.
 
 ## Media providers
@@ -1866,9 +1920,9 @@ final GitHub repository URL as `repository.url` in `package.json` before
 enabling Trusted Publishing; npm requires it to match the publishing
 repository exactly. No repository URL is guessed in this template.
 
-The `bindings/angular/` and `bindings/react/` directories are intentionally
-reserved at this stage. They will become separate npm packages consuming the
-core ESM API.
+The `bindings/angular/` and `bindings/react/` directories contain the thin
+framework packages. Both consume the same canonical Ayle assembly config and
+the shared TypeScript declarations published by `@qybercom/ayle`.
 
 
 ### Minified bootstrap
@@ -1877,6 +1931,50 @@ core ESM API.
 `ayle.min.js` and `ayle.min.css`, so the production bootstrap does not
 accidentally load the readable development assets. The readable
 `dist/ayle-bootstrap.js` continues to load `ayle.js` and `ayle.css`.
+
+## TypeScript configuration API
+
+The root package publishes `dist/index.d.ts` and the `@qybercom/ayle/bootstrap`
+subpath publishes `dist/bootstrap.d.ts`.
+
+```ts
+import type {
+	AyleConfig,
+	AyleHTTPMediaProviderConfig,
+	AylePlayerOptions,
+	AylePlaylistConfig
+} from '@qybercom/ayle';
+```
+
+`AyleConfig` mirrors the canonical assembly shape:
+
+```ts
+const config: AyleConfig = {
+	Driver: {
+		Type: 'mse'
+	},
+	MediaProvider: {
+		Type: 'http',
+		MetadataURL: '/media/metadata?file={file}',
+		TrackURL: '/media/track?file={file}&type={kind}&track={track}&start={time}'
+	},
+	Playlist: {
+		Items: [
+			{ ID: 'one', MediaProvider: { File: 'example.mkv' } },
+			{ ID: 'two', MediaProvider: { File: 'example2.mkv' } }
+		]
+	},
+	Player: {
+		MediaMode: 'video'
+	}
+};
+```
+
+Known configuration objects use concrete interfaces and literal unions rather
+than `Record<string, any>`. Open/custom extension boundaries use `unknown`
+where practical. Framework bindings accept this same object through their
+single `config` prop/input; they do not maintain binding-specific Driver,
+MediaProvider, Playlist or Player configuration shortcuts.
 
 ## React binding
 
@@ -1938,11 +2036,14 @@ starts. Its Vite config resolves the local Ayle package names directly to the
 repository build outputs, so `npm run dev` does not depend on a previously
 published npm package.
 
-The React declarations include a typed `AyleEventMap` and structural types for
-Ayle instances, state, sources, tracks, variants, chapters, hints, and common
-event payloads. Built-in event callbacks therefore receive contextual
-TypeScript types instead of `any`/`unknown`; dynamic integration event names
-remain available.
+The canonical TypeScript declarations now belong to the core
+`@qybercom/ayle` package. They include `AyleConfig`, typed Driver/MediaProvider/
+Playlist/Player option structures, `AyleEventMap`, and structural runtime types
+for instances, state, sources, tracks, variants, chapters and hints. React and
+Angular consume/re-export that shared model instead of maintaining duplicate
+configuration declarations. Built-in event callbacks therefore receive
+contextual types; arbitrary application-defined event names remain an explicit
+dynamic extension boundary.
 
 `examples/react/.env` is intentionally not distributed. Use
 `examples/react/.env.example` as the template for local configuration.
@@ -2188,21 +2289,10 @@ In `timeline-top` and `auto`, Ayle inserts this spacer automatically before the 
 
 ## Timeline ranges
 
-Arbitrary timeline ranges are independent from metadata chapters and are rendered on a separate timeline layer. They may be configured directly or supplied by an integration:
+Arbitrary timeline ranges are platform overlays independent from media metadata
+chapters. Their single canonical home is `Player.Integration.TimelineRanges`:
 
 ```js
-Timeline: {
-	Ranges: [
-		{
-			ID: 'intro',
-			Start: 0,
-			Duration: 15,
-			Label: 'Intro',
-			ClassName: 'intro-range'
-		}
-	]
-}
-
 Integration: {
 	TimelineRanges: [
 		{
@@ -2215,6 +2305,11 @@ Integration: {
 	]
 }
 ```
+
+The old `Player.Timeline.Ranges` configuration no longer exists. Playlist item
+ranges use `Playlist.Items[].Player.Integration.TimelineRanges` and follow the
+same inherited/add/override-by-`ID` rules as Hints. All times are local to the
+current playlist item's timeline.
 
 Ranges support either `Start + End` or `Start + Duration`. `ClassName` is the intended styling hook. Ranges are visual-only and never intercept timeline input: clicking or dragging anywhere on the timeline keeps the normal seek behavior. `Label` is retained as lightweight metadata/title text, but the experimental range tooltip/marker interaction has been removed for now.
 

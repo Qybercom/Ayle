@@ -11,7 +11,9 @@ const files = {
 	bootstrap: path.join(root, 'ayle-bootstrap.js'),
 	css: path.join(root, 'ayle.css'),
 	icons: path.join(root, 'ayle-icons.svg'),
-	iconsDirectory: path.join(root, 'icons')
+	iconsDirectory: path.join(root, 'icons'),
+	types: path.join(root, 'types', 'index.d.ts'),
+	bootstrapTypes: path.join(root, 'types', 'bootstrap.d.ts')
 };
 
 async function exists (file) {
@@ -181,6 +183,9 @@ async function build () {
 		createBootstrapESM(bootstrap),
 		'utf8'
 	);
+
+	await copy(files.types, path.join(dist, 'index.d.ts'));
+	await copy(files.bootstrapTypes, path.join(dist, 'bootstrap.d.ts'));
 
 	if (await exists(path.join(root, 'README.md')))
 		await copy(path.join(root, 'README.md'), path.join(dist, 'README.md'));

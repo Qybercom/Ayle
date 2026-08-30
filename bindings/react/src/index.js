@@ -1,4 +1,3 @@
-import '@qybercom/ayle';
 import { AyleBootstrap } from '@qybercom/ayle/bootstrap';
 import {
 	createElement,
@@ -41,73 +40,12 @@ function cloneConfig (value) {
 }
 
 function buildConfig (props) {
-	var config;
-
-	if (props.playerConfig !== undefined || props.mediaConfig !== undefined) {
-		config = {
-			PlayerConfig: cloneConfig(props.playerConfig),
-			MediaConfig: cloneConfig(props.mediaConfig)
-		};
-	}
-	else
-		config = cloneConfig(props.config);
-
-	if (props.preset !== undefined) config.Preset = props.preset;
-
-	if (props.player !== undefined)
-		config.Player = AyleBootstrap.Merge(config.Player || {}, props.player);
-
-	if (props.playlist !== undefined)
-		config.Playlist = cloneConfig(props.playlist);
-
-	if (props.mediaProvider !== undefined)
-		config.MediaProvider = AyleBootstrap.Merge(
-			config.MediaProvider || {},
-			props.mediaProvider
-		);
-
-	if (props.file !== undefined) {
-		if (!config.MediaProvider)
-			config.MediaProvider = {};
-
-		if (config.MediaProvider.Type === undefined)
-			config.MediaProvider.Type = 'http';
-
-		config.MediaProvider.File = props.file;
-	}
-
-	if (props.driver !== undefined) {
-		if (!config.Driver) config.Driver = {};
-		config.Driver.Type = props.driver;
-	}
-
-	if (props.driverOptions !== undefined) {
-		if (!config.Driver) config.Driver = {};
-		config.Driver.Options = AyleBootstrap.Merge(
-			config.Driver.Options || {},
-			props.driverOptions
-		);
-	}
-
-	if (props.localization !== undefined) {
-		if (!config.Player) config.Player = {};
-		config.Player.Localization = props.localization;
-	}
-
-	return config;
+	return cloneConfig(props.config);
 }
 
-function setDataAttribute (element, name, value, booleanAttribute) {
-	if (value === undefined || value === null || value === false && booleanAttribute) {
+function setDataAttribute (element, name, value) {
+	if (value === undefined || value === null || value === false) {
 		element.removeAttribute(name);
-		return;
-	}
-
-	if (booleanAttribute) {
-		if (value)
-			element.setAttribute(name, '');
-		else
-			element.removeAttribute(name);
 		return;
 	}
 
@@ -117,10 +55,6 @@ function setDataAttribute (element, name, value, booleanAttribute) {
 function applyDataAttributes (element, props) {
 	setDataAttribute(element, 'data-ayle', props.id);
 	setDataAttribute(element, 'data-ayle-settings', props.settings);
-	setDataAttribute(element, 'data-ayle-volume', props.volume);
-	setDataAttribute(element, 'data-ayle-start', props.start);
-	setDataAttribute(element, 'data-ayle-muted', props.muted, true);
-	setDataAttribute(element, 'data-ayle-debug', props.debug, true);
 }
 
 function bindEvents (instance, props) {
