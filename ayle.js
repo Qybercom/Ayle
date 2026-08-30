@@ -7164,15 +7164,39 @@ function Ayle (driver, options) {
 		var source = this.Player.State.Source || {};
 		var trackItems = this.Player.Options.UI && this.Player.Options.UI.Track instanceof Array ?
 			this.Player.Options.UI.Track : [];
-		var titleEnabled = trackItems.indexOf('title') !== -1;
-		var chapterEnabled = trackItems.indexOf('chapter') !== -1;
+		var artwork = source.Cover || '';
 		var title = source.Title || '';
+		var artist = source.Artist || '';
+		var album = source.Album || '';
 		var chapter = this.Player.State.Chapter || null;
 		var chapterTitle = chapter ? (chapter.Title || chapter.Name || chapter.Label || '') : '';
+		var artworkEnabled = trackItems.indexOf('artwork') !== -1;
+		var titleEnabled = trackItems.indexOf('title') !== -1;
+		var meta = [];
+		var i = 0;
+
+		while (i < trackItems.length) {
+			var item = String(trackItems[i] || '');
+
+			if (item === 'artist' && artist)
+				meta.push(artist);
+			else if (item === 'album' && album)
+				meta.push(album);
+			else if (item === 'chapter' && chapterTitle)
+				meta.push(chapterTitle);
+
+			i++;
+		}
 
 		if (this.TrackCompactOverlayArtwork) {
-			this.TrackCompactOverlayArtwork.removeAttribute('src');
-			this.TrackCompactOverlayArtwork.style.display = 'none';
+			if (artworkEnabled && artwork) {
+				this.TrackCompactOverlayArtwork.src = artwork;
+				this.TrackCompactOverlayArtwork.style.display = 'block';
+			}
+			else {
+				this.TrackCompactOverlayArtwork.removeAttribute('src');
+				this.TrackCompactOverlayArtwork.style.display = 'none';
+			}
 		}
 
 		if (this.TrackCompactOverlayTitle) {
@@ -7182,17 +7206,18 @@ function Ayle (driver, options) {
 		}
 
 		if (this.TrackCompactOverlayMeta) {
-			this.TrackCompactOverlayMeta.textContent = chapterEnabled ? chapterTitle : '';
+			this.TrackCompactOverlayMeta.textContent = meta.join(' · ');
 			this.TrackCompactOverlayMeta.style.display =
-				chapterEnabled && chapterTitle ? '' : 'none';
+				meta.length ? '' : 'none';
 		}
 
 		if (this.TrackCompactOverlayChannel)
 			this.TrackCompactOverlayChannel.style.display = 'none';
 
 		var hasContent = !!(
+			(artworkEnabled && artwork) ||
 			(titleEnabled && title) ||
-			(chapterEnabled && chapterTitle)
+			meta.length
 		);
 
 		this.TrackCompactOverlay.classList.toggle('has-content', hasContent);

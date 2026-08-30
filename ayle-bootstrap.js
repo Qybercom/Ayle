@@ -186,7 +186,7 @@
 			},
 			UI: {
 				Header: [],
-				Track: ['title', 'chapter'],
+				Track: ['artwork', 'title', 'artist', 'album'],
 				Channel: ['name', 'profile'],
 				Overlay: ['track:compact', 'subtitles'],
 				Toolbar: {

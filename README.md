@@ -66,7 +66,7 @@ var player = Ayle.Init('#player-minimal-audio', AyleMSEMediaDriver, {
 	UIMode: 'minimal',
 	UI: {
 		Header: [],
-		Track: ['title', 'chapter'],
+		Track: ['artwork', 'title', 'artist', 'album'],
 		Channel: ['name', 'profile'],
 		Overlay: ['track:compact', 'subtitles'],
 		Toolbar: {
@@ -290,7 +290,7 @@ UI: {
 | Option | Type / default | Description |
 | --- | --- | --- |
 | `Header` | string[] / `['channel:card', 'track']` | Ordered header blocks. Built-ins: `channel:card`, `channel:contact`, `track`. An empty list removes the header. |
-| `Track` | string[] / `['title', 'chapter']` | Ordered/allowed track metadata elements. Built-ins: `title`, `chapter`. |
+| `Track` | string[] / `['title', 'chapter']` | Ordered/allowed track metadata elements. Built-ins: `artwork`, `title`, `artist`, `album`, `chapter`. |
 | `Channel` | string[] / `['name', 'profile']` | Elements rendered by the selected channel layout. The channel avatar is owned by the channel layout itself; built-ins for the configurable information block are `name` and `profile`. |
 | `Overlay` | string[] / `[]` | Ordered overlay layouts. Built-ins: `track:compact` and `subtitles`. |
 | `Toolbar` | object | Declarative toolbar layout and items. |
@@ -335,7 +335,7 @@ Built-ins:
 
 | Token | Description |
 | --- | --- |
-| `track:compact` | Compact overlay presentation of the current track. It consumes the same `UI.Track` list; currently `title` and `chapter` are supported. |
+| `track:compact` | Compact overlay presentation of the current track. It consumes the same `UI.Track` list and supports `artwork`, `title`, `artist`, `album`, and `chapter`. `artist`, `album`, and `chapter` are combined into the secondary metadata line in configured order. |
 | `subtitles` | Dedicated subtitle overlay for audio mode. |
 
 For example:
@@ -343,7 +343,7 @@ For example:
 ```js
 UI: {
 	Header: [],
-	Track: ['title', 'chapter'],
+	Track: ['artwork', 'title', 'artist', 'album'],
 	Channel: ['name', 'profile'],
 	Overlay: [
 		'track:compact',
@@ -769,7 +769,9 @@ quality/chapters/settings integration and artwork slideshow. Slideshow controls
 remain visible by default and artwork uses `cover` fit by default.
 
 `audio` uses the minimal audio UI and supports metadata/info, subtitles,
-settings and audio-visual behavior.
+settings and audio-visual behavior. Its default compact track composition is
+`['artwork', 'title', 'artist', 'album']`, restoring the Now Playing card with
+cover artwork, title, and an `Artist · Album` metadata line.
 
 Presets deliberately contain neither backend URLs nor a concrete media file.
 

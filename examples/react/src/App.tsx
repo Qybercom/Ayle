@@ -36,6 +36,7 @@ const MINIMAL_AUDIO = {
 	MediaMode: 'audio',
 	UI: {
 		...MINIMAL_VIDEO.UI,
+		Track: ['artwork', 'title', 'artist', 'album'],
 		Overlay: ['track:compact', 'subtitles']
 	},
 	AudioVisual: {
@@ -105,7 +106,9 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 		},
 		UI: {
 			Header: ['channel:card', 'track'],
-			Track: ['title', 'chapter'],
+			Track: mediaMode === 'audio' ?
+				['artwork', 'title', 'artist', 'album'] :
+				['title', 'chapter'],
 			Channel: ['name', 'profile'],
 			Toolbar: {
 				Layout: 'auto',

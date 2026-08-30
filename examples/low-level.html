@@ -7,13 +7,14 @@
 	<link rel="stylesheet" href="../ayle.css">
 	<link rel="stylesheet" href="./example-ui.css">
 	<script src="../ayle.js"></script>
+	<script src="../ayle-bootstrap.js"></script>
 </head>
 <body>
 	<main class="example-shell">
 		<header class="example-hero">
 			<p class="example-eyebrow">Ayle / Low-level API</p>
 			<h1>Four canonical low-level examples</h1>
-			<p>Each card is runnable and shows the exact manual driver → player → UI assembly. The minimal-video card also includes the equivalent Ayle.Init() shortcut as a separate example.</p>
+			<p>The page keeps the four manual low-level variants, the Ayle.Init() shortcut, and now also shows explicit programmatic AyleBootstrap initialization for video and audio.</p>
 		</header>
 		<div class="example-grid">
 
@@ -53,6 +54,22 @@
 	</div>
 	<div class="ayle-hints" aria-live="polite"></div>
 	<div class="ayle-subtitle-overlay" aria-live="off"></div>
+
+	<div class="ayle-overlay-track-compact" aria-live="polite">
+		<img class="ayle-overlay-track-compact-artwork" alt="">
+		<div class="ayle-overlay-track-compact-body">
+			<div class="ayle-overlay-track-compact-title"></div>
+			<div class="ayle-overlay-track-compact-meta"></div>
+			<div class="ayle-overlay-track-compact-subtitle" aria-live="off"></div>
+			<div class="ayle-overlay-track-compact-channel">
+				<img class="ayle-overlay-track-compact-channel-avatar" alt="">
+				<a class="ayle-overlay-track-compact-channel-text"></a>
+			</div>
+		</div>
+	</div>
+	<div class="ayle-overlay-audio-subtitles" aria-live="off">
+		<div class="ayle-overlay-audio-subtitles-text">&nbsp;</div>
+	</div>
 
 	<div class="ayle-loading" aria-label="Loading">
 		<img class="ayle-loading-icon" src="../icons/loading.svg" alt="">
@@ -355,6 +372,22 @@ http.Load(function (error, source, metadata) {
 	<div class="ayle-hints" aria-live="polite"></div>
 	<div class="ayle-subtitle-overlay" aria-live="off"></div>
 
+	<div class="ayle-overlay-track-compact" aria-live="polite">
+		<img class="ayle-overlay-track-compact-artwork" alt="">
+		<div class="ayle-overlay-track-compact-body">
+			<div class="ayle-overlay-track-compact-title"></div>
+			<div class="ayle-overlay-track-compact-meta"></div>
+			<div class="ayle-overlay-track-compact-subtitle" aria-live="off"></div>
+			<div class="ayle-overlay-track-compact-channel">
+				<img class="ayle-overlay-track-compact-channel-avatar" alt="">
+				<a class="ayle-overlay-track-compact-channel-text"></a>
+			</div>
+		</div>
+	</div>
+	<div class="ayle-overlay-audio-subtitles" aria-live="off">
+		<div class="ayle-overlay-audio-subtitles-text">&nbsp;</div>
+	</div>
+
 	<div class="ayle-loading" aria-label="Loading">
 		<img class="ayle-loading-icon" src="../icons/loading.svg" alt="">
 	</div>
@@ -564,7 +597,7 @@ var player = new Ayle(driver, {
 	Start: 0,
 	UI: {
 		Header: [],
-		Track: ['title', 'chapter'],
+		Track: ['artwork', 'title', 'artist', 'album'],
 		Channel: ['name', 'profile'],
 		Toolbar: {
 			Layout: 'inline',
@@ -638,6 +671,22 @@ http.Load(function (error, source, metadata) {
 	</div>
 	<div class="ayle-hints" aria-live="polite"></div>
 	<div class="ayle-subtitle-overlay" aria-live="off"></div>
+
+	<div class="ayle-overlay-track-compact" aria-live="polite">
+		<img class="ayle-overlay-track-compact-artwork" alt="">
+		<div class="ayle-overlay-track-compact-body">
+			<div class="ayle-overlay-track-compact-title"></div>
+			<div class="ayle-overlay-track-compact-meta"></div>
+			<div class="ayle-overlay-track-compact-subtitle" aria-live="off"></div>
+			<div class="ayle-overlay-track-compact-channel">
+				<img class="ayle-overlay-track-compact-channel-avatar" alt="">
+				<a class="ayle-overlay-track-compact-channel-text"></a>
+			</div>
+		</div>
+	</div>
+	<div class="ayle-overlay-audio-subtitles" aria-live="off">
+		<div class="ayle-overlay-audio-subtitles-text">&nbsp;</div>
+	</div>
 
 	<div class="ayle-loading" aria-label="Loading">
 		<img class="ayle-loading-icon" src="../icons/loading.svg" alt="">
@@ -1096,6 +1145,22 @@ http.Load(function (error, source, metadata) {
 	<div class="ayle-hints" aria-live="polite"></div>
 	<div class="ayle-subtitle-overlay" aria-live="off"></div>
 
+	<div class="ayle-overlay-track-compact" aria-live="polite">
+		<img class="ayle-overlay-track-compact-artwork" alt="">
+		<div class="ayle-overlay-track-compact-body">
+			<div class="ayle-overlay-track-compact-title"></div>
+			<div class="ayle-overlay-track-compact-meta"></div>
+			<div class="ayle-overlay-track-compact-subtitle" aria-live="off"></div>
+			<div class="ayle-overlay-track-compact-channel">
+				<img class="ayle-overlay-track-compact-channel-avatar" alt="">
+				<a class="ayle-overlay-track-compact-channel-text"></a>
+			</div>
+		</div>
+	</div>
+	<div class="ayle-overlay-audio-subtitles" aria-live="off">
+		<div class="ayle-overlay-audio-subtitles-text">&nbsp;</div>
+	</div>
+
 	<div class="ayle-loading" aria-label="Loading">
 		<img class="ayle-loading-icon" src="../icons/loading.svg" alt="">
 	</div>
@@ -1362,7 +1427,7 @@ var player = new Ayle(driver, {
 	},
 	UI: {
 		Header: ['channel:card', 'track'],
-		Track: ['title', 'chapter'],
+		Track: ['artwork', 'title', 'artist', 'album'],
 		Channel: ['name', 'profile'],
 		Toolbar: {
 			Layout: 'auto',
@@ -1526,6 +1591,123 @@ http.Load(function (error, source, metadata) {
 		<div class="example-note">
 			The full variants intentionally exercise the broad configuration surface: shortcuts, subtitles, toolbar layout, custom toolbar menu, timeline ranges, Media Session, hints and integrations.
 		</div>
+
+		<section class="example-card">
+			<div class="example-card-header">
+				<div>
+					<h2>AyleBootstrap video</h2>
+					<p>Programmatic Bootstrap initialization using the built-in video preset.</p>
+				</div>
+				<span class="example-badge">bootstrap-video</span>
+			</div>
+			<div class="example-preview">
+				<div class="example-embedded-player" id="bootstrap-video-mount">
+					<script
+						type="application/json"
+						data-ayle="bootstrap-video"
+						data-ayle-preset="video"
+						data-ayle-auto="false">
+					{
+						"File": "example.mkv",
+						"Driver": {
+							"Type": "mse"
+						},
+						"HTTP": {
+							"MetadataURL": "../../server/metadata.php?file={file}",
+							"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+							"Stream": {
+								"SkipInit": true
+							}
+						}
+					}
+					</script>
+				</div>
+			</div>
+			<div class="example-code-title">Bootstrap config</div>
+			<pre class="example-code"><code>&lt;script
+	type="application/json"
+	data-ayle="bootstrap-video"
+	data-ayle-preset="video"
+	data-ayle-auto="false"&gt;
+{
+	"File": "example.mkv",
+	"Driver": {
+		"Type": "mse"
+	},
+	"HTTP": {
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
+		"Stream": {
+			"SkipInit": true
+		}
+	}
+}
+&lt;/script&gt;</code></pre>
+			<div class="example-code-title">JavaScript</div>
+			<pre class="example-code"><code>var bootstrap = new AyleBootstrap();
+var config = document.querySelector('[data-ayle="bootstrap-video"]');
+
+bootstrap.InitConfig(config);</code></pre>
+		</section>
+
+		<section class="example-card">
+			<div class="example-card-header">
+				<div>
+					<h2>AyleBootstrap audio</h2>
+					<p>Programmatic Bootstrap initialization using the built-in audio preset.</p>
+				</div>
+				<span class="example-badge">bootstrap-audio</span>
+			</div>
+			<div class="example-preview">
+				<div class="example-embedded-player" id="bootstrap-audio-mount">
+					<script
+						type="application/json"
+						data-ayle="bootstrap-audio"
+						data-ayle-preset="audio"
+						data-ayle-auto="false">
+					{
+						"File": "example.mp3",
+						"Driver": {
+							"Type": "mse"
+						},
+						"HTTP": {
+							"MetadataURL": "../../server/metadata.php?file={file}",
+							"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+							"Stream": {
+								"SkipInit": true
+							}
+						}
+					}
+					</script>
+				</div>
+			</div>
+			<div class="example-code-title">Bootstrap config</div>
+			<pre class="example-code"><code>&lt;script
+	type="application/json"
+	data-ayle="bootstrap-audio"
+	data-ayle-preset="audio"
+	data-ayle-auto="false"&gt;
+{
+	"File": "example.mp3",
+	"Driver": {
+		"Type": "mse"
+	},
+	"HTTP": {
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
+		"Stream": {
+			"SkipInit": true
+		}
+	}
+}
+&lt;/script&gt;</code></pre>
+			<div class="example-code-title">JavaScript</div>
+			<pre class="example-code"><code>var bootstrap = new AyleBootstrap();
+var config = document.querySelector('[data-ayle="bootstrap-audio"]');
+
+bootstrap.InitConfig(config);</code></pre>
+		</section>
+
 	</main>
 <script>
 var root = document.getElementById('player-minimal-video');
@@ -1586,7 +1768,7 @@ var player = new Ayle(driver, {
 	Start: 0,
 	UI: {
 		Header: [],
-		Track: ['title', 'chapter'],
+		Track: ['artwork', 'title', 'artist', 'album'],
 		Channel: ['name', 'profile'],
 		Toolbar: {
 			Layout: 'inline',
@@ -1914,7 +2096,7 @@ var player = new Ayle(driver, {
 	},
 	UI: {
 		Header: ['channel:card', 'track'],
-		Track: ['title', 'chapter'],
+		Track: ['artwork', 'title', 'artist', 'album'],
 		Channel: ['name', 'profile'],
 		Toolbar: {
 			Layout: 'auto',
@@ -2073,6 +2255,12 @@ http.Load(function (error, source, metadata) {
 	else
 		console.log(source, metadata);
 });
+
+var bootstrapVideo = new AyleBootstrap();
+bootstrapVideo.InitConfig(document.querySelector('[data-ayle="bootstrap-video"]'));
+
+var bootstrapAudio = new AyleBootstrap();
+bootstrapAudio.InitConfig(document.querySelector('[data-ayle="bootstrap-audio"]'));
 </script>
 </body>
 </html>

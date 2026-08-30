@@ -70,6 +70,15 @@ if (
 )
 	throw new Error('Low-level player DOM must include the complete artwork/slideshow structure');
 
+if (
+	(lowLevel.match(/class="ayle-overlay-track-compact"/g) || []).length !== 4 ||
+	(lowLevel.match(/class="ayle-overlay-track-compact-artwork"/g) || []).length !== 4 ||
+	(lowLevel.match(/class="ayle-overlay-track-compact-title"/g) || []).length !== 4 ||
+	(lowLevel.match(/class="ayle-overlay-track-compact-meta"/g) || []).length !== 4 ||
+	(lowLevel.match(/class="ayle-overlay-audio-subtitles"/g) || []).length !== 4
+)
+	throw new Error('Low-level player DOM must include the complete declarative overlay structure');
+
 const embedded = await fs.readFile(
 	path.join(examples, 'embedded.html'),
 	'utf8'
@@ -163,6 +172,16 @@ if (
 	throw new Error('Overlay documentation/bootstrap preset is incomplete');
 
 if (
+	overlayCore.indexOf("trackItems.indexOf('artwork')") === -1 ||
+	overlayCore.indexOf("item === 'artist'") === -1 ||
+	overlayCore.indexOf("item === 'album'") === -1 ||
+	overlayCore.indexOf("meta.join(' · ')") === -1 ||
+	overlayBootstrap.indexOf("Track: ['artwork', 'title', 'artist', 'album']") === -1 ||
+	overlayREADME.indexOf('`artwork`, `title`, `artist`, `album`, `chapter`') === -1
+)
+	throw new Error('Declarative track metadata/compact overlay support is incomplete');
+
+if (
 	overlayCore.indexOf('MinimalInfo') !== -1 ||
 	overlayCore.indexOf('MinimalSubtitlePopup') !== -1 ||
 	overlayREADME.indexOf('MinimalInfo') !== -1 ||
@@ -208,5 +227,21 @@ if (
 	core.indexOf('return this.Element ? this.Element.playbackRate : this._playbackRate;') === -1
 )
 	throw new Error('HTML5 driver must support state access before SetUI()');
+
+if (
+	lowLevel.indexOf('AyleBootstrap video') === -1 ||
+	lowLevel.indexOf('AyleBootstrap audio') === -1 ||
+	lowLevel.indexOf("bootstrapVideo.InitConfig(document.querySelector('[data-ayle=\"bootstrap-video\"]'))") === -1 ||
+	lowLevel.indexOf("bootstrapAudio.InitConfig(document.querySelector('[data-ayle=\"bootstrap-audio\"]'))") === -1
+)
+	throw new Error('Low-level example must include programmatic AyleBootstrap video and audio examples');
+
+if (
+	(lowLevel.match(/<div class="example-code-title">Bootstrap config<\/div>/g) || []).length !== 2 ||
+	lowLevel.indexOf('&lt;script\n\ttype="application/json"\n\tdata-ayle="bootstrap-video"') === -1 ||
+	lowLevel.indexOf('&lt;script\n\ttype="application/json"\n\tdata-ayle="bootstrap-audio"') === -1 ||
+	(lowLevel.match(/&lt;\/script&gt;<\/code><\/pre>/g) || []).length < 2
+)
+	throw new Error('Low-level Bootstrap examples must show the complete configuration script elements');
 
 console.log('Ayle canonical examples validation passed: 4 APIs × 4 variants.');
