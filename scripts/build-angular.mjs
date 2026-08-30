@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const angular = path.join(root, 'bindings', 'angular');
+const dist = path.join(angular, 'dist');
 const require = createRequire(path.join(angular, 'package.json'));
 
 const packageJSONPath = require.resolve('ng-packagr/package.json');
@@ -26,6 +27,10 @@ const ngPackagr = path.resolve(
 	path.dirname(packageJSONPath),
 	bin
 );
+
+// Never let ng-packagr reuse an artifact from a previous binding API.
+// The published package must be produced only from the current source tree.
+fs.rmSync(dist, { recursive: true, force: true });
 
 const result = spawnSync(
 	process.execPath,

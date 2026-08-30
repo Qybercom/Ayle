@@ -2336,3 +2336,8 @@ MediaSession: {
 Set `MediaSession: false` or `MediaSession.Enabled: false` to disable the integration.
 
 Loading indicator rotation is handled by CSS on `.ayle-loading-icon` rather than SVG SMIL, which keeps the spinner more resilient during seek/MSE work and other main-thread-heavy transitions.
+
+### Published binding artifact validation
+
+Release/CI validation checks the generated Angular `dist/index.d.ts` and the declarations inside real `npm pack` tarballs. The Angular binding exposes the canonical `config` input; stale split inputs such as `file`, `http`, `preset`, `playerConfig`, `mediaConfig`, `driver` and related compatibility inputs are rejected. CI also compiles `examples/angular` against the freshly built core and Angular packages before a release can be published. Angular `dist/` is deleted before every binding build so declarations from an older API cannot survive into a new package.
+

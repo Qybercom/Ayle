@@ -31,10 +31,12 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           node scripts/set-release-version.mjs "$VERSION"
 
-      - run: npm ci
+      - run: npm install
       - run: npm install --prefix bindings/angular
+      - run: npm install --prefix examples/angular
       - run: npm run build
       - run: npm run check
+      - run: npm run check:angular-example
 
       - name: Release preflight
         shell: bash

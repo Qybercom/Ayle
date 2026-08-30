@@ -57,6 +57,27 @@ for (const token of [
 		throw new Error('Angular public API is missing expected export: ' + token);
 }
 
+
+const distTypes = await fs.readFile(
+	path.join(dist, 'index.d.ts'),
+	'utf8'
+);
+
+if (!distTypes.includes('config?: AyleConfig;'))
+	throw new Error('Angular dist declarations are stale: canonical config input is missing');
+
+for (const legacy of [
+	'preset', 'file', 'playerConfig', 'mediaConfig', 'player',
+	'mediaProvider', 'playlist', 'http', 'driver', 'driverOptions',
+	'localization', 'volume', 'start', 'muted', 'debug'
+]) {
+	if (distTypes.includes('\n    ' + legacy + '?:') || distTypes.includes('\n\t' + legacy + '?:'))
+		throw new Error('Angular dist declarations still expose legacy input: ' + legacy);
+}
+
+if (distTypes.includes('Record<string, any>'))
+	throw new Error('Angular dist declarations contain stale Record<string, any> API');
+
 const fesmDirectory = path.join(dist, 'fesm2022');
 const fesmFiles = await fs.readdir(fesmDirectory);
 

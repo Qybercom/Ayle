@@ -59,7 +59,7 @@
 		"check:core": "node scripts/check.mjs",
 		"check:react": "node scripts/check-react.mjs",
 		"check:angular": "node scripts/check-angular.mjs",
-		"check": "npm run check:core && npm run check:media-providers && npm run check:react && npm run check:angular && npm run check:bindings-parity && npm run check:examples && npm run check:subtitle-offset && npm run check:playlist",
+		"check": "npm run check:core && npm run check:media-providers && npm run check:react && npm run check:angular && npm run check:bindings-parity && npm run check:examples && npm run check:subtitle-offset && npm run check:playlist && npm run check:package-artifacts",
 		"pack:check": "npm pack --dry-run && npm pack --dry-run ./bindings/react/dist && npm pack --dry-run ./bindings/angular/dist",
 		"prepack": "npm run build:core && npm run check:core",
 		"release:preflight": "node scripts/release-preflight.mjs",
@@ -68,7 +68,9 @@
 		"check:examples": "node scripts/check-examples.mjs",
 		"check:subtitle-offset": "node scripts/check-subtitle-offset.mjs",
 		"check:media-providers": "node scripts/check-media-providers.mjs",
-		"check:playlist": "node scripts/check-playlist.mjs"
+		"check:playlist": "node scripts/check-playlist.mjs",
+		"check:package-artifacts": "node scripts/check-package-artifacts.mjs",
+		"check:angular-example": "node scripts/check-angular-example.mjs"
 	},
 	"publishConfig": {
 		"access": "public"
