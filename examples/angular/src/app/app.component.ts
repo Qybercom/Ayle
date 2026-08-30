@@ -36,6 +36,12 @@ export class AppComponent {
 	readonly FullAudioHTTP = this.FullHTTP('example.mp3');
 	readonly FullVideo = this.FullPlayer('video');
 	readonly FullAudio = this.FullPlayer('audio');
+	readonly FullEvents = {
+		favoriteAction: function (context: any): void {
+			console.log('Ayle Angular favorite button clicked:', context.Item.ID);
+		}
+	};
+
 
 	readonly MinimalVideoCode = `<ayle-player
 	id="angular-minimal-video"
@@ -60,6 +66,7 @@ export class AppComponent {
 	settings="localStorage"
 	[http]="FullVideoHTTP"
 	[player]="FullVideo"
+	[events]="FullEvents"
 	(ayleEvent)="OnEvent($event)">
 </ayle-player>`;
 
@@ -70,6 +77,7 @@ export class AppComponent {
 	settings="localStorage"
 	[http]="FullAudioHTTP"
 	[player]="FullAudio"
+	[events]="FullEvents"
 	(ayleEvent)="OnEvent($event)">
 </ayle-player>`;
 
@@ -174,7 +182,7 @@ export class AppComponent {
 					['track:compact', 'subtitles'] :
 					['track:compact'],
 				Toolbar: {
-					Layout: 'inline',
+					Layout: mediaMode === 'video' ? 'timeline-top' : 'inline',
 					Items: mediaMode === 'audio' ?
 						['play', 'timeline', 'time', 'volume', 'settings'] :
 						['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
@@ -332,7 +340,7 @@ export class AppComponent {
 						ClassName: '',
 						Visible: true,
 						Disabled: false,
-						Event: '',
+						Event: 'favoriteAction',
 						Menu: [
 							{
 								ID: 'add',

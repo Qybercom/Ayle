@@ -99,6 +99,12 @@ if (embedded.indexOf('embedded-config-source') !== -1)
 const core = await fs.readFile(path.join(root, 'ayle.js'), 'utf8');
 const css = await fs.readFile(path.join(root, 'ayle.css'), 'utf8');
 
+if (
+	(lowLevel.match(/Event: 'favoriteAction'/g) || []).length < 4 ||
+	(lowLevel.match(/player\.On\('favoriteAction'/g) || []).length < 4
+)
+	throw new Error('Low-level full examples must externally subscribe to the custom toolbar event');
+
 const configurationSources = [
 	await fs.readFile(path.join(examples, 'low-level.html'), 'utf8'),
 	await fs.readFile(path.join(examples, 'embedded.html'), 'utf8'),
@@ -343,7 +349,7 @@ const validateFullObject = function (player, http, label) {
 };
 
 const embeddedConfigs = {};
-const embeddedConfigPattern = /<script\s+type="application\/json"\s+data-ayle="([^"]+)"(?:\s+data-ayle-settings="[^"]*")?>([\s\S]*?)<\/script>/g;
+const embeddedConfigPattern = /<script\s+type="application\/json"\s+data-ayle="([^"]+)"[^>]*>([\s\S]*?)<\/script>/g;
 let embeddedMatch;
 
 while ((embeddedMatch = embeddedConfigPattern.exec(embedded)) !== null)
@@ -415,11 +421,26 @@ if (embeddedConfigs['embedded-full-audio'].Player.ShowCenterPlayButton !== false
 if (embeddedConfigs['embedded-full-video'].Player.ForceShowQualityList !== true)
 	throw new Error('embedded-full-video should demonstrate ForceShowQualityList:true');
 
+if (embeddedConfigs['embedded-full-video'].Player.UI.Toolbar.Layout !== 'timeline-top')
+	throw new Error('embedded-full-video should keep the timeline on the top row');
+
 if (embeddedConfigs['embedded-full-audio'].Player.AudioVisual.Type !== 'cover')
 	throw new Error('embedded-full-audio should explicitly demonstrate the large cover visual');
 
 if (embeddedConfigs['embedded-full-audio'].Player.SubtitleOffset !== -2.85)
 	throw new Error('embedded-full-audio should demonstrate SubtitleOffset:-2.85');
+
+if (
+	embeddedConfigs['embedded-full-video'].Player.Integration.Toolbar[0].Event !== 'favoriteAction' ||
+	embeddedConfigs['embedded-full-audio'].Player.Integration.Toolbar[0].Event !== 'favoriteAction'
+)
+	throw new Error('Embedded full examples must expose the custom toolbar favoriteAction event');
+
+if (
+	configurationSources[1].indexOf('data-ayle-on="favoriteAction:handleFavoriteAction"') === -1 ||
+	configurationSources[1].indexOf('function handleFavoriteAction (event)') === -1
+)
+	throw new Error('Embedded full examples must externally subscribe to favoriteAction');
 
 if (
 	embedded.indexOf('data-ayle="embedded-minimal-video"\n\t\tdata-ayle-settings=') !== -1 ||
@@ -437,6 +458,12 @@ if (
 	throw new Error('Framework full examples must force-show Quality for video');
 
 if (
+	reactSource.indexOf("Layout: mediaMode === 'video' ? 'timeline-top' : 'inline'") === -1 ||
+	angularSource.indexOf("Layout: mediaMode === 'video' ? 'timeline-top' : 'inline'") === -1
+)
+	throw new Error('Framework full video examples must use timeline-top layout');
+
+if (
 	reactSource.indexOf("Type: mediaMode === 'audio' ? 'cover' : 'auto'") === -1 ||
 	angularSource.indexOf("Type: mediaMode === 'audio' ? 'cover' : 'auto'") === -1
 )
@@ -447,6 +474,24 @@ if (
 	angularSource.indexOf("SubtitleOffset: mediaMode === 'audio' ? -2.85 : 0") === -1
 )
 	throw new Error('Framework full examples must demonstrate audio SubtitleOffset:-2.85');
+
+if (
+	reactSource.indexOf("Event: 'favoriteAction'") === -1 ||
+	angularSource.indexOf("Event: 'favoriteAction'") === -1
+)
+	throw new Error('Framework full examples must expose a named custom toolbar event');
+
+if (
+	reactSource.indexOf("favoriteAction: function") === -1 ||
+	reactSource.indexOf("events: FULL_EVENTS") === -1
+)
+	throw new Error('React full examples must externally subscribe to the custom toolbar event');
+
+if (
+	angularSource.indexOf("favoriteAction: function") === -1 ||
+	angularSource.indexOf('[events]="FullEvents"') === -1
+)
+	throw new Error('Angular full examples must externally subscribe to the custom toolbar event');
 
 
 for (const token of fullPlayerOptions.concat([
@@ -481,8 +526,17 @@ if ((lowLevel.match(/^\t\tMuted: false,/gm) || []).length !== 4)
 if ((lowLevel.match(/^\t\tStart: 0,/gm) || []).length !== 4)
 	throw new Error('Low-level minimal examples must not repeat default Start:0');
 
-if ((lowLevel.match(/^\t\t\t\tLayout: 'inline',/gm) || []).length !== 4)
-	throw new Error('Low-level minimal examples must inherit default Toolbar.Layout');
+if ((lowLevel.match(/^				Layout: 'inline',/gm) || []).length !== 2)
+	throw new Error('Low-level full audio examples must explicitly use inline Toolbar.Layout');
+
+if ((lowLevel.match(/^				Layout: 'timeline-top',/gm) || []).length !== 2)
+	throw new Error('Low-level full video examples must explicitly use timeline-top Toolbar.Layout');
+
+if (
+	core.indexOf('function AyleGetBrowserLocalization ()') === -1 ||
+	core.indexOf('explicitOptions.Localization === undefined ?') === -1
+)
+	throw new Error('Core must auto-resolve browser localization when Localization is omitted');
 
 if (
 	core.indexOf("Ayle.RegisterPreset = function") === -1 ||

@@ -4074,6 +4074,77 @@
 
 
 
+	function AyleNormalizeLocalizationCode (language) {
+		language = String(language || '').replace(/_/g, '-');
+
+		if (!language)
+			return '';
+
+		var parts = language.split('-');
+		var result = parts[0].toLowerCase();
+
+		if (parts.length > 1 && parts[1])
+			result += '-' + parts[1].toUpperCase();
+
+		return result;
+	}
+
+
+	function AyleGetBrowserLocalization () {
+		var navigatorObject = global.navigator || {};
+		var languages = navigatorObject.languages instanceof Array ?
+			navigatorObject.languages.slice(0) : [];
+
+		if (!languages.length && navigatorObject.language)
+			languages.push(navigatorObject.language);
+
+		var localizations = {
+			'ru': PlayerRussianLocalization,
+			'ru-RU': PlayerRussianLocalization,
+			'ru-MD': PlayerRussianLocalization,
+			'ro': PlayerMoldovanLocalization,
+			'ro-MD': PlayerMoldovanLocalization,
+			'md': PlayerMoldovanLocalization,
+			'md-MD': PlayerMoldovanLocalization,
+			'de': PlayerGermanLocalization,
+			'es': PlayerSpanishLocalization,
+			'fr': PlayerFrenchLocalization,
+			'zh': PlayerChineseLocalization,
+			'zh-CN': PlayerChineseLocalization,
+			'ja': PlayerJapaneseLocalization,
+			'el': PlayerGreekLocalization,
+			'it': PlayerItalianLocalization,
+			'tr': PlayerTurkishLocalization,
+			'ar': PlayerArabicLocalization,
+			'hi': PlayerHindiLocalization,
+			'hi-IN': PlayerHindiLocalization
+		};
+
+		var i = 0;
+
+		while (i < languages.length) {
+			var code = AyleNormalizeLocalizationCode(languages[i]);
+
+			if (code === 'en' || code.indexOf('en-') === 0)
+				return null;
+
+			if (localizations[code] !== undefined)
+				return localizations[code];
+
+			if (code.indexOf('-') !== -1) {
+				var base = code.split('-')[0];
+
+				if (localizations[base] !== undefined)
+					return localizations[base];
+			}
+
+			i++;
+		}
+
+		return null;
+	}
+
+
 	function AyleCopyLocalization (source) {
 		var result = {};
 		var name;
@@ -4446,7 +4517,11 @@ function Ayle (driver, options) {
 			FontFamily: options.FontFamily || 'Arial, sans-serif',
 			Debug: !!options.Debug,
 			DebugMP4: !!options.DebugMP4,
-			Localization: AyleCopyLocalization(options.Localization),
+			Localization: AyleCopyLocalization(
+				explicitOptions.Localization === undefined ?
+					AyleGetBrowserLocalization() :
+					options.Localization
+			),
 			HintSafeArea: {
 				Top: hintSafeArea.Top !== undefined ? Math.max(0, Number(hintSafeArea.Top) || 0) : 16,
 				Right: hintSafeArea.Right !== undefined ? Math.max(0, Number(hintSafeArea.Right) || 0) : 16,

@@ -119,7 +119,7 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 				['track:compact', 'subtitles'] :
 				['track:compact'],
 			Toolbar: {
-				Layout: 'inline',
+				Layout: mediaMode === 'video' ? 'timeline-top' : 'inline',
 				Items: mediaMode === 'audio' ?
 					['play', 'timeline', 'time', 'volume', 'settings'] :
 					['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
@@ -277,7 +277,7 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 					ClassName: '',
 					Visible: true,
 					Disabled: false,
-					Event: '',
+					Event: 'favoriteAction',
 					Menu: [
 						{
 							ID: 'add',
@@ -325,6 +325,12 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 
 const FULL_VIDEO = fullPlayer('video');
 const FULL_AUDIO = fullPlayer('audio');
+const FULL_EVENTS = {
+	favoriteAction: function (context: any) {
+		console.log('Ayle React favorite button clicked:', context.Item.ID);
+	}
+};
+
 
 type ExampleCardProps = {
 	title: string;
@@ -405,6 +411,7 @@ export default function App () {
 	settings="localStorage"
 	http={fullHTTP('example.mkv')}
 	player={FULL_VIDEO}
+	events={FULL_EVENTS}
 	onEvent={handleEvent}
 />`,
 				player: {
@@ -414,6 +421,7 @@ export default function App () {
 					settings: 'localStorage',
 					http: fullHTTP('example.mkv'),
 					player: FULL_VIDEO,
+					events: FULL_EVENTS,
 					onEvent: function (event) {
 						console.log('Ayle React event:', event.Type, event.Data);
 					}
@@ -430,6 +438,7 @@ export default function App () {
 	settings="localStorage"
 	http={fullHTTP('example.mp3')}
 	player={FULL_AUDIO}
+	events={FULL_EVENTS}
 	onEvent={handleEvent}
 />`,
 				player: {
@@ -439,6 +448,7 @@ export default function App () {
 					settings: 'localStorage',
 					http: fullHTTP('example.mp3'),
 					player: FULL_AUDIO,
+					events: FULL_EVENTS,
 					onEvent: function (event) {
 						console.log('Ayle React event:', event.Type, event.Data);
 					}

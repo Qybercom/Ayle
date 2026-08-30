@@ -873,7 +873,7 @@ var player = new Ayle(driver, {
 			Channel: ['name', 'profile'],
 			Overlay: ['track:compact'],
 			Toolbar: {
-				Layout: 'inline',
+				Layout: 'timeline-top',
 				Items: ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
 			}
 		},
@@ -1029,7 +1029,7 @@ var player = new Ayle(driver, {
 					ClassName: '',
 					Visible: true,
 					Disabled: false,
-					Event: '',
+					Event: 'favoriteAction',
 					Menu: [
 						{
 							ID: 'add',
@@ -1081,6 +1081,10 @@ player.On('ready', function () {
 
 player.On('error', function (error) {
 	console.error('player-full-video error:', error);
+});
+
+player.On('favoriteAction', function (context) {
+	console.log('player-full-video favorite button clicked:', context.Item.ID);
 });
 
 var http = new AyleHTTP(player, {
@@ -1588,7 +1592,7 @@ var player = new Ayle(driver, {
 					ClassName: '',
 					Visible: true,
 					Disabled: false,
-					Event: '',
+					Event: 'favoriteAction',
 					Menu: [
 						{
 							ID: 'add',
@@ -1640,6 +1644,10 @@ player.On('ready', function () {
 
 player.On('error', function (error) {
 	console.error('player-full-audio error:', error);
+});
+
+player.On('favoriteAction', function (context) {
+	console.log('player-full-audio favorite button clicked:', context.Item.ID);
 });
 
 var http = new AyleHTTP(player, {
@@ -1924,7 +1932,7 @@ var player = new Ayle(driver, {
 			Channel: ['name', 'profile'],
 			Overlay: ['track:compact'],
 			Toolbar: {
-				Layout: 'inline',
+				Layout: 'timeline-top',
 				Items: ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
 			}
 		},
@@ -2080,7 +2088,7 @@ var player = new Ayle(driver, {
 					ClassName: '',
 					Visible: true,
 					Disabled: false,
-					Event: '',
+					Event: 'favoriteAction',
 					Menu: [
 						{
 							ID: 'add',
@@ -2132,6 +2140,10 @@ player.On('ready', function () {
 
 player.On('error', function (error) {
 	console.error('player-full-video error:', error);
+});
+
+player.On('favoriteAction', function (context) {
+	console.log('player-full-video favorite button clicked:', context.Item.ID);
 });
 
 var http = new AyleHTTP(player, {
@@ -2388,7 +2400,7 @@ var player = new Ayle(driver, {
 					ClassName: '',
 					Visible: true,
 					Disabled: false,
-					Event: '',
+					Event: 'favoriteAction',
 					Menu: [
 						{
 							ID: 'add',
@@ -2440,6 +2452,10 @@ player.On('ready', function () {
 
 player.On('error', function (error) {
 	console.error('player-full-audio error:', error);
+});
+
+player.On('favoriteAction', function (context) {
+	console.log('player-full-audio favorite button clicked:', context.Item.ID);
 });
 
 var http = new AyleHTTP(player, {

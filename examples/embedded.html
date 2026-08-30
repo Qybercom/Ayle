@@ -9,6 +9,14 @@
 		src="../ayle-bootstrap.js"
 		data-ayle-loader>
 	</script>
+	<script>
+		function handleFavoriteAction (event) {
+			console.log(
+				'Ayle embedded favorite button clicked:',
+				event.Data.Item.ID
+			);
+		}
+	</script>
 </head>
 <body>
 	<main class="example-shell">
@@ -175,7 +183,8 @@
 	<script
 		type="application/json"
 		data-ayle="embedded-full-video"
-		data-ayle-settings="localStorage">
+		data-ayle-settings="localStorage"
+		data-ayle-on="favoriteAction:handleFavoriteAction">
 {
 	"File": "example.mkv",
 	"Driver": {
@@ -226,7 +235,7 @@
 				"track:compact"
 			],
 			"Toolbar": {
-				"Layout": "inline",
+				"Layout": "timeline-top",
 				"Items": [
 					"play",
 					"timeline",
@@ -391,7 +400,7 @@
 					"ClassName": "",
 					"Visible": true,
 					"Disabled": false,
-					"Event": "",
+					"Event": "favoriteAction",
 					"Menu": [
 						{
 							"ID": "add",
@@ -545,7 +554,7 @@
 			],
 			"Overlay": [],
 			"Toolbar": {
-				"Layout": "inline",
+				"Layout": "timeline-top",
 				"Items": [
 					"play",
 					"timeline",
@@ -711,7 +720,7 @@
 					"ClassName": "",
 					"Visible": true,
 					"Disabled": false,
-					"Event": "",
+					"Event": "favoriteAction",
 					"Menu": [
 						{
 							"ID": "add",
@@ -823,7 +832,8 @@
 	<script
 		type="application/json"
 		data-ayle="embedded-full-audio"
-		data-ayle-settings="localStorage">
+		data-ayle-settings="localStorage"
+		data-ayle-on="favoriteAction:handleFavoriteAction">
 {
 	"File": "example.mp3",
 	"Driver": {
@@ -1039,7 +1049,7 @@
 					"ClassName": "",
 					"Visible": true,
 					"Disabled": false,
-					"Event": "",
+					"Event": "favoriteAction",
 					"Menu": [
 						{
 							"ID": "add",
@@ -1361,7 +1371,7 @@
 					"ClassName": "",
 					"Visible": true,
 					"Disabled": false,
-					"Event": "",
+					"Event": "favoriteAction",
 					"Menu": [
 						{
 							"ID": "add",

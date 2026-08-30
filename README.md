@@ -1665,6 +1665,15 @@ Integration: {
 
 A button may use `Before` or `After`, plus `Icon`, `Label`, `Title`, `ClassName`, `Visible`, `Disabled`, `Event`, `OnClick`, `OnCreate`, and `OnDestroy`.
 
+When `Event` is set, external application code can subscribe without putting
+business logic inside the toolbar descriptor:
+
+```js
+player.On('favoriteAction', function (context) {
+	console.log('Favorite clicked:', context.Item.ID);
+});
+```
+
 Custom toolbar buttons may also open their own menu:
 
 ```js
