@@ -154,6 +154,50 @@
 		this.Chapters = options.Chapters || [];
 	}
 
+	function AyleIsElement (value) {
+		return !!(
+			value &&
+			value.nodeType === 1 &&
+			typeof value.querySelector === 'function'
+		);
+	}
+
+	function AyleResolveElement (target, label) {
+		label = label || 'Ayle target';
+
+		if (typeof target === 'string') {
+			var selector = String(target);
+			var elements;
+
+			try {
+				elements = document.querySelectorAll(selector);
+			}
+			catch (error) {
+				throw new Error(label + ' selector is invalid: ' + selector);
+			}
+
+			if (!elements.length)
+				throw new Error(label + ' was not found: ' + selector);
+
+			if (elements.length !== 1)
+				throw new Error(
+					label + ' selector must resolve to exactly one Element; ' +
+					'matched ' + elements.length + ': ' + selector
+				);
+
+			return elements[0];
+		}
+
+		if (!AyleIsElement(target))
+			throw new Error(
+				label + ' must be a single DOM Element or a selector ' +
+				'resolving to exactly one Element'
+			);
+
+		return target;
+	}
+
+
 	function AyleReadTimeRanges (ranges) {
 		var result = [];
 		var i = 0;
@@ -250,6 +294,7 @@
 		AyleMediaDriver.call(this);
 
 		this.Element = null;
+		this._domListeners = [];
 		this.Source = null;
 		this.RequestHeaders = {};
 		this.NativeSubtitles = false;
@@ -265,17 +310,70 @@
 	AyleHTML5MediaDriver.prototype = Object.create(AyleMediaDriver.prototype);
 	AyleHTML5MediaDriver.prototype.constructor = AyleHTML5MediaDriver;
 
-	AyleHTML5MediaDriver.prototype.SetUI = function (ui) {
-		AyleMediaDriver.prototype.SetUI.call(this, ui);
+	AyleHTML5MediaDriver.prototype._listen = function (target, name, callback) {
+		if (!target || typeof target.addEventListener !== 'function')
+			return callback;
 
-		var element = ui && ui.MediaElement ? ui.MediaElement : null;
+		target.addEventListener(name, callback);
+		this._domListeners.push({
+			Target: target,
+			Name: name,
+			Callback: callback
+		});
+		return callback;
+	};
+
+	AyleHTML5MediaDriver.prototype._unbindDOMEvents = function () {
+		var i = this._domListeners.length;
+
+		while (i--) {
+			var item = this._domListeners[i];
+
+			if (
+				item.Target &&
+				typeof item.Target.removeEventListener === 'function'
+			)
+				item.Target.removeEventListener(
+					item.Name,
+					item.Callback
+				);
+		}
+
+		this._domListeners = [];
+		this._eventsBound = false;
+		return this;
+	};
+
+	AyleHTML5MediaDriver.prototype.SetUI = function (ui) {
+		if (!ui) {
+			if (this.Element) {
+				try {
+					this.Element.pause();
+				}
+				catch (ignore) {}
+
+				try {
+					this.Element.removeAttribute('src');
+					this.Element.load();
+				}
+				catch (ignore) {}
+			}
+
+			this._unbindDOMEvents();
+			this.Element = null;
+			AyleMediaDriver.prototype.SetUI.call(this, null);
+			return this;
+		}
+
+		var element = ui.MediaElement || null;
 
 		if (!element)
 			throw new Error('Ayle media driver requires a UI with a media element');
 
-		if (this.Element && this.Element !== element && this._eventsBound)
-			throw new Error('Ayle media driver is already bound to another media element');
+		if (this.Element && this.Element !== element)
+			this.SetUI(null);
 
+		AyleMediaDriver.prototype.SetUI.call(this, ui);
 		this.Element = element;
 
 		if (!this._eventsBound) {
@@ -372,11 +470,11 @@
 		var self = this;
 		var media = this.Element;
 
-		media.addEventListener('loadstart', function () {
+		this._listen(media, 'loadstart', function () {
 			self.Emit('loadStart');
 		});
 
-		media.addEventListener('loadedmetadata', function () {
+		this._listen(media, 'loadedmetadata', function () {
 			self.Emit('metadata', {
 				Duration: media.duration,
 				Width: media.videoWidth || 0,
@@ -387,104 +485,104 @@
 			self.Emit('audioTracksChange', self._readAudioTracks());
 		});
 
-		media.addEventListener('canplay', function () {
+		this._listen(media, 'canplay', function () {
 			self.Emit('ready');
 		});
 
-		media.addEventListener('play', function () {
+		this._listen(media, 'play', function () {
 			self.Emit('play');
 		});
 
-		media.addEventListener('playing', function () {
+		this._listen(media, 'playing', function () {
 			self.Emit('playing');
 		});
 
-		media.addEventListener('pause', function () {
+		this._listen(media, 'pause', function () {
 			self.Emit('pause');
 		});
 
-		media.addEventListener('ended', function () {
+		this._listen(media, 'ended', function () {
 			self.Emit('ended');
 		});
 
-		media.addEventListener('waiting', function () {
+		this._listen(media, 'waiting', function () {
 			self.Emit('buffering', true);
 		});
 
-		media.addEventListener('stalled', function () {
+		this._listen(media, 'stalled', function () {
 			self.Emit('buffering', true);
 		});
 
-		media.addEventListener('timeupdate', function () {
+		this._listen(media, 'timeupdate', function () {
 			self.Emit('timeUpdate', {
 				Position: media.currentTime,
 				Duration: media.duration
 			});
 		});
 
-		media.addEventListener('durationchange', function () {
+		this._listen(media, 'durationchange', function () {
 			self.Emit('durationChange', media.duration);
 		});
 
-		media.addEventListener('progress', function () {
+		this._listen(media, 'progress', function () {
 			self.Emit('progress', {
 				Buffered: AyleReadTimeRanges(media.buffered),
 				Seekable: AyleReadTimeRanges(media.seekable)
 			});
 		});
 
-		media.addEventListener('volumechange', function () {
+		this._listen(media, 'volumechange', function () {
 			self.Emit('volumeChange', {
 				Volume: media.volume,
 				Muted: media.muted
 			});
 		});
 
-		media.addEventListener('ratechange', function () {
+		this._listen(media, 'ratechange', function () {
 			self.Emit('rateChange', media.playbackRate);
 		});
 
-		media.addEventListener('seeking', function () {
+		this._listen(media, 'seeking', function () {
 			self.Emit('seeking', true);
 		});
 
-		media.addEventListener('seeked', function () {
+		this._listen(media, 'seeked', function () {
 			self.Emit('seeked');
 			self.Emit('seeking', false);
 		});
 
-		media.addEventListener('error', function () {
+		this._listen(media, 'error', function () {
 			self.Emit('error', media.error);
 		});
 
-		media.addEventListener('enterpictureinpicture', function () {
+		this._listen(media, 'enterpictureinpicture', function () {
 			self.Emit('pictureInPictureChange', true);
 		});
 
-		media.addEventListener('leavepictureinpicture', function () {
+		this._listen(media, 'leavepictureinpicture', function () {
 			self.Emit('pictureInPictureChange', false);
 		});
 
 		if (media.textTracks && media.textTracks.addEventListener) {
-			media.textTracks.addEventListener('addtrack', function () {
+			this._listen(media.textTracks, 'addtrack', function () {
 				self.Emit('subtitleTracksChange', self._readSubtitleTracks());
 			});
-			media.textTracks.addEventListener('removetrack', function () {
+			this._listen(media.textTracks, 'removetrack', function () {
 				self.Emit('subtitleTracksChange', self._readSubtitleTracks());
 			});
-			media.textTracks.addEventListener('change', function () {
+			this._listen(media.textTracks, 'change', function () {
 				self.Emit('subtitleTracksChange', self._readSubtitleTracks());
 			});
 		}
 
 		if (media.audioTracks && media.audioTracks.addEventListener) {
-			media.audioTracks.addEventListener('addtrack', function () {
+			this._listen(media.audioTracks, 'addtrack', function () {
 				self.Emit('audioTracksChange', self._readAudioTracks());
 			});
-			media.audioTracks.addEventListener('removetrack', function () {
+			this._listen(media.audioTracks, 'removetrack', function () {
 				self.Emit('audioTracksChange', self._readAudioTracks());
 			});
-			media.audioTracks.addEventListener('change', function () {
+			this._listen(media.audioTracks, 'change', function () {
 				self.Emit('audioTracksChange', self._readAudioTracks());
 			});
 		}
@@ -975,7 +1073,8 @@
 	};
 
 	AyleHTML5MediaDriver.prototype.SupportsPictureInPicture = function () {
-		return (
+		return !!(
+			this.Element &&
 			typeof this.Element.requestPictureInPicture === 'function' &&
 			document.pictureInPictureEnabled !== false
 		);
@@ -2022,6 +2121,9 @@
 			}
 		}
 
+		this._unbindDOMEvents();
+		this.Element = null;
+		this.UI = null;
 		this._subtitleObjectURLs = [];
 		this._subtitleSourceTracks = [];
 		this._chapterTextTracks = [];
@@ -2065,9 +2167,16 @@
 		var self = this;
 		var pump = function () { self._pumpStreams(); };
 
-		this.Element.addEventListener('timeupdate', pump);
-		this.Element.addEventListener('waiting', pump);
-		this.Element.addEventListener('playing', pump);
+		this._listen(this.Element, 'timeupdate', pump);
+		this._listen(this.Element, 'waiting', pump);
+		this._listen(this.Element, 'playing', pump);
+	};
+
+	AyleMSEMediaDriver.prototype.SetUI = function (ui) {
+		if (!ui)
+			this._destroyMediaSource();
+
+		return AyleHTML5MediaDriver.prototype.SetUI.call(this, ui);
 	};
 
 	AyleMSEMediaDriver.CodecCandidates = [
@@ -5338,6 +5447,124 @@ function Ayle (config, internalOptions) {
 		return this.Driver.GetSupportedCodecs(candidates || this.GetCodecCandidates()) || [];
 	};
 
+	Ayle.ResolveElement = function (target, label) {
+		return AyleResolveElement(target, label);
+	};
+
+	Ayle.IsElement = function (value) {
+		return AyleIsElement(value);
+	};
+
+	Ayle.prototype.AttachUI = function (target) {
+		var element = AyleResolveElement(target, 'Ayle UI target');
+
+		if (this.UI) {
+			if (this.Element === element)
+				return this;
+
+			throw new Error(
+				'Ayle UI is already attached. Call DetachUI() before ' +
+				'attaching another target.'
+			);
+		}
+
+		var ui = null;
+		var mediaElement = element.querySelector(
+			'.ayle-media, .ayle-video, .ayle-audio'
+		);
+
+		if (!mediaElement)
+			throw new Error('Ayle UI target does not contain a media element');
+
+		/*
+		 * AyleUI evaluates capabilities such as Picture-in-Picture during its
+		 * construction. Bind the Driver to the resolved media element first so
+		 * those capability checks see the real runtime element, not null.
+		 *
+		 * This bridge is internal and short-lived. Once AyleUI is constructed,
+		 * SetUI(ui) replaces it with the real owned UI instance without
+		 * rebinding DOM listeners because the media element is unchanged.
+		 */
+		var binding = {
+			Element: element,
+			MediaElement: mediaElement
+		};
+
+		try {
+			if (this.Driver && typeof this.Driver.SetUI === 'function')
+				this.Driver.SetUI(binding);
+
+			ui = new AyleUI(element, this);
+
+			if (this.Driver && typeof this.Driver.SetUI === 'function')
+				this.Driver.SetUI(ui);
+
+			this.Element = element;
+			this.UI = ui;
+			this.MediaElement = ui.MediaElement || null;
+
+			/*
+			 * Reattaching an already loaded player rebuilds the concrete playback
+			 * pipeline on the new media element from the authoritative AyleSource.
+			 */
+			if (this.State && this.State.Source) {
+				this.Driver.Load(this.State.Source);
+
+				if (this.State.Variant)
+					this.Driver.SetVariant(this.State.Variant);
+
+				if (this.State.AudioTrack)
+					this.Driver.SetAudioTrack(this.State.AudioTrack);
+
+				this.Driver.SetSubtitleTrack(this.State.SubtitleTrack);
+			}
+		}
+		catch (error) {
+			if (this.Driver && typeof this.Driver.SetUI === 'function')
+				this.Driver.SetUI(null);
+
+			if (ui && typeof ui.Destroy === 'function')
+				ui.Destroy();
+
+			this.Element = null;
+			this.UI = null;
+			this.MediaElement = null;
+			throw error;
+		}
+
+		this.Emit('uiAttach', {
+			Element: element,
+			UI: ui
+		});
+
+		return this;
+	};
+
+	Ayle.prototype.DetachUI = function () {
+		if (!this.UI)
+			return this;
+
+		var ui = this.UI;
+		var element = this.Element;
+
+		if (this.Driver && typeof this.Driver.SetUI === 'function')
+			this.Driver.SetUI(null);
+
+		if (ui && typeof ui.Destroy === 'function')
+			ui.Destroy();
+
+		this.UI = null;
+		this.Element = null;
+		this.MediaElement = null;
+
+		this.Emit('uiDetach', {
+			Element: element,
+			UI: ui
+		});
+
+		return this;
+	};
+
 	Ayle.prototype.SetDriver = function (driver) {
 		if (!driver || typeof driver.Load !== 'function')
 			throw new Error('Invalid Ayle driver');
@@ -5403,6 +5630,9 @@ function Ayle (config, internalOptions) {
 		if (!this.MediaProvider)
 			throw new Error('Ayle media provider is not configured');
 
+		if (!this.UI)
+			throw new Error('Ayle UI is not attached. Call AttachUI() before Load().');
+
 		return this.MediaProvider.Load(callback);
 	};
 
@@ -5412,6 +5642,9 @@ function Ayle (config, internalOptions) {
 
 		if (!source)
 			return this.LoadMedia();
+
+		if (!this.UI)
+			throw new Error('Ayle UI is not attached. Call AttachUI() before Load().');
 
 		this._switch = null;
 		this.State.Source = source;
@@ -7272,6 +7505,8 @@ function Ayle (config, internalOptions) {
 
 
 	Ayle.prototype.Destroy = function () {
+		this.DetachUI();
+
 		if (this.MediaProvider) {
 			if (typeof this.MediaProvider.SetEventTarget === 'function')
 				this.MediaProvider.SetEventTarget(null, '');
@@ -7299,21 +7534,14 @@ function Ayle (config, internalOptions) {
 
 
 	function AyleUI (element, player) {
-		this.Element = element;
-		this.Player = player;
-
-		if (player) {
-			player.Element = element;
-			player.UI = this;
-		}
-		this.MediaElement = element.querySelector('.ayle-media, .ayle-video, .ayle-audio');
-
-		if (player) {
-			player.MediaElement = this.MediaElement || null;
-
-			if (player.Driver && typeof player.Driver.SetUI === 'function')
-				player.Driver.SetUI(this);
-		}
+		this.Element = AyleResolveElement(element, 'AyleUI target');
+		element = this.Element;
+		this.Player = player || null;
+		this._domListeners = [];
+		this._playerListeners = [];
+		this.MediaElement = this.Element.querySelector(
+			'.ayle-media, .ayle-video, .ayle-audio'
+		);
 		this.AudioCover = element.querySelector('.ayle-audio-cover');
 		this.ArtworkSlideshow = element.querySelector('.ayle-artwork-slideshow');
 		this.ArtworkSlideA = element.querySelector('.ayle-artwork-slide-a');
@@ -7478,14 +7706,14 @@ function Ayle (config, internalOptions) {
 		if (this.TrackCompactOverlay) {
 			var infoSelf = this;
 
-			element.addEventListener('mouseenter', function () {
+			this._listen(element, 'mouseenter', function () {
 				infoSelf._trackCompactOverlayHover = true;
 
 				if (infoSelf._hasOverlayItem('track:compact'))
 					infoSelf.ShowTrackCompactOverlay(false);
 			});
 
-			element.addEventListener('mouseleave', function (event) {
+			this._listen(element, 'mouseleave', function (event) {
 				if (
 					event.relatedTarget &&
 					infoSelf.TrackCompactOverlay &&
@@ -7499,12 +7727,12 @@ function Ayle (config, internalOptions) {
 					infoSelf.ScheduleTrackCompactOverlayHide();
 			});
 
-			element.addEventListener('focusin', function () {
+			this._listen(element, 'focusin', function () {
 				if (infoSelf._hasOverlayItem('track:compact'))
 					infoSelf.ShowTrackCompactOverlay(false);
 			});
 
-			element.addEventListener('focusout', function (event) {
+			this._listen(element, 'focusout', function (event) {
 				if (
 					event.relatedTarget &&
 					(
@@ -7518,7 +7746,7 @@ function Ayle (config, internalOptions) {
 					infoSelf.ScheduleTrackCompactOverlayHide();
 			});
 
-			this.TrackCompactOverlay.addEventListener('mouseenter', function () {
+			this._listen(this.TrackCompactOverlay, 'mouseenter', function () {
 				infoSelf._trackCompactOverlayHover = true;
 
 				if (infoSelf._trackCompactOverlayHideTimer) {
@@ -7529,7 +7757,7 @@ function Ayle (config, internalOptions) {
 				infoSelf.ShowTrackCompactOverlay(false);
 			});
 
-			this.TrackCompactOverlay.addEventListener('mouseleave', function (event) {
+			this._listen(this.TrackCompactOverlay, 'mouseleave', function (event) {
 				if (event.relatedTarget && element.contains(event.relatedTarget))
 					return;
 
@@ -7539,7 +7767,7 @@ function Ayle (config, internalOptions) {
 					infoSelf.ScheduleTrackCompactOverlayHide();
 			});
 
-			this.TrackCompactOverlay.addEventListener('focusin', function () {
+			this._listen(this.TrackCompactOverlay, 'focusin', function () {
 				infoSelf._trackCompactOverlayHover = true;
 
 				if (infoSelf._trackCompactOverlayHideTimer) {
@@ -7550,7 +7778,7 @@ function Ayle (config, internalOptions) {
 				infoSelf.ShowTrackCompactOverlay(false);
 			});
 
-			this.TrackCompactOverlay.addEventListener('focusout', function (event) {
+			this._listen(this.TrackCompactOverlay, 'focusout', function (event) {
 				if (
 					event.relatedTarget &&
 					(
@@ -7576,8 +7804,8 @@ function Ayle (config, internalOptions) {
 				infoSelf.UpdateAudioSubtitleOverlayPosition();
 			};
 
-			window.addEventListener('resize', this._trackCompactOverlayPositionHandler);
-			window.addEventListener('scroll', this._trackCompactOverlayPositionHandler, true);
+			this._listen(window, 'resize', this._trackCompactOverlayPositionHandler);
+			this._listen(window, 'scroll', this._trackCompactOverlayPositionHandler, true);
 		}
 
 		this._bindSafeArea();
@@ -7588,6 +7816,72 @@ function Ayle (config, internalOptions) {
 		if (player.Options.AutoFocus)
 			this.AutoFocus();
 	}
+
+
+	AyleUI.prototype._listen = function (target, name, callback, options) {
+		if (!target || typeof target.addEventListener !== 'function')
+			return callback;
+
+		target.addEventListener(name, callback, options);
+		this._domListeners.push({
+			Target: target,
+			Name: name,
+			Callback: callback,
+			Options: options
+		});
+		return callback;
+	};
+
+	AyleUI.prototype._unbindDOMListeners = function () {
+		var i = this._domListeners.length;
+
+		while (i--) {
+			var item = this._domListeners[i];
+
+			if (
+				item.Target &&
+				typeof item.Target.removeEventListener === 'function'
+			)
+				item.Target.removeEventListener(
+					item.Name,
+					item.Callback,
+					item.Options
+				);
+		}
+
+		this._domListeners = [];
+		return this;
+	};
+
+	AyleUI.prototype._onPlayer = function (player, name, callback) {
+		if (!player || typeof player.On !== 'function')
+			return callback;
+
+		player.On(name, callback);
+		this._playerListeners.push({
+			Player: player,
+			Name: name,
+			Callback: callback
+		});
+		return callback;
+	};
+
+	AyleUI.prototype._unbindPlayerListeners = function () {
+		var i = this._playerListeners.length;
+
+		while (i--) {
+			var item = this._playerListeners[i];
+
+			if (item.Player && typeof item.Player.Off === 'function')
+				item.Player.Off(
+					item.Name,
+					item.Callback
+				);
+		}
+
+		this._playerListeners = [];
+		return this;
+	};
 
 
 
@@ -8290,7 +8584,7 @@ function Ayle (config, internalOptions) {
 			}
 
 			(function (descriptor, control) {
-				control.addEventListener('click', function (event) {
+				self._listen(control, 'click', function (event) {
 					event.preventDefault();
 					event.stopPropagation();
 
@@ -8391,7 +8685,7 @@ function Ayle (config, internalOptions) {
 		var self = this;
 		var menuPair = this._createToolbarCustomMenu(item, button);
 
-		button.addEventListener('click', function (event) {
+		this._listen(button, 'click', function (event) {
 			event.stopPropagation();
 
 			var context = {
@@ -8846,7 +9140,7 @@ function Ayle (config, internalOptions) {
 		 * continues. Wait until DOMContentLoaded in that case.
 		 */
 		if (document.readyState === 'loading')
-			document.addEventListener('DOMContentLoaded', focus, { once: true });
+			this._listen(document, 'DOMContentLoaded', focus, { once: true });
 		else
 			focus();
 
@@ -9810,8 +10104,8 @@ function Ayle (config, internalOptions) {
 				self.UpdatePopoverBounds(self.SettingsPopover);
 		};
 
-		global.addEventListener('resize', this._safeAreaResizeHandler);
-		global.addEventListener('scroll', this._safeAreaScrollHandler, true);
+		this._listen(global, 'resize', this._safeAreaResizeHandler);
+		this._listen(global, 'scroll', this._safeAreaScrollHandler, true);
 
 		if (typeof ResizeObserver !== 'undefined') {
 			this._safeAreaObserver = new ResizeObserver(function () {
@@ -11422,7 +11716,7 @@ function Ayle (config, internalOptions) {
 		this._subtitleCueHandler = function () {
 			self.UpdateSubtitleOverlay();
 		};
-		track.Native.addEventListener('cuechange', this._subtitleCueHandler);
+		this._listen(track.Native, 'cuechange', this._subtitleCueHandler);
 	};
 
 
@@ -11828,7 +12122,7 @@ function Ayle (config, internalOptions) {
 			document.removeEventListener('click', handler, true);
 		};
 
-		document.addEventListener('click', handler, true);
+		this._listen(document, 'click', handler, true);
 
 		setTimeout(function () {
 			if (done)
@@ -12131,7 +12425,7 @@ function Ayle (config, internalOptions) {
 		 * keyboard target. Use pointerdown rather than click so focus is
 		 * established immediately, including sliders/timeline dragging.
 		 */
-		this.Element.addEventListener('pointerdown', function (event) {
+		this._listen(this.Element, 'pointerdown', function (event) {
 			var target = event.target;
 
 			if (!target || !target.closest)
@@ -12173,7 +12467,7 @@ function Ayle (config, internalOptions) {
 		}
 
 		if (this.Channel) {
-			this.Channel.addEventListener('click', function (event) {
+			this._listen(this.Channel, 'click', function (event) {
 				var channel = self.Player.Options.Integration && self.Player.Options.Integration.Channel;
 				if (!channel) {
 					event.preventDefault();
@@ -12436,37 +12730,37 @@ function Ayle (config, internalOptions) {
 		}
 
 
-		this.Timeline.addEventListener('pointerdown', function (event) {
+		this._listen(this.Timeline, 'pointerdown', function (event) {
 			self._beginSeek(event);
 		});
 
-		this.Timeline.addEventListener('pointermove', function (event) {
+		this._listen(this.Timeline, 'pointermove', function (event) {
 			if (self._seeking)
 				self._updateSeek(event);
 			else
 				self._showPreview(event);
 		});
 
-		this.Timeline.addEventListener('pointerup', function (event) {
+		this._listen(this.Timeline, 'pointerup', function (event) {
 			self._endSeek(event);
 		});
 
-		this.Timeline.addEventListener('pointercancel', function (event) {
+		this._listen(this.Timeline, 'pointercancel', function (event) {
 			self._seeking = false;
 			self.Preview.style.display = 'none';
 			if (self.Timeline.hasPointerCapture && self.Timeline.hasPointerCapture(event.pointerId))
 				self.Timeline.releasePointerCapture(event.pointerId);
 		});
 
-		this.Timeline.addEventListener('pointerleave', function () {
+		this._listen(this.Timeline, 'pointerleave', function () {
 			self._hidePreview();
 		});
 
-		this.Element.addEventListener('keydown', function (event) {
+		this._listen(this.Element, 'keydown', function (event) {
 			self._handleKey(event);
 		});
 
-		this.Element.addEventListener('pointerdown', function (event) {
+		this._listen(this.Element, 'pointerdown', function (event) {
 			var target = event.target;
 			var insideTrackCompactOverlay = target && target.closest ?
 				target.closest('.ayle-overlay-track-compact') : null;
@@ -12503,12 +12797,12 @@ function Ayle (config, internalOptions) {
 				self._closePopovers();
 		});
 
-		this.Element.addEventListener('pointermove', function () {
+		this._listen(this.Element, 'pointermove', function () {
 			self.ShowControls();
 		});
 
 
-		this.Element.addEventListener('pointerup', function (event) {
+		this._listen(this.Element, 'pointerup', function (event) {
 			var target = event.target;
 
 			if (
@@ -12610,9 +12904,9 @@ function Ayle (config, internalOptions) {
 			}
 		};
 
-		document.addEventListener('pointerdown', this._documentPointerDownHandler);
+		this._listen(document, 'pointerdown', this._documentPointerDownHandler);
 
-		this.Controls.addEventListener('pointerenter', function () {
+		this._listen(this.Controls, 'pointerenter', function () {
 			self._controlsHover = true;
 			if (self._controlsTimer) {
 				clearTimeout(self._controlsTimer);
@@ -12620,7 +12914,7 @@ function Ayle (config, internalOptions) {
 			}
 		});
 
-		this.Controls.addEventListener('pointerleave', function () {
+		this._listen(this.Controls, 'pointerleave', function () {
 			self._controlsHover = false;
 			self._scheduleControlsHide();
 		});
@@ -12660,64 +12954,64 @@ function Ayle (config, internalOptions) {
 				self.UpdatePopoverBounds(self.SettingsPopover);
 		};
 
-		document.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
+		this._listen(document, 'fullscreenchange', this._fullscreenChangeHandler);
 
 		var mediaElement = player.Driver ? player.Driver.Element : null;
 		if (mediaElement) {
-			mediaElement.addEventListener('enterpictureinpicture', function () {
+			this._listen(mediaElement, 'enterpictureinpicture', function () {
 				self.UpdatePictureInPictureButton();
 			});
-			mediaElement.addEventListener('leavepictureinpicture', function () {
+			this._listen(mediaElement, 'leavepictureinpicture', function () {
 				self.UpdatePictureInPictureButton();
 			});
 		}
 
-		player.On('timeUpdate', function () {
+		this._onPlayer(player, 'timeUpdate', function () {
 			self.UpdateTime();
 			self.UpdateSubtitleOverlay();
 			self.UpdateTrackCompactOverlaySubtitle();
 			self.UpdateHints();
 		});
 
-		player.On('hintsChange', function () {
+		this._onPlayer(player, 'hintsChange', function () {
 			self.UpdateHints();
 		});
 
-		player.On('hintRenderersChange', function () {
+		this._onPlayer(player, 'hintRenderersChange', function () {
 			self.ResetHints();
 		});
 
-		player.On('hintSafeAreaChange', function () {
+		this._onPlayer(player, 'hintSafeAreaChange', function () {
 			self.ScheduleSafeAreaUpdate();
 		});
 
-		player.On('autoplayChange', function () {
+		this._onPlayer(player, 'autoplayChange', function () {
 			self.UpdateAutoPlaySettings();
 		});
 
-		player.On('debugChange', function () {
+		this._onPlayer(player, 'debugChange', function () {
 			self.UpdateDebugSettings();
 		});
 
-		player.On('debugMP4Change', function () {
+		this._onPlayer(player, 'debugMP4Change', function () {
 			self.UpdateDebugSettings();
 		});
 
-		player.On('shortcutChange', function () {
+		this._onPlayer(player, 'shortcutChange', function () {
 			self.UpdateShortcutsSettings();
 		});
 
 
-		player.On('settingsOrderChange', function () {
+		this._onPlayer(player, 'settingsOrderChange', function () {
 			self.ApplySettingsOrder();
 		});
 
 
-		player.On('fontFamilyChange', function () {
+		this._onPlayer(player, 'fontFamilyChange', function () {
 			self.ApplyPlayerStyle();
 		});
 
-		player.On('mediaModeChange', function () {
+		this._onPlayer(player, 'mediaModeChange', function () {
 			self.ApplyMediaMode();
 			self.UpdatePlayButton();
 
@@ -12733,7 +13027,7 @@ function Ayle (config, internalOptions) {
 			self.UpdateSettingsVisibility();
 		});
 
-		player.On('sourceChange', function () {
+		this._onPlayer(player, 'sourceChange', function () {
 			self._pendingQuickSeekDelta = 0;
 			player.State.VideoWidth = 0;
 			player.State.VideoHeight = 0;
@@ -12744,21 +13038,21 @@ function Ayle (config, internalOptions) {
 			self.StartArtworkSlideshow();
 		});
 
-		player.On('uiChange', function () {
+		this._onPlayer(player, 'uiChange', function () {
 			self.ApplyUIComposition();
 			self.ApplyToolbar();
 			self.ApplyTrackCompactOverlayMode(true);
 		});
 
-		player.On('audioVisualChange', function () {
+		this._onPlayer(player, 'audioVisualChange', function () {
 			self.ApplyMediaMode();
 		});
 
-		player.On('localizationChange', function () {
+		this._onPlayer(player, 'localizationChange', function () {
 			self.ApplyLocalization();
 		});
 
-		player.On('durationChange', function () {
+		this._onPlayer(player, 'durationChange', function () {
 			self.UpdateTimeWidth();
 			self.UpdateTime();
 			self.UpdateTimelineRanges();
@@ -12766,11 +13060,11 @@ function Ayle (config, internalOptions) {
 			self.FlushPendingQuickSeek();
 		});
 
-		player.On('progress', function () {
+		this._onPlayer(player, 'progress', function () {
 			self.UpdateBuffer();
 		});
 
-		player.On('play', function () {
+		this._onPlayer(player, 'play', function () {
 			self.UpdateMediaSession();
 			self._artworkSlideshowPlayed = true;
 			self.StopArtworkSlideshow('playback');
@@ -12778,13 +13072,13 @@ function Ayle (config, internalOptions) {
 			self._scheduleControlsHide();
 		});
 
-		player.On('pause', function () {
+		this._onPlayer(player, 'pause', function () {
 			self.UpdateMediaSession();
 			self.UpdatePlayButton();
 			self.ShowControls();
 		});
 
-		player.On('ended', function () {
+		this._onPlayer(player, 'ended', function () {
 			if (self._loadingTimer) {
 				clearTimeout(self._loadingTimer);
 				self._loadingTimer = null;
@@ -12796,45 +13090,45 @@ function Ayle (config, internalOptions) {
 			self.ShowControls();
 		});
 
-		player.On('loadStart', function () {
+		this._onPlayer(player, 'loadStart', function () {
 			self.UpdateLoading();
 		});
 
-		player.On('ready', function () {
+		this._onPlayer(player, 'ready', function () {
 			self.UpdateLoading();
 			self.FlushPendingQuickSeek();
 
 		});
 
-		player.On('buffering', function () {
+		this._onPlayer(player, 'buffering', function () {
 			self.UpdateLoading();
 		});
 
-		player.On('seeking', function () {
+		this._onPlayer(player, 'seeking', function () {
 			self.UpdateLoading();
 		});
 
-		player.On('playing', function () {
+		this._onPlayer(player, 'playing', function () {
 			self.UpdateLoading();
 		});
 
-		player.On('error', function () {
-			self.UpdateLoading();
-			self.UpdatePlayButton();
-		});
-
-
-		player.On('stateChange', function () {
-			self.UpdatePlayButton();
-			self.UpdateLoading();
-		});
-
-		player.On('emptyPlay', function () {
+		this._onPlayer(player, 'error', function () {
 			self.UpdateLoading();
 			self.UpdatePlayButton();
 		});
 
-		player.On('playUnavailable', function (data) {
+
+		this._onPlayer(player, 'stateChange', function () {
+			self.UpdatePlayButton();
+			self.UpdateLoading();
+		});
+
+		this._onPlayer(player, 'emptyPlay', function () {
+			self.UpdateLoading();
+			self.UpdatePlayButton();
+		});
+
+		this._onPlayer(player, 'playUnavailable', function (data) {
 			self.Element.setAttribute(
 				'data-ayle-play-unavailable',
 				data && data.Reason ? data.Reason : 'unknown'
@@ -12850,37 +13144,37 @@ function Ayle (config, internalOptions) {
 			}, 700);
 		});
 
-		player.On('volumeChange', function (data) {
+		this._onPlayer(player, 'volumeChange', function (data) {
 			self.Volume.value = Math.round(data.Volume * 100);
 			self.UpdateVolumeSlider();
 			self.UpdateVolumeButton();
 		});
 
-		player.On('variantsChange', function () {
+		this._onPlayer(player, 'variantsChange', function () {
 			self.UpdateQualityMenu();
 		});
 
-		player.On('variantChange', function () {
+		this._onPlayer(player, 'variantChange', function () {
 			self.UpdateQualityMenu();
 		});
 
-		player.On('variantSwitched', function () {
+		this._onPlayer(player, 'variantSwitched', function () {
 			self.UpdateQualityMenu();
 		});
 
-		player.On('variantSwitchError', function () {
+		this._onPlayer(player, 'variantSwitchError', function () {
 			self.UpdateQualityMenu();
 		});
 
-		player.On('audioTracksChange', function () {
+		this._onPlayer(player, 'audioTracksChange', function () {
 			self.UpdateAudioMenu();
 		});
 
-		player.On('audioTrackChange', function () {
+		this._onPlayer(player, 'audioTrackChange', function () {
 			self.UpdateAudioMenu();
 		});
 
-		player.On('subtitleTracksChange', function () {
+		this._onPlayer(player, 'subtitleTracksChange', function () {
 			self.UpdateSubtitleMenu();
 			self.UpdateSubtitleTrackBinding();
 			self.UpdateSubtitleOverlay();
@@ -12888,7 +13182,7 @@ function Ayle (config, internalOptions) {
 			self.ApplyMediaMode();
 		});
 
-		player.On('subtitleTrackChange', function () {
+		this._onPlayer(player, 'subtitleTrackChange', function () {
 			self.UpdateSubtitleMenu();
 			self.UpdateSubtitleTrackBinding();
 			self.UpdateSubtitleOverlay();
@@ -12896,22 +13190,22 @@ function Ayle (config, internalOptions) {
 			self.ApplyMediaMode();
 		});
 
-		player.On('subtitleDataChange', function () {
+		this._onPlayer(player, 'subtitleDataChange', function () {
 			self.UpdateSubtitleOverlay();
 			self.UpdateTrackCompactOverlaySubtitle();
 			self.ApplyMediaMode();
 		});
 
-		player.On('subtitleOffsetChange', function () {
+		this._onPlayer(player, 'subtitleOffsetChange', function () {
 			self.UpdateSubtitleOverlay();
 			self.UpdateTrackCompactOverlaySubtitle();
 		});
 
-		player.On('chaptersChange', function () {
+		this._onPlayer(player, 'chaptersChange', function () {
 			self.UpdateChapterMenu();
 		});
 
-		player.On('sourceChange', function () {
+		this._onPlayer(player, 'sourceChange', function () {
 			self.UpdateTimelineRanges();
 			self.UpdateMediaSession();
 			self.UpdateTimeWidth();
@@ -12921,13 +13215,13 @@ function Ayle (config, internalOptions) {
 			self.ResetHints();
 		});
 
-		player.On('chapterChange', function () {
+		this._onPlayer(player, 'chapterChange', function () {
 			self.UpdateChapterMenu();
 			self.UpdateTitle();
 			self.UpdateTrackCompactOverlay(true);
 		});
 
-		player.On('integrationChange', function () {
+		this._onPlayer(player, 'integrationChange', function () {
 			self.ApplyToolbar();
 			self.UpdateTimelineRanges();
 			self.UpdateMediaSession();
@@ -12937,17 +13231,17 @@ function Ayle (config, internalOptions) {
 			self.UpdateTrackCompactOverlay(true);
 		});
 
-		player.On('subtitleStyleChange', function () {
+		this._onPlayer(player, 'subtitleStyleChange', function () {
 			self.ApplySubtitleStyle();
 		});
 
-		player.On('nativeSubtitlesChange', function () {
+		this._onPlayer(player, 'nativeSubtitlesChange', function () {
 			self.UpdateSubtitleSettings();
 			self.UpdateSubtitleTrackBinding();
 			self.UpdateSubtitleOverlay();
 		});
 
-		player.On('autoNativeSubtitlesInPictureInPictureChange', function () {
+		this._onPlayer(player, 'autoNativeSubtitlesInPictureInPictureChange', function () {
 			self.UpdateSubtitleSettings();
 		});
 	};
@@ -13002,6 +13296,8 @@ function Ayle (config, internalOptions) {
 
 	AyleUI.prototype.Destroy = function () {
 		this.StopArtworkSlideshow('destroy');
+		this._unbindPlayerListeners();
+		this._unbindDOMListeners();
 
 		if (this._controlsTimer) clearTimeout(this._controlsTimer);
 		if (this._trackCompactOverlayTimer) clearTimeout(this._trackCompactOverlayTimer);
@@ -13052,26 +13348,21 @@ function Ayle (config, internalOptions) {
 		if (this.Surface)
 			this.Surface.onclick = null;
 
-		if (this.Player && this.Player.UI === this)
-			this.Player.UI = null;
-
+		this.Player = null;
 		return this;
 	};
 
 
 	Ayle.Init = function (target, config) {
-		var element = target;
-
-		if (typeof target === 'string')
-			element = document.querySelector(target);
-
-		if (!element || typeof element.querySelector !== 'function')
-			throw new Error('Ayle target element was not found');
-
 		var player = new Ayle(config || {});
-		new AyleUI(element, player);
 
-		return player;
+		try {
+			return player.AttachUI(target);
+		}
+		catch (error) {
+			player.Destroy();
+			throw error;
+		}
 	};
 
 	global.Ayle = Ayle;

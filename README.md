@@ -78,7 +78,7 @@ var player = new Ayle({
 	}
 });
 
-var ui = new AyleUI(root, player);
+player.AttachUI(root);
 
 player.On('ready', function () {
 	console.log('ready');
@@ -128,8 +128,50 @@ player.Element
 player.MediaElement
 ```
 
+UI is owned by `Ayle` as well. `AttachUI(target)` accepts either a selector or
+one concrete DOM `Element`:
+
+```js
+player.AttachUI('#player');
+
+var element = document.getElementById('player');
+player.AttachUI(element);
+```
+
+Selectors are intentionally strict: they must resolve to **exactly one**
+Element. Zero matches, multiple matches, `NodeList`, `HTMLCollection`,
+`Document`, `DocumentFragment`, arrays and other collection-like values are
+rejected instead of silently selecting the first item. A DOM object must be one
+element node (`nodeType === 1`).
+
+Calling `AttachUI()` again with the same element is idempotent. Attaching a
+different element while a UI is already mounted throws; move it explicitly:
+
+```js
+player.DetachUI();
+player.AttachUI('#another-player');
+```
+
+`DetachUI()` destroys the current `AyleUI`, detaches the driver from the media
+element, releases the old media-element resource/MSE pipeline and clears `player.UI`, `player.Element` and `player.MediaElement`
+without destroying the player, driver or media provider. Reattaching an already
+loaded player rebuilds the playback pipeline on the new media element from the
+current `AyleSource`.
+
 `player.SetDriver(...)` and `player.SetMediaProvider(...)` replace owned
-dependencies. `player.Destroy()` destroys the owned provider and driver.
+dependencies. `player.Destroy()` detaches/destroys the owned UI and destroys the
+owned provider and driver. `Load()` requires an attached UI and reports a clear
+error if called before `AttachUI()`.
+
+`Ayle.Init(target, config)` is only a convenience shorthand for:
+
+```js
+new Ayle(config).AttachUI(target);
+```
+
+`AyleUI` remains exported as the low-level UI implementation class for advanced
+integrations, but normal application code should let `Ayle.AttachUI()` create
+and own it.
 
 `MediaMode` selects the default UI composition. `video` defaults to an empty
 header, compact track overlay and the core playback toolbar; `audio` defaults

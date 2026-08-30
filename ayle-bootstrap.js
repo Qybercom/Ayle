@@ -884,8 +884,7 @@
 	};
 
 	AyleBootstrap.prototype.InitConfig = function (configElement, config) {
-		if (!configElement)
-			return null;
+		configElement = this.ResolveElement(configElement);
 
 		if (configElement.__playerInstance)
 			return configElement.__playerInstance;
@@ -922,11 +921,42 @@
 	};
 
 	AyleBootstrap.prototype.ResolveElement = function (target, root) {
-		if (!target)
-			return null;
+		var scope = root || document;
 
-		if (typeof target === 'string')
-			return (root || document).querySelector(target);
+		if (typeof target === 'string') {
+			if (!scope || typeof scope.querySelectorAll !== 'function')
+				throw new Error('Player target scope does not support selectors');
+
+			var elements;
+
+			try {
+				elements = scope.querySelectorAll(target);
+			}
+			catch (error) {
+				throw new Error('Player target selector is invalid: ' + target);
+			}
+
+			if (!elements.length)
+				throw new Error('Player target not found: ' + target);
+
+			if (elements.length !== 1)
+				throw new Error(
+					'Player target selector must resolve to exactly one Element; ' +
+					'matched ' + elements.length + ': ' + target
+				);
+
+			return elements[0];
+		}
+
+		if (
+			!target ||
+			target.nodeType !== 1 ||
+			typeof target.querySelector !== 'function'
+		)
+			throw new Error(
+				'Player target must be a single DOM Element or a selector ' +
+				'resolving to exactly one Element'
+			);
 
 		return target;
 	};
@@ -952,9 +982,6 @@
 		}
 
 		var element = this.ResolveElement(target, root);
-
-		if (!element)
-			throw new Error('Player target not found: ' + target);
 
 		var config = mediaConfig !== undefined ?
 			{
@@ -1099,8 +1126,10 @@
 	};
 
 	AyleBootstrap.prototype.Init = function (element, config) {
-		if (!element || element.__playerInstance)
-			return element ? element.__playerInstance : null;
+		element = this.ResolveElement(element);
+
+		if (element.__playerInstance)
+			return element.__playerInstance;
 
 		config = config || this.ParseConfig(element);
 		config = this.ApplyDataAttributes(element, config);

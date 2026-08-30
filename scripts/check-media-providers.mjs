@@ -289,6 +289,27 @@ var directProviderReady = null;
 directPlayer.On('provider:ready', function (data) {
 	directProviderReady = data;
 });
+
+var loadWithoutUIFailed = false;
+
+try {
+	directPlayer.Load();
+}
+catch (error) {
+	loadWithoutUIFailed = /UI is not attached/.test(error.message);
+}
+
+assert(
+	loadWithoutUIFailed,
+	'Load() before AttachUI() must fail with a clear lifecycle error'
+);
+
+/*
+ * This regression uses a non-DOM test driver. AttachUI itself is covered by
+ * the dedicated DOM-target regression below; a truthy UI is enough to exercise
+ * provider -> AyleSource -> Driver without a browser DOM.
+ */
+directPlayer.UI = {};
 directPlayer.Load();
 
 assert(
@@ -301,6 +322,71 @@ assert(
 	directProviderReady.Source === directPlayer.State.Source,
 	'direct provider ready event must flow through player.On()'
 );
+
+
+var originalDocument = globalThis.document;
+var fakeElementA = {
+	nodeType: 1,
+	querySelector: function () { return null; }
+};
+var fakeElementB = {
+	nodeType: 1,
+	querySelector: function () { return null; }
+};
+
+globalThis.document = {
+	querySelectorAll: function (selector) {
+		if (selector === '#one')
+			return [fakeElementA];
+
+		if (selector === '.many')
+			return [fakeElementA, fakeElementB];
+
+		if (selector === '.none')
+			return [];
+
+		throw new Error('invalid selector');
+	}
+};
+
+assert(
+	Ayle.ResolveElement('#one', 'Test target') === fakeElementA,
+	'selector resolving to one element must be accepted'
+);
+
+var zeroMatchFailed = false;
+try {
+	Ayle.ResolveElement('.none', 'Test target');
+}
+catch (error) {
+	zeroMatchFailed = /was not found/.test(error.message);
+}
+assert(zeroMatchFailed, 'zero-match selector must fail');
+
+var multipleMatchFailed = false;
+try {
+	Ayle.ResolveElement('.many', 'Test target');
+}
+catch (error) {
+	multipleMatchFailed = /exactly one Element/.test(error.message);
+}
+assert(multipleMatchFailed, 'multi-match selector must fail');
+
+var collectionFailed = false;
+try {
+	Ayle.ResolveElement([fakeElementA], 'Test target');
+}
+catch (error) {
+	collectionFailed = /single DOM Element/.test(error.message);
+}
+assert(collectionFailed, 'element collections must not be silently accepted');
+
+assert(
+	Ayle.ResolveElement(fakeElementA, 'Test target') === fakeElementA,
+	'a concrete element node must be accepted'
+);
+
+globalThis.document = originalDocument;
 
 console.log('Ayle media provider registry validation passed.');
 console.log('Ayle media provider config isolation validation passed.');

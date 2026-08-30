@@ -65,6 +65,15 @@ if (
 if (lowLevel.indexOf("new AyleMSEMediaDriver(video)") !== -1)
 	throw new Error('Low-level example must not inject media elements through driver constructors');
 
+if (lowLevel.indexOf('new AyleUI(') !== -1)
+	throw new Error('Low-level examples must attach owned UI through player.AttachUI()');
+
+if ((lowLevel.match(/player\.AttachUI\(root\);/g) || []).length !== 4)
+	throw new Error('Full low-level examples must attach UI through the DOM object');
+
+if ((lowLevel.match(/player\.AttachUI\('#player-minimal-(?:video|audio)'\);/g) || []).length !== 4)
+	throw new Error('Minimal low-level examples must attach UI directly through a selector');
+
 if (
 	lowLevel.indexOf("Ayle.CreateMediaProvider('http'") !== -1 ||
 	lowLevel.indexOf("new Ayle(driver") !== -1
@@ -805,10 +814,11 @@ const initBootstrap = await fs.readFile(path.join(root, 'ayle-bootstrap.js'), 'u
 
 for (const token of [
 	'Ayle.Init = function (target, config)',
-	"document.querySelector(target)",
-	'var player = new Ayle(config || {});',
-	'new AyleUI(element, player);',
-	'player.Driver.SetUI(this);',
+	'return player.AttachUI(target);',
+	'Ayle.prototype.AttachUI = function (target)',
+	"AyleResolveElement(target, 'Ayle UI target')",
+	'Ayle.prototype.DetachUI = function ()',
+	'this.Driver.SetUI(null);',
 	'Ayle.CreateDriver(driverType, driverOptions)',
 	"AyleDriverRegistry.html5 = AyleHTML5MediaDriver;",
 	"AyleDriverRegistry.mse = AyleMSEMediaDriver;"
@@ -830,10 +840,55 @@ if (initBootstrap.indexOf('global.Ayle.Init(') === -1)
 	throw new Error('Bootstrap must assemble runtime instances through Ayle.Init');
 
 if (
+	initBootstrap.indexOf('AyleBootstrap.prototype.ResolveElement = function (target, root)') === -1 ||
+	initBootstrap.indexOf('scope.querySelectorAll(target)') === -1 ||
+	initBootstrap.indexOf('elements.length !== 1') === -1 ||
+	initBootstrap.indexOf('target.nodeType !== 1') === -1
+)
+	throw new Error('Bootstrap singular target APIs must reject ambiguous/non-Element targets');
+
+if (
 	core.indexOf('AyleMediaDriver.prototype.SetUI = function (ui)') === -1 ||
 	core.indexOf('AyleMediaDriver.prototype.SetOptions = function (options)') === -1
 )
 	throw new Error('Media driver UI/options contract is incomplete');
+
+if (
+	core.indexOf('function AyleResolveElement (target, label)') === -1 ||
+	core.indexOf('document.querySelectorAll(selector)') === -1 ||
+	core.indexOf('elements.length !== 1') === -1 ||
+	core.indexOf('value.nodeType === 1') === -1
+)
+	throw new Error('Ayle DOM target resolver must require exactly one concrete Element');
+
+if (
+	core.indexOf('AyleHTML5MediaDriver.prototype._unbindDOMEvents = function') === -1 ||
+	core.indexOf('this._listen(this.Element,') === -1 ||
+	core.indexOf('this._unbindDOMEvents();') === -1
+)
+	throw new Error('HTML5/MSE drivers must support UI detach/reattach without stale DOM listeners');
+
+if (
+	core.indexOf('AyleUI.prototype._unbindDOMListeners = function') === -1 ||
+	core.indexOf('AyleUI.prototype._unbindPlayerListeners = function') === -1 ||
+	core.indexOf('this._unbindPlayerListeners();') === -1 ||
+	core.indexOf('this._unbindDOMListeners();') === -1
+)
+	throw new Error('AyleUI detach must release DOM and Player subscriptions');
+
+if (
+	core.indexOf("var mediaElement = element.querySelector(") === -1 ||
+	core.indexOf('this.Driver.SetUI(binding);') === -1 ||
+	core.indexOf('ui = new AyleUI(element, this);') === -1 ||
+	core.indexOf('this.Driver.SetUI(ui);') === -1
+)
+	throw new Error('AttachUI must bind Driver to the media element before AyleUI capability checks');
+
+if (
+	core.indexOf('this.Element &&') === -1 ||
+	core.indexOf("typeof this.Element.requestPictureInPicture === 'function'") === -1
+)
+	throw new Error('Picture-in-Picture capability check must tolerate a detached Driver');
 
 if (
 	core.indexOf('function AyleHTML5MediaDriver (element)') !== -1 ||

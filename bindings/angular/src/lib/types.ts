@@ -242,6 +242,8 @@ export interface AylePlayerCore {
 	LoadMedia(callback?: (error?: Error | null, source?: AyleSource | null, metadata?: Record<string, any> | null) => void): any;
 	SetDriver(driver: AyleDriver): this;
 	SetMediaProvider(provider: AyleMediaProvider | Record<string, any> | null): this;
+	AttachUI(target: string | Element): this;
+	DetachUI(): this;
 	Destroy(): this;
 	Play(): boolean | Promise<any>;
 	Pause(): any;
@@ -494,6 +496,8 @@ export interface AyleEventMap {
 	volumeChange: AyleVolumeChangeEvent;
 	stateChange: AyleState;
 	mediaModeChange: string;
+	uiAttach: { Element: HTMLElement; UI: AyleUI };
+	uiDetach: { Element: HTMLElement; UI: AyleUI };
 	uiChange: Record<string, any>;
 	audioVisualChange: Record<string, any>;
 	artworkSlideshowChange: AyleArtworkSlideshowChangeEvent;

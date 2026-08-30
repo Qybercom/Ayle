@@ -268,8 +268,7 @@
 </div>
 			</div>
 			<div class="example-code-title">Manual low-level assembly</div>
-			<pre class="example-code"><code>var root = document.getElementById('player-minimal-video');
-var player = new Ayle({
+			<pre class="example-code"><code>var player = new Ayle({
 	Driver: {
 		Type: 'html5'
 	},
@@ -280,7 +279,7 @@ var player = new Ayle({
 		MediaMode: 'video'
 	}
 });
-var ui = new AyleUI(root, player);
+player.AttachUI('#player-minimal-video');
 
 player.On('ready', function () {
 	console.log('player-minimal-video ready');
@@ -554,8 +553,7 @@ player.Load();</code></pre>
 </div>
 			</div>
 			<div class="example-code-title">JavaScript</div>
-			<pre class="example-code"><code>var root = document.getElementById('player-minimal-audio');
-var player = new Ayle({
+			<pre class="example-code"><code>var player = new Ayle({
 	Driver: {
 		Type: 'html5'
 	},
@@ -566,7 +564,7 @@ var player = new Ayle({
 		MediaMode: 'audio'
 	}
 });
-var ui = new AyleUI(root, player);
+player.AttachUI('#player-minimal-audio');
 
 player.On('ready', function () {
 	console.log('player-minimal-audio ready');
@@ -1123,7 +1121,7 @@ var player = new Ayle({
 		}
 	}
 });
-var ui = new AyleUI(root, player);
+player.AttachUI(root);
 
 player.On('ready', function () {
 	console.log('player-full-video ready');
@@ -1689,7 +1687,7 @@ var player = new Ayle({
 		}
 	}
 });
-var ui = new AyleUI(root, player);
+player.AttachUI(root);
 
 player.On('ready', function () {
 	console.log('player-full-audio ready');
@@ -1837,7 +1835,6 @@ bootstrap.InitConfig(config);</code></pre>
 
 	</main>
 <script>
-var root = document.getElementById('player-minimal-video');
 var player = new Ayle({
 	Driver: {
 		Type: 'html5'
@@ -1849,7 +1846,7 @@ var player = new Ayle({
 		MediaMode: 'video'
 	}
 });
-var ui = new AyleUI(root, player);
+player.AttachUI('#player-minimal-video');
 
 player.On('ready', function () {
 	console.log('player-minimal-video ready');
@@ -1860,7 +1857,6 @@ player.On('error', function (error) {
 });
 
 player.Load();
-var root = document.getElementById('player-minimal-audio');
 var player = new Ayle({
 	Driver: {
 		Type: 'html5'
@@ -1872,7 +1868,7 @@ var player = new Ayle({
 		MediaMode: 'audio'
 	}
 });
-var ui = new AyleUI(root, player);
+player.AttachUI('#player-minimal-audio');
 
 player.On('ready', function () {
 	console.log('player-minimal-audio ready');
@@ -2178,7 +2174,7 @@ var player = new Ayle({
 		}
 	}
 });
-var ui = new AyleUI(root, player);
+player.AttachUI(root);
 
 player.On('ready', function () {
 	console.log('player-full-video ready');
@@ -2493,7 +2489,7 @@ var player = new Ayle({
 		}
 	}
 });
-var ui = new AyleUI(root, player);
+player.AttachUI(root);
 
 player.On('ready', function () {
 	console.log('player-full-audio ready');
