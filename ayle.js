@@ -4168,7 +4168,6 @@ function Ayle (driver, options) {
 			ShowCenterPlayButton: options.ShowCenterPlayButton !== false,
 			AutoFocus: options.AutoFocus === true,
 			MediaMode: options.MediaMode || 'auto',
-			UIMode: options.UIMode || 'normal',
 			UI: {
 				Header: ui.Header instanceof Array ?
 					ui.Header.slice(0) : ['channel:card', 'track'],
@@ -4275,12 +4274,6 @@ function Ayle (driver, options) {
 			this.Options.MediaMode !== 'audio'
 		)
 			this.Options.MediaMode = 'auto';
-
-		if (
-			this.Options.UIMode !== 'normal' &&
-			this.Options.UIMode !== 'minimal'
-		)
-			this.Options.UIMode = 'normal';
 
 		if (
 			this.Options.UI.Toolbar.Layout !== 'inline' &&
@@ -5649,20 +5642,6 @@ function Ayle (driver, options) {
 		return this;
 	};
 
-	Ayle.prototype.SetUIMode = function (mode) {
-		mode = mode || 'normal';
-
-		if (mode !== 'normal' && mode !== 'minimal')
-			return this;
-
-		if (this.Options.UIMode === mode)
-			return this;
-
-		this.Options.UIMode = mode;
-		this.Emit('uiModeChange', mode);
-		return this;
-	};
-
 	Ayle.prototype.SetUI = function (options) {
 		options = options || {};
 		var ui = this.Options.UI;
@@ -6772,8 +6751,7 @@ function Ayle (driver, options) {
 		this.ApplySubtitleStyle();
 		this.UpdateSubtitleTrackBinding();
 		this.UpdateSubtitleOverlay();
-		this.ApplyMediaMode();
-		this.ApplyUIMode();
+		this.ApplyUIComposition();
 		this.ApplyToolbar();
 		this.UpdateControlLayoutMode();
 		this.UpdateTrackCompactOverlay(false);
@@ -7094,13 +7072,14 @@ function Ayle (driver, options) {
 
 		if (visualType === 'auto') {
 			/*
-			 * In minimal UI artwork belongs to the compact Now Playing popup,
-			 * not to the large visual surface. Hints/subtitles may still require
-			 * that surface. Explicit Type:'cover' still means "show large cover".
+			 * When the compact track overlay is configured, artwork belongs to
+			 * that Now Playing presentation instead of the large audio visual
+			 * surface. Hints/subtitles may still require the visual surface.
+			 * Explicit Type:'cover' still means "show large cover".
 			 */
 			if (
 				visualImage &&
-				this.Player.Options.UIMode !== 'minimal'
+				!this._hasOverlayItem('track:compact')
 			)
 				visualType = 'cover';
 			else if (hints.length)
@@ -7229,7 +7208,7 @@ function Ayle (driver, options) {
 
 	AyleUI.prototype.UpdateTrackCompactOverlaySubtitle = function () {
 		/* Backward-compatible method name: subtitle rendering now lives in
-		 * the dedicated minimal subtitle popup. */
+		 * the dedicated audio subtitle overlay. */
 		this.UpdateAudioSubtitleOverlay();
 	};
 
@@ -7437,6 +7416,7 @@ function Ayle (driver, options) {
 
 		var enabled = this._hasOverlayItem('track:compact');
 
+		this.Element.classList.toggle('ayle-has-track-compact', enabled);
 		this.TrackCompactOverlay.classList.toggle('is-enabled', enabled);
 		this.UpdateTrackCompactOverlay(false);
 		this.UpdateTrackCompactOverlayPosition();
@@ -7452,17 +7432,15 @@ function Ayle (driver, options) {
 			this.HideTrackCompactOverlay();
 	};
 
-	AyleUI.prototype.ApplyUIMode = function () {
-		var minimal = this.Player.Options.UIMode === 'minimal';
+	AyleUI.prototype.ApplyUIComposition = function () {
+		var ui = this.Player.Options.UI || {};
+		var header = ui.Header instanceof Array ? ui.Header : [];
 
-		this.Element.classList.toggle('ayle-ui-minimal', minimal);
-		this.Element.classList.toggle('ayle-ui-normal', !minimal);
-
-		if (this.CenterPlayButton)
-			this.CenterPlayButton.classList.toggle('ayle-minimal-hidden', minimal);
+		this.Element.classList.toggle('ayle-ui-headerless', header.length === 0);
 
 		this.ApplyMediaMode();
 		this.ApplyTrackCompactOverlayMode(false);
+		this.UpdateAudioSubtitleOverlay();
 		this.UpdateTitle();
 	};
 
@@ -8929,7 +8907,6 @@ function Ayle (driver, options) {
 		if (!container || !container.getBoundingClientRect)
 			return;
 
-		var playerRect = this.Element.getBoundingClientRect();
 		var containerRect = container.getBoundingClientRect();
 		var viewportHeight =
 			window.innerHeight ||
@@ -8938,63 +8915,49 @@ function Ayle (driver, options) {
 
 		var gap = 8;
 		var padding = 8;
-		var minimal = this.Player.Options.UIMode === 'minimal';
 
 		popover.classList.remove('ayle-popover-top');
 		popover.classList.remove('ayle-popover-bottom');
 
-		if (minimal) {
-			var topSpace = Math.max(0, containerRect.top - padding);
-			var bottomSpace = Math.max(0, viewportHeight - containerRect.bottom - padding);
+		var topSpace = Math.max(0, containerRect.top - padding);
+		var bottomSpace = Math.max(0, viewportHeight - containerRect.bottom - padding);
 
-			/* Measure desired height without permanently changing visibility. */
-			var wasOpen = popover.classList.contains('is-open');
-			var oldVisibility = popover.style.visibility;
-			var oldDisplay = popover.style.display;
+		/* Measure desired height without permanently changing visibility. */
+		var wasOpen = popover.classList.contains('is-open');
+		var oldVisibility = popover.style.visibility;
+		var oldDisplay = popover.style.display;
 
-			if (!wasOpen) {
-				popover.style.visibility = 'hidden';
-				popover.style.display = 'block';
-			}
-
-			var desiredHeight = popover.scrollHeight || 0;
-
-			if (!wasOpen) {
-				popover.style.display = oldDisplay;
-				popover.style.visibility = oldVisibility;
-			}
-
-			var placeTop =
-				topSpace >= desiredHeight + gap ||
-				(topSpace >= bottomSpace && topSpace > 80);
-
-			var available = (placeTop ? topSpace : bottomSpace) - gap;
-
-			if (available < 80)
-				available = 80;
-
-			popover.classList.add(
-				placeTop ? 'ayle-popover-top' : 'ayle-popover-bottom'
-			);
-
-			popover.style.maxHeight = Math.floor(available) + 'px';
-			popover.setAttribute(
-				'data-ayle-popover-position',
-				placeTop ? 'top' : 'bottom'
-			);
-
-			this.UpdatePopoverHorizontalBounds(popover);
-			return;
+		if (!wasOpen) {
+			popover.style.visibility = 'hidden';
+			popover.style.display = 'block';
 		}
 
-		/* Normal UI keeps the original ayle-relative behavior. */
-		var available = containerRect.top - playerRect.top - 12 - padding;
+		var desiredHeight = popover.scrollHeight || 0;
+
+		if (!wasOpen) {
+			popover.style.display = oldDisplay;
+			popover.style.visibility = oldVisibility;
+		}
+
+		var placeTop =
+			topSpace >= desiredHeight + gap ||
+			(topSpace >= bottomSpace && topSpace > 80);
+
+		var available = (placeTop ? topSpace : bottomSpace) - gap;
 
 		if (available < 80)
 			available = 80;
 
+		popover.classList.add(
+			placeTop ? 'ayle-popover-top' : 'ayle-popover-bottom'
+		);
+
 		popover.style.maxHeight = Math.floor(available) + 'px';
-		popover.setAttribute('data-ayle-popover-position', 'top');
+		popover.setAttribute(
+			'data-ayle-popover-position',
+			placeTop ? 'top' : 'bottom'
+		);
+
 		this.UpdatePopoverHorizontalBounds(popover);
 	};
 
@@ -11991,14 +11954,8 @@ function Ayle (driver, options) {
 			self.StartArtworkSlideshow();
 		});
 
-		player.On('uiModeChange', function () {
-			self.ApplyUIMode();
-			self.ApplyToolbar();
-			self.ApplyTrackCompactOverlayMode(true);
-		});
-
 		player.On('uiChange', function () {
-			self.ApplyUIMode();
+			self.ApplyUIComposition();
 			self.ApplyToolbar();
 			self.ApplyTrackCompactOverlayMode(true);
 		});

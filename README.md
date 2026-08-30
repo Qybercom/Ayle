@@ -62,8 +62,8 @@ For normal imperative use, `Ayle.Init()` is the assembly entry point. It accepts
 var player = Ayle.Init('#player-minimal-audio', AyleMSEMediaDriver, {
 	AutoPlay: false,
 	AutoFocus: true,
+	ShowCenterPlayButton: false,
 	MediaMode: 'audio',
-	UIMode: 'minimal',
 	UI: {
 		Header: [],
 		Track: ['artwork', 'title', 'artist', 'album'],
@@ -236,7 +236,6 @@ A normal declarative config is an object with these top-level fields:
 | `ShowCenterPlayButton` | boolean / `true` | Show the large center Play button. |
 | `AutoFocus` | boolean / `false` | Focus the player automatically when the user interacts with its controls/surface. |
 | `MediaMode` | `auto`, `video`, `audio` / `auto` | Select media mode. `auto` resolves from the loaded source. |
-| `UIMode` | `normal`, `minimal` / `normal` | Select the full or minimal UI layout. |
 | `UI` | object | Declarative UI composition: header, track, channel, overlay, and toolbar. |
 | `AudioVisual` | object | Controls the visual area used by audio mode. |
 | `ArtworkSlideshow` | object | Controls the pre-playback artwork slideshow. |
@@ -254,7 +253,7 @@ A normal declarative config is an object with these top-level fields:
 
 ### `Player.UI`
 
-`UI` is the single declarative composition model for Ayle's built-in interface. Element composition is expressed with simple string lists; layout variants know how to render the configured content.
+`UI` is the single declarative composition model for Ayle's built-in interface. Element composition is expressed with simple string lists; layout variants know how to render the configured content. There is no separate UI mode switch: compact/headerless behavior is derived from the actual composition (`Header`, `Overlay`, and `Toolbar`) and explicit options such as `ShowCenterPlayButton`.
 
 ```js
 UI: {
@@ -311,7 +310,7 @@ UI: {
 }
 ```
 
-A minimal composition no longer needs a parallel `MinimalUI` visibility object. It is expressed directly:
+A compact/headerless composition is expressed directly, without a parallel mode or visibility object:
 
 ```js
 UI: {
@@ -458,7 +457,7 @@ A number may be supplied to apply the same padding to all sides, or an object ma
 | --- | --- | --- |
 | `Name` | string / empty | Profile/handle text. |
 | `URL` | string / empty | Profile link URL. |
-| `Target` | string / `_self` in minimal UI | Anchor target such as `_self` or `_blank`. `_blank` receives `noopener noreferrer` in the normal header. |
+| `Target` | string / `_blank` | Anchor target such as `_self` or `_blank`. `_blank` receives `noopener noreferrer`. |
 
 #### `Integration.Settings[]` item
 
@@ -749,9 +748,9 @@ Public attributes are intended for embedding/configuration. Runtime/internal att
 | `data-ayle-settings-item` | generated Settings item | Stable Settings-order key such as `autoplay`, `audio`, or `debug`. |
 | `data-ayle-control` | generated control | Internal control identifier used by responsive/control-layout logic. |
 | `data-ayle-hint-type` | hint element | Normalized hint renderer/type. |
-| `data-ayle-overlay-track-compact-position` | minimal info UI | Resolved `top`/`bottom` placement. |
-| `data-ayle-overlay-audio-subtitles-position` | minimal subtitle UI | Resolved subtitle popup placement. |
-| `data-ayle-overlay-audio-subtitles-state` | minimal subtitle UI | Current minimal subtitle popup state. |
+| `data-ayle-overlay-track-compact-position` | compact track overlay | Resolved `top`/`bottom` placement. |
+| `data-ayle-overlay-audio-subtitles-position` | audio subtitle overlay | Resolved subtitle popup placement. |
+| `data-ayle-overlay-audio-subtitles-state` | audio subtitle overlay | Current subtitle popup state. |
 | `data-ayle-play-unavailable` | player element | Transient/UI state describing an unavailable Play attempt. |
 | `data-ayle-popover-position` | popover | Resolved popover placement. |
 | `data-ayle-source-state` | player element | High-level source state such as `ready`, `error`, `loading`, or `empty`. |
@@ -768,7 +767,7 @@ Public attributes are intended for embedding/configuration. Runtime/internal att
 quality/chapters/settings integration and artwork slideshow. Slideshow controls
 remain visible by default and artwork uses `cover` fit by default.
 
-`audio` uses the minimal audio UI and supports metadata/info, subtitles,
+`audio` uses a compact headerless audio composition and supports metadata/info, subtitles,
 settings and audio-visual behavior. Its default compact track composition is
 `['artwork', 'title', 'artist', 'album']`, restoring the Now Playing card with
 cover artwork, title, and an `Artist · Album` metadata line.
@@ -914,7 +913,6 @@ A handler bound through `data-ayle-on` receives a wrapper object containing `Typ
 | `fontFamilyChange` | The configured UI font family changed. | font-family string |
 | `mediaModeChange` | The media mode changed, for example video/audio. | mode string |
 | `uiChange` | Declarative UI configuration changed. | `UI` options |
-| `uiModeChange` | The UI mode changed. | mode string |
 
 ### Localization
 
@@ -1099,7 +1097,7 @@ browser-supported codec is the normal interoperability path.
 
 Ayle supports native subtitle tracks and a custom HTML subtitle overlay.
 Supported inline subtitle markup such as `<i>` is preserved by the custom
-subtitle path. Minimal audio mode can expose subtitles through its subtitle
+subtitle path. The compact audio composition can expose subtitles through its subtitle
 popup.
 
 ## Artwork

@@ -273,8 +273,8 @@ var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoPlay: false,
 	AutoFocus: true,
+	ShowCenterPlayButton: false,
 	MediaMode: 'video',
-	UIMode: 'minimal',
 	Volume: 0.8,
 	Muted: false,
 	Start: 0,
@@ -318,8 +318,8 @@ http.Load(function (error, source, metadata) {
 			<pre class="example-code"><code>var player = Ayle.Init('#player-minimal-video', AyleMSEMediaDriver, {
 	AutoPlay: false,
 	AutoFocus: true,
+	ShowCenterPlayButton: false,
 	MediaMode: 'video',
-	UIMode: 'minimal',
 	Volume: 0.8,
 	Muted: false,
 	Start: 0,
@@ -590,8 +590,8 @@ var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoPlay: false,
 	AutoFocus: true,
+	ShowCenterPlayButton: false,
 	MediaMode: 'audio',
-	UIMode: 'minimal',
 	Volume: 0.8,
 	Muted: false,
 	Start: 0,
@@ -911,7 +911,6 @@ var player = new Ayle(driver, {
 	ShowCenterPlayButton: true,
 	AutoFocus: true,
 	MediaMode: 'video',
-	UIMode: 'normal',
 	KeyboardArrowSeekStep: 10,
 	KeyboardAngleSeekStep: 'frame',
 	KeyboardFrameRateFallback: 30,
@@ -1384,7 +1383,6 @@ var player = new Ayle(driver, {
 	ShowCenterPlayButton: true,
 	AutoFocus: true,
 	MediaMode: 'audio',
-	UIMode: 'normal',
 	AudioVisual: {
 		Enabled: true
 	},
@@ -1715,8 +1713,8 @@ var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoPlay: false,
 	AutoFocus: true,
+	ShowCenterPlayButton: false,
 	MediaMode: 'video',
-	UIMode: 'minimal',
 	Volume: 0.8,
 	Muted: false,
 	Start: 0,
@@ -1761,8 +1759,8 @@ var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoPlay: false,
 	AutoFocus: true,
+	ShowCenterPlayButton: false,
 	MediaMode: 'audio',
-	UIMode: 'minimal',
 	Volume: 0.8,
 	Muted: false,
 	Start: 0,
@@ -1831,7 +1829,6 @@ var player = new Ayle(driver, {
 	ShowCenterPlayButton: true,
 	AutoFocus: true,
 	MediaMode: 'video',
-	UIMode: 'normal',
 	KeyboardArrowSeekStep: 10,
 	KeyboardAngleSeekStep: 'frame',
 	KeyboardFrameRateFallback: 30,
@@ -2053,7 +2050,6 @@ var player = new Ayle(driver, {
 	ShowCenterPlayButton: true,
 	AutoFocus: true,
 	MediaMode: 'audio',
-	UIMode: 'normal',
 	AudioVisual: {
 		Enabled: true
 	},

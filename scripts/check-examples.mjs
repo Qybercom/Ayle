@@ -189,6 +189,47 @@ if (
 )
 	throw new Error('Legacy MinimalInfo configuration remains after Overlay migration');
 
+const uiModeSources = [
+	overlayCore,
+	overlayREADME,
+	overlayBootstrap,
+	await fs.readFile(path.join(examples, 'low-level.html'), 'utf8'),
+	await fs.readFile(path.join(examples, 'embedded.html'), 'utf8'),
+	await fs.readFile(path.join(examples, 'angular/src/app/app.component.ts'), 'utf8'),
+	await fs.readFile(path.join(examples, 'react/src/App.tsx'), 'utf8'),
+	await fs.readFile(path.join(root, 'bindings/angular/src/lib/types.ts'), 'utf8'),
+	await fs.readFile(path.join(root, 'bindings/react/src/index.d.ts'), 'utf8')
+];
+
+for (const source of uiModeSources) {
+	for (const token of [
+		'UIMode',
+		'SetUIMode',
+		'uiModeChange',
+		'ApplyUIMode',
+		'ayle-ui-minimal',
+		'ayle-ui-normal',
+		'ayle-minimal-hidden'
+	]) {
+		if (source.indexOf(token) !== -1)
+			throw new Error('Legacy UI mode regression: found ' + token);
+	}
+}
+
+if (
+	overlayCore.indexOf('AyleUI.prototype.ApplyUIComposition = function ()') === -1 ||
+	overlayCore.indexOf("classList.toggle('ayle-ui-headerless'") === -1 ||
+	overlayCore.indexOf("classList.toggle('ayle-has-track-compact'") === -1 ||
+	overlayCore.indexOf("!this._hasOverlayItem('track:compact')") === -1
+)
+	throw new Error('Declarative UI composition state is incomplete');
+
+if (
+	overlayCore.indexOf('var topSpace = Math.max(0, containerRect.top - padding);') === -1 ||
+	overlayCore.indexOf('var bottomSpace = Math.max(0, viewportHeight - containerRect.bottom - padding);') === -1
+)
+	throw new Error('Popover positioning must use viewport-aware top/bottom placement');
+
 const initCore = await fs.readFile(path.join(root, 'ayle.js'), 'utf8');
 const initBootstrap = await fs.readFile(path.join(root, 'ayle-bootstrap.js'), 'utf8');
 

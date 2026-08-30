@@ -478,7 +478,6 @@ export interface AyleEventMap {
 	stateChange: AyleState;
 	mediaModeChange: string;
 	uiChange: Record<string, any>;
-	uiModeChange: string;
 	audioVisualChange: Record<string, any>;
 	artworkSlideshowChange: AyleArtworkSlideshowChangeEvent;
 	artworkSlideshowStart: AyleArtworkSlideshowStartEvent;

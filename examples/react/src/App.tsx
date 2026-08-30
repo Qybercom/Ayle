@@ -17,8 +17,8 @@ const HTTP = {
 const MINIMAL_VIDEO = {
 	AutoPlay: false,
 	AutoFocus: true,
+	ShowCenterPlayButton: false,
 	MediaMode: 'video',
-	UIMode: 'minimal',
 	UI: {
 		Header: [],
 		Track: ['title', 'chapter'],
@@ -69,7 +69,6 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 		ShowCenterPlayButton: true,
 		AutoFocus: true,
 		MediaMode: mediaMode,
-		UIMode: 'normal',
 		KeyboardArrowSeekStep: 10,
 		KeyboardAngleSeekStep: 'frame',
 		KeyboardFrameRateFallback: 30,

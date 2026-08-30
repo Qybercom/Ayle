@@ -484,7 +484,6 @@ export interface AyleEventMap {
 	stateChange: AyleState;
 	mediaModeChange: string;
 	uiChange: Record<string, any>;
-	uiModeChange: string;
 	audioVisualChange: Record<string, any>;
 	artworkSlideshowChange: AyleArtworkSlideshowChangeEvent;
 	artworkSlideshowStart: AyleArtworkSlideshowStartEvent;
@@ -567,7 +566,6 @@ export interface AyleEventHandlers {
 	stateChange?: (data: AyleEventMap['stateChange'], instance: AyleInstance) => void;
 	mediaModeChange?: (data: AyleEventMap['mediaModeChange'], instance: AyleInstance) => void;
 	uiChange?: (data: AyleEventMap['uiChange'], instance: AyleInstance) => void;
-	uiModeChange?: (data: AyleEventMap['uiModeChange'], instance: AyleInstance) => void;
 	audioVisualChange?: (data: AyleEventMap['audioVisualChange'], instance: AyleInstance) => void;
 	artworkSlideshowChange?: (data: AyleEventMap['artworkSlideshowChange'], instance: AyleInstance) => void;
 	artworkSlideshowStart?: (data: AyleEventMap['artworkSlideshowStart'], instance: AyleInstance) => void;

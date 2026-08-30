@@ -27,8 +27,8 @@ export class AppComponent {
 	readonly MinimalVideo = {
 		AutoPlay: false,
 		AutoFocus: true,
+		ShowCenterPlayButton: false,
 		MediaMode: 'video',
-		UIMode: 'minimal',
 		UI: {
 			Header: [],
 			Track: ['title', 'chapter'],
@@ -130,7 +130,6 @@ export class AppComponent {
 			ShowCenterPlayButton: true,
 			AutoFocus: true,
 			MediaMode: mediaMode,
-			UIMode: 'normal',
 			KeyboardArrowSeekStep: 10,
 			KeyboardAngleSeekStep: 'frame',
 			KeyboardFrameRateFallback: 30,

@@ -15,7 +15,7 @@
 	--ayle-hint-safe-top: 16px;
 	--ayle-icon-color: #eaeaea;
 	--ayle-icon-hover-color: #fff;
-	--ayle-minimal-subtitle-stack: 0px;
+	--ayle-compact-subtitle-stack: 0px;
 	--ayle-subtitle-background: rgba(0, 0, 0, .72);
 	--ayle-subtitle-border-radius: 8px;
 	--ayle-subtitle-bottom: 64px;
@@ -2174,7 +2174,7 @@
 
 
 /* -------------------------------------------------------------------------
- * Audio mode / minimal UI
+ * Audio mode / compact declarative UI
  * ---------------------------------------------------------------------- */
 
 .ayle-audio-cover {
@@ -2222,28 +2222,24 @@
 	min-height: var(--ayle-audio-visual-min-height);
 }
 
-.ayle-ui-minimal.ayle-audio-no-visual {
+.ayle-ui-headerless.ayle-has-track-compact.ayle-audio-no-visual {
 	background: transparent;
 }
 
-.ayle-ui-minimal.ayle-audio-no-visual .ayle-controls {
+.ayle-ui-headerless.ayle-has-track-compact.ayle-audio-no-visual .ayle-controls {
 	background: rgba(0, 0, 0, .82);
 	border-radius: 8px;
 }
 
-.ayle-minimal-hidden {
-	display: none !important;
-}
-
-.ayle-ui-minimal .ayle-controls {
+.ayle-ui-headerless.ayle-has-track-compact .ayle-controls {
 	opacity: 1 !important;
 }
 
-.ayle-ui-minimal.ayle-audio-no-visual.controls-hidden {
+.ayle-ui-headerless.ayle-has-track-compact.ayle-audio-no-visual.controls-hidden {
 	cursor: default;
 }
 
-.ayle-ui-minimal.ayle-audio-no-visual.controls-hidden .ayle-controls {
+.ayle-ui-headerless.ayle-has-track-compact.ayle-audio-no-visual.controls-hidden .ayle-controls {
 	opacity: 1;
 	pointer-events: auto;
 }
@@ -2255,7 +2251,7 @@
 }
 
 /* Keep the compact timeline useful even on narrow audio layouts. */
-.ayle-ui-minimal .ayle-timeline {
+.ayle-ui-headerless.ayle-has-track-compact .ayle-timeline {
 	min-width: 80px;
 	flex: 1 1 auto;
 }
@@ -2279,14 +2275,14 @@
 }
 
 
-/* Minimal UI keeps the last control away from the player's right edge. */
-.ayle-ui-minimal .ayle-controls {
+/* Compact headerless UI keeps the last control away from the player's right edge. */
+.ayle-ui-headerless.ayle-has-track-compact .ayle-controls {
 	padding-right: 8px;
 }
 
 
 /* -------------------------------------------------------------------------
- * Minimal UI - Now Playing popup
+ * Compact track overlay - Now Playing popup
  * ---------------------------------------------------------------------- */
 
 .ayle-overlay-track-compact {
@@ -2334,7 +2330,7 @@
 	transform: translateY(6px);
 }
 
-.ayle-ui-minimal.ayle-audio-no-visual .ayle-overlay-track-compact.is-enabled.is-visible {
+.ayle-ui-headerless.ayle-has-track-compact.ayle-audio-no-visual .ayle-overlay-track-compact.is-enabled.is-visible {
 	visibility: visible;
 	opacity: 1;
 	transform: translateY(0);
@@ -2414,14 +2410,12 @@
 	text-decoration: underline;
 }
 
-.ayle-ui-minimal.ayle-audio-no-visual {
+.ayle-ui-headerless.ayle-has-track-compact.ayle-audio-no-visual {
 	position: relative;
 	overflow: visible;
 }
 
 
-.ayle:not(.ayle-ui-minimal) .ayle-overlay-track-compact,
-.ayle-ui-minimal:not(.ayle-audio-no-visual) .ayle-overlay-track-compact,
 .ayle-overlay-track-compact:not(.is-enabled) {
 	visibility: hidden;
 	opacity: 0;
@@ -2430,18 +2424,18 @@
 
 
 /* -------------------------------------------------------------------------
- * Minimal UI loading indicator
+ * Compact UI loading indicator
  *
  * The large centered spinner competes visually with the compact control bar.
- * In minimal mode loading/seeking is represented directly on the timeline as
+ * In compact headerless composition loading/seeking is represented directly on the timeline as
  * an indeterminate moving segment.
  * ---------------------------------------------------------------------- */
 
-.ayle-ui-minimal .ayle-loading {
+.ayle-ui-headerless.ayle-has-track-compact .ayle-loading {
 	display: none !important;
 }
 
-.ayle-ui-minimal .ayle-timeline:after {
+.ayle-ui-headerless.ayle-has-track-compact .ayle-timeline:after {
 	content: "";
 	position: absolute;
 	left: 0;
@@ -2456,12 +2450,12 @@
 	pointer-events: none;
 }
 
-.ayle-ui-minimal.is-loading .ayle-timeline:after {
+.ayle-ui-headerless.ayle-has-track-compact.is-loading .ayle-timeline:after {
 	opacity: .9;
-	animation: ayle-minimal-loading 1s ease-in-out infinite;
+	animation: ayle-compact-loading 1s ease-in-out infinite;
 }
 
-@keyframes ayle-minimal-loading {
+@keyframes ayle-compact-loading {
 	0% {
 		transform: translate(-110%, -50%);
 	}
@@ -2475,7 +2469,7 @@
 
 
 /* -------------------------------------------------------------------------
- * Minimal popup interaction
+ * Compact popup interaction
  * ---------------------------------------------------------------------- */
 
 .ayle-overlay-track-compact,
@@ -2490,19 +2484,19 @@
 }
 
 /* -------------------------------------------------------------------------
- * Minimal loading indicator v2
+ * Compact loading indicator v2
  *
  * Keep loading entirely inside the timeline and make it much less prominent.
  * The old travelling :after segment is disabled; the track itself gets a
  * subtle animated shimmer instead.
  * ---------------------------------------------------------------------- */
 
-.ayle-ui-minimal .ayle-timeline:after {
+.ayle-ui-headerless.ayle-has-track-compact .ayle-timeline:after {
 	display: none !important;
 	animation: none !important;
 }
 
-.ayle-ui-minimal.is-loading .ayle-timeline:before {
+.ayle-ui-headerless.ayle-has-track-compact.is-loading .ayle-timeline:before {
 	background:
 		linear-gradient(
 			90deg,
@@ -2513,10 +2507,10 @@
 			rgba(255, 255, 255, .10) 100%
 		);
 	background-size: 220% 100%;
-	animation: ayle-minimal-loading-shimmer 1.35s linear infinite;
+	animation: ayle-compact-loading-shimmer 1.35s linear infinite;
 }
 
-@keyframes ayle-minimal-loading-shimmer {
+@keyframes ayle-compact-loading-shimmer {
 	from {
 		background-position: 100% 0;
 	}
@@ -2526,7 +2520,7 @@
 }
 
 
-/* Timed text inside the minimal Now Playing popup. */
+/* Timed text inside the compact Now Playing popup. */
 .ayle-overlay-track-compact-subtitle {
 	display: none;
 	margin-top: 5px;
@@ -2547,7 +2541,7 @@
 
 
 /* -------------------------------------------------------------------------
- * Dedicated minimal subtitle strip
+ * Dedicated audio subtitle strip
  * ---------------------------------------------------------------------- */
 
 .ayle-overlay-track-compact-subtitle {
@@ -2609,16 +2603,16 @@
 /* The Now Playing popup stacks outside the subtitle strip when both share
  * the same side. */
 .ayle-overlay-track-compact.ayle-overlay-track-compact-top {
-	bottom: calc(100% + var(--ayle-minimal-subtitle-stack));
+	bottom: calc(100% + var(--ayle-compact-subtitle-stack));
 }
 
 .ayle-overlay-track-compact.ayle-overlay-track-compact-bottom {
-	top: calc(100% + var(--ayle-minimal-subtitle-stack));
+	top: calc(100% + var(--ayle-compact-subtitle-stack));
 }
 
 
 /* -------------------------------------------------------------------------
- * Minimal subtitle popup v3: transient, content-sized, overlapping
+ * Audio subtitle popup v3: transient, content-sized, overlapping
  * ---------------------------------------------------------------------- */
 
 .ayle-overlay-audio-subtitles {
@@ -2660,63 +2654,63 @@
 }
 
 
-/* Timeline hover preview must render above minimal subtitle popup. */
+/* Timeline hover preview must render above the audio subtitle popup. */
 .ayle-preview {
 	z-index: 20;
 }
 
 
 /* -------------------------------------------------------------------------
- * Minimal timeline preview stacking context fix
+ * Compact timeline preview stacking context fix
  *
  * .ayle-preview lives inside .ayle-controls.  A child's z-index cannot
  * escape the stacking context of its parent, so raising only .ayle-preview
  * was insufficient while .ayle-controls stayed at z-index: 10 and the
  * subtitle popup lived at z-index: 18.
  *
- * Keep the complete minimal controls stacking context above subtitles, while
+ * Keep the complete compact controls stacking context above subtitles, while
  * Now Playing remains above both.
  * ---------------------------------------------------------------------- */
 
-.ayle-ui-minimal .ayle-controls {
+.ayle-ui-headerless.ayle-has-track-compact .ayle-controls {
 	z-index: 20;
 }
 
-.ayle-ui-minimal .ayle-preview {
+.ayle-ui-headerless.ayle-has-track-compact .ayle-preview {
 	z-index: 21;
 }
 
-.ayle-ui-minimal .ayle-overlay-audio-subtitles {
+.ayle-ui-headerless.ayle-has-track-compact .ayle-overlay-audio-subtitles {
 	z-index: 18;
 }
 
-.ayle-ui-minimal .ayle-overlay-track-compact {
+.ayle-ui-headerless.ayle-has-track-compact .ayle-overlay-track-compact {
 	z-index: 22;
 }
 
 
 /* -------------------------------------------------------------------------
- * Minimal UI Settings popover positioning
+ * Viewport-aware Settings popover positioning
  * ---------------------------------------------------------------------- */
 
-.ayle-ui-minimal .ayle-popover.ayle-popover-top {
+.ayle-popover.ayle-popover-top {
 	top: auto;
 	bottom: calc(100% + 6px);
 }
 
-.ayle-ui-minimal .ayle-popover.ayle-popover-bottom {
+.ayle-popover.ayle-popover-bottom {
 	top: calc(100% + 6px);
 	bottom: auto;
 }
 
 /* Settings must stay above subtitles / controls / Now Playing. */
-.ayle-ui-minimal .ayle-settings-popover {
+.ayle-ui-headerless.ayle-has-track-compact .ayle-settings-popover {
 	z-index: 40;
 }
 
-/* On narrow screens minimal UI popovers also stay ayle-relative. */
+/* On narrow screens popovers also stay player-relative. */
 @media (max-width: 760px) {
-	.ayle-ui-minimal .ayle-popover.ayle-popover-top {
+	.ayle-popover.ayle-popover-top {
 		position: absolute;
 		left: auto;
 		right: 0;
@@ -2724,7 +2718,7 @@
 		bottom: calc(100% + 6px);
 	}
 
-	.ayle-ui-minimal .ayle-popover.ayle-popover-bottom {
+	.ayle-popover.ayle-popover-bottom {
 		position: absolute;
 		left: auto;
 		right: 0;
@@ -2889,20 +2883,20 @@
 }
 
 
-/* Audio minimal UI: menus must be visually above both external popups. */
-.ayle-ui-minimal.ayle-media-audio .ayle-controls {
+/* Compact audio UI: menus must be visually above both external popups. */
+.ayle-has-track-compact.ayle-media-audio .ayle-controls {
 	z-index: 30;
 }
 
-.ayle-ui-minimal.ayle-media-audio .ayle-popover {
+.ayle-has-track-compact.ayle-media-audio .ayle-popover {
 	z-index: 40;
 }
 
-.ayle-ui-minimal.ayle-media-audio .ayle-overlay-track-compact {
+.ayle-has-track-compact.ayle-media-audio .ayle-overlay-track-compact {
 	z-index: 22;
 }
 
-.ayle-ui-minimal.ayle-media-audio .ayle-overlay-audio-subtitles {
+.ayle-has-track-compact.ayle-media-audio .ayle-overlay-audio-subtitles {
 	z-index: 18;
 }
 

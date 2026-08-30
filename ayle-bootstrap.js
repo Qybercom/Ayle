@@ -122,7 +122,6 @@
 
 	AyleBootstrap.RegisterPreset('video', {
 		Player: {
-			UIMode: 'normal',
 			AutoPlay: false,
 			AutoPlayMode: 'muted',
 			FontFamily: 'Calibri, sans-serif',
@@ -177,7 +176,7 @@
 	AyleBootstrap.RegisterPreset('audio', {
 		Player: {
 			MediaMode: 'audio',
-			UIMode: 'minimal',
+			ShowCenterPlayButton: false,
 			AutoFocus: true,
 			FontFamily: 'Calibri, sans-serif',
 			AudioVisual: {
