@@ -13,7 +13,7 @@
 		<header class="example-hero">
 			<p class="example-eyebrow">Ayle / Low-level API</p>
 			<h1>Four canonical low-level examples</h1>
-			<p>Each card is runnable and shows the exact JavaScript used below it: minimal video, minimal audio, full video and full audio.</p>
+			<p>Each card is runnable and shows the exact manual driver → player → UI assembly. The minimal-video card also includes the equivalent Ayle.Init() shortcut as a separate example.</p>
 		</header>
 		<div class="example-grid">
 
@@ -28,6 +28,11 @@
 			<div class="example-preview">
 				<div class="ayle" id="player-minimal-video" tabindex="0">
 	<video class="ayle-video" preload="metadata"></video>
+	<div class="ayle-artwork-slideshow" aria-hidden="true">
+		<img class="ayle-artwork-slide ayle-artwork-slide-a" alt="">
+		<img class="ayle-artwork-slide ayle-artwork-slide-b" alt="">
+	</div>
+	<img class="ayle-audio-cover" alt="">
 	<div class="ayle-surface"></div>
 	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
 		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
@@ -245,10 +250,9 @@
 	</div>
 </div>
 			</div>
-			<div class="example-code-title">JavaScript</div>
+			<div class="example-code-title">Manual low-level assembly</div>
 			<pre class="example-code"><code>var root = document.getElementById('player-minimal-video');
-var video = root.querySelector('.ayle-video');
-var driver = new AyleMSEMediaDriver(video);
+var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoPlay: false,
 	AutoFocus: true,
@@ -293,6 +297,26 @@ http.Load(function (error, source, metadata) {
 	else
 		console.log(source, metadata);
 });</code></pre>
+			<div class="example-code-title">Same player with Ayle.Init()</div>
+			<pre class="example-code"><code>var player = Ayle.Init('#player-minimal-video', AyleMSEMediaDriver, {
+	AutoPlay: false,
+	AutoFocus: true,
+	MediaMode: 'video',
+	UIMode: 'minimal',
+	Volume: 0.8,
+	Muted: false,
+	Start: 0,
+	UI: {
+		Header: [],
+		Track: ['title', 'chapter'],
+		Channel: ['name', 'profile'],
+		Overlay: ['track:compact'],
+		Toolbar: {
+			Layout: 'inline',
+			Items: ['play', 'timeline', 'time', 'volume']
+		}
+	}
+});</code></pre>
 		</section>
 		<section class="example-card">
 			<div class="example-card-header">
@@ -305,6 +329,11 @@ http.Load(function (error, source, metadata) {
 			<div class="example-preview">
 				<div class="ayle" id="player-minimal-audio" tabindex="0">
 	<video class="ayle-video" preload="metadata"></video>
+	<div class="ayle-artwork-slideshow" aria-hidden="true">
+		<img class="ayle-artwork-slide ayle-artwork-slide-a" alt="">
+		<img class="ayle-artwork-slide ayle-artwork-slide-b" alt="">
+	</div>
+	<img class="ayle-audio-cover" alt="">
 	<div class="ayle-surface"></div>
 	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
 		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
@@ -524,8 +553,7 @@ http.Load(function (error, source, metadata) {
 			</div>
 			<div class="example-code-title">JavaScript</div>
 			<pre class="example-code"><code>var root = document.getElementById('player-minimal-audio');
-var video = root.querySelector('.ayle-video');
-var driver = new AyleMSEMediaDriver(video);
+var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoPlay: false,
 	AutoFocus: true,
@@ -585,6 +613,11 @@ http.Load(function (error, source, metadata) {
 			<div class="example-preview">
 				<div class="ayle" id="player-full-video" tabindex="0">
 	<video class="ayle-video" preload="metadata"></video>
+	<div class="ayle-artwork-slideshow" aria-hidden="true">
+		<img class="ayle-artwork-slide ayle-artwork-slide-a" alt="">
+		<img class="ayle-artwork-slide ayle-artwork-slide-b" alt="">
+	</div>
+	<img class="ayle-audio-cover" alt="">
 	<div class="ayle-surface"></div>
 	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
 		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
@@ -804,8 +837,7 @@ http.Load(function (error, source, metadata) {
 			</div>
 			<div class="example-code-title">JavaScript</div>
 			<pre class="example-code"><code>var root = document.getElementById('player-full-video');
-var video = root.querySelector('.ayle-video');
-var driver = new AyleMSEMediaDriver(video);
+var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoSelectFirstSubtitleTrack: false,
 	AutoPlay: false,
@@ -1038,6 +1070,11 @@ http.Load(function (error, source, metadata) {
 			<div class="example-preview">
 				<div class="ayle" id="player-full-audio" tabindex="0">
 	<video class="ayle-video" preload="metadata"></video>
+	<div class="ayle-artwork-slideshow" aria-hidden="true">
+		<img class="ayle-artwork-slide ayle-artwork-slide-a" alt="">
+		<img class="ayle-artwork-slide ayle-artwork-slide-b" alt="">
+	</div>
+	<img class="ayle-audio-cover" alt="">
 	<div class="ayle-surface"></div>
 	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
 		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
@@ -1257,8 +1294,7 @@ http.Load(function (error, source, metadata) {
 			</div>
 			<div class="example-code-title">JavaScript</div>
 			<pre class="example-code"><code>var root = document.getElementById('player-full-audio');
-var video = root.querySelector('.ayle-video');
-var driver = new AyleMSEMediaDriver(video);
+var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoSelectFirstSubtitleTrack: false,
 	AutoPlay: false,
@@ -1493,8 +1529,7 @@ http.Load(function (error, source, metadata) {
 	</main>
 <script>
 var root = document.getElementById('player-minimal-video');
-var video = root.querySelector('.ayle-video');
-var driver = new AyleMSEMediaDriver(video);
+var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoPlay: false,
 	AutoFocus: true,
@@ -1540,8 +1575,7 @@ http.Load(function (error, source, metadata) {
 		console.log(source, metadata);
 });
 var root = document.getElementById('player-minimal-audio');
-var video = root.querySelector('.ayle-video');
-var driver = new AyleMSEMediaDriver(video);
+var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoPlay: false,
 	AutoFocus: true,
@@ -1590,8 +1624,7 @@ http.Load(function (error, source, metadata) {
 		console.log(source, metadata);
 });
 var root = document.getElementById('player-full-video');
-var video = root.querySelector('.ayle-video');
-var driver = new AyleMSEMediaDriver(video);
+var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoSelectFirstSubtitleTrack: false,
 	AutoPlay: false,
@@ -1813,8 +1846,7 @@ http.Load(function (error, source, metadata) {
 		console.log(source, metadata);
 });
 var root = document.getElementById('player-full-audio');
-var video = root.querySelector('.ayle-video');
-var driver = new AyleMSEMediaDriver(video);
+var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
 	AutoSelectFirstSubtitleTrack: false,
 	AutoPlay: false,

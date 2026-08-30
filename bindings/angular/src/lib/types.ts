@@ -280,6 +280,10 @@ export interface AyleHTTP {
 
 export interface AyleDriver {
 	Element?: HTMLMediaElement;
+	UI?: AyleUI | null;
+	Options?: Record<string, any>;
+	SetUI?(ui: AyleUI): any;
+	SetOptions?(options: Record<string, any>): any;
 	Destroy?(): any;
 	[key: string]: any;
 }

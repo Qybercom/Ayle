@@ -50,8 +50,25 @@ const lowLevel = await fs.readFile(
 if (lowLevel.indexOf("document.createElement('video')") !== -1)
 	throw new Error('Low-level example must use the media element inside a complete Ayle DOM');
 
-if (lowLevel.indexOf("root.querySelector('.ayle-video')") === -1)
-	throw new Error('Low-level example is missing its DOM media binding');
+if (lowLevel.indexOf("new AyleMSEMediaDriver()") === -1)
+	throw new Error('Low-level example must construct drivers without DOM dependencies');
+
+if (
+	lowLevel.indexOf('Same player with Ayle.Init()') === -1 ||
+	lowLevel.indexOf("Ayle.Init('#player-minimal-video', AyleMSEMediaDriver") === -1
+)
+	throw new Error('Low-level example must include a clearly labeled Ayle.Init() example');
+
+if (lowLevel.indexOf("new AyleMSEMediaDriver(video)") !== -1)
+	throw new Error('Low-level example must not inject media elements through driver constructors');
+
+if (
+	(lowLevel.match(/class="ayle-artwork-slideshow"/g) || []).length !== 4 ||
+	(lowLevel.match(/class="ayle-artwork-slide ayle-artwork-slide-a"/g) || []).length !== 4 ||
+	(lowLevel.match(/class="ayle-artwork-slide ayle-artwork-slide-b"/g) || []).length !== 4 ||
+	(lowLevel.match(/class="ayle-audio-cover"/g) || []).length !== 4
+)
+	throw new Error('Low-level player DOM must include the complete artwork/slideshow structure');
 
 const embedded = await fs.readFile(
 	path.join(examples, 'embedded.html'),
@@ -159,11 +176,11 @@ const initBootstrap = await fs.readFile(path.join(root, 'ayle-bootstrap.js'), 'u
 for (const token of [
 	'Ayle.Init = function (target, Driver, options, driverOptions)',
 	"document.querySelector(target)",
-	"element.querySelector('.ayle-media, .ayle-video, .ayle-audio')",
-	'player.Element = element;',
-	'player.MediaElement = mediaElement;',
-	'player.Driver = driver;',
-	'player.UI = ui;'
+	'var driver = new Driver();',
+	"typeof driver.SetOptions === 'function'",
+	'var player = new Ayle(driver, options || {});',
+	'new AyleUI(element, player);',
+	'player.Driver.SetUI(this);'
 ]) {
 	if (initCore.indexOf(token) === -1)
 		throw new Error('Ayle.Init regression: missing token ' + token);
@@ -171,5 +188,25 @@ for (const token of [
 
 if (initBootstrap.indexOf('global.Ayle.Init(') === -1)
 	throw new Error('Bootstrap must assemble runtime instances through Ayle.Init');
+
+if (
+	core.indexOf('AyleMediaDriver.prototype.SetUI = function (ui)') === -1 ||
+	core.indexOf('AyleMediaDriver.prototype.SetOptions = function (options)') === -1
+)
+	throw new Error('Media driver UI/options contract is incomplete');
+
+if (
+	core.indexOf('function AyleHTML5MediaDriver (element)') !== -1 ||
+	core.indexOf('function AyleMSEMediaDriver (element)') !== -1 ||
+	core.indexOf('new Driver(mediaElement') !== -1
+)
+	throw new Error('Media driver constructors must not receive UI or option dependencies');
+
+if (
+	core.indexOf('return this.Element ? this.Element.volume : this._volume;') === -1 ||
+	core.indexOf('return this.Element ? this.Element.muted : this._muted;') === -1 ||
+	core.indexOf('return this.Element ? this.Element.playbackRate : this._playbackRate;') === -1
+)
+	throw new Error('HTML5 driver must support state access before SetUI()');
 
 console.log('Ayle canonical examples validation passed: 4 APIs × 4 variants.');

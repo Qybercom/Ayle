@@ -1106,7 +1106,6 @@
 		if (config.File !== undefined) httpOptions.File = config.File;
 
 		this.CreateDOM(element, config);
-		var video = element.querySelector('.ayle-media');
 		if (!driverConfig.Type)
 			throw new Error(
 				'Player driver is not configured. ' +
@@ -1127,7 +1126,7 @@
 		);
 		var driver = player.Driver;
 		var ui = player.UI;
-		video = player.MediaElement;
+		var video = player.MediaElement;
 		var http = null;
 		var instance = {
 			ID: id,

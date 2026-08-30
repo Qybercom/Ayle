@@ -161,10 +161,22 @@
 
 	function AyleMediaDriver () {
 		AyleEventEmitter.call(this);
+		this.UI = null;
+		this.Options = {};
 	}
 
 	AyleMediaDriver.prototype = Object.create(AyleEventEmitter.prototype);
 	AyleMediaDriver.prototype.constructor = AyleMediaDriver;
+
+	AyleMediaDriver.prototype.SetUI = function (ui) {
+		this.UI = ui || null;
+		return this;
+	};
+
+	AyleMediaDriver.prototype.SetOptions = function (options) {
+		this.Options = options || {};
+		return this;
+	};
 
 	AyleMediaDriver.prototype.Load = function (source) {};
 	AyleMediaDriver.prototype.Play = function () {};
@@ -222,24 +234,60 @@
 	};
 
 
-	function AyleHTML5MediaDriver (element) {
+	function AyleHTML5MediaDriver () {
 		AyleMediaDriver.call(this);
 
-		this.Element = element;
+		this.Element = null;
 		this.Source = null;
 		this.RequestHeaders = {};
 		this.NativeSubtitles = false;
 		this._subtitleSourceTracks = [];
 		this._subtitleObjectURLs = [];
 		this._chapterTextTracks = [];
-
-		this._bindEvents();
+		this._eventsBound = false;
+		this._volume = 1;
+		this._muted = false;
+		this._playbackRate = 1;
 	}
 
 	AyleHTML5MediaDriver.prototype = Object.create(AyleMediaDriver.prototype);
 	AyleHTML5MediaDriver.prototype.constructor = AyleHTML5MediaDriver;
 
-	AyleHTML5MediaDriver.prototype.SetRequestHeader = function (name, value) {
+	AyleHTML5MediaDriver.prototype.SetUI = function (ui) {
+		AyleMediaDriver.prototype.SetUI.call(this, ui);
+
+		var element = ui && ui.MediaElement ? ui.MediaElement : null;
+
+		if (!element)
+			throw new Error('Ayle media driver requires a UI with a media element');
+
+		if (this.Element && this.Element !== element && this._eventsBound)
+			throw new Error('Ayle media driver is already bound to another media element');
+
+		this.Element = element;
+
+		if (!this._eventsBound) {
+			this._bindEvents();
+			this._bindDriverMediaEvents();
+			this._eventsBound = true;
+		}
+
+		this.Element.volume = this._volume;
+		this.Element.muted = this._muted;
+		this.Element.playbackRate = this._playbackRate;
+
+		return this;
+	};
+
+	AyleHTML5MediaDriver.prototype.SetOptions = function (options) {
+		AyleMediaDriver.prototype.SetOptions.call(this, options);
+		return this;
+	};
+
+	AyleHTML5MediaDriver.prototype._bindDriverMediaEvents = function () {
+	};
+
+		AyleHTML5MediaDriver.prototype.SetRequestHeader = function (name, value) {
 		if (!name)
 			return this;
 
@@ -836,27 +884,36 @@
 		if (volume > 1)
 			volume = 1;
 
-		this.Element.volume = volume;
+		this._volume = volume;
+
+		if (this.Element)
+			this.Element.volume = volume;
 	};
 
 	AyleHTML5MediaDriver.prototype.GetVolume = function () {
-		return this.Element.volume;
+		return this.Element ? this.Element.volume : this._volume;
 	};
 
 	AyleHTML5MediaDriver.prototype.SetMuted = function (muted) {
-		this.Element.muted = !!muted;
+		this._muted = !!muted;
+
+		if (this.Element)
+			this.Element.muted = this._muted;
 	};
 
 	AyleHTML5MediaDriver.prototype.GetMuted = function () {
-		return this.Element.muted;
+		return this.Element ? this.Element.muted : this._muted;
 	};
 
 	AyleHTML5MediaDriver.prototype.SetPlaybackRate = function (rate) {
-		this.Element.playbackRate = rate;
+		this._playbackRate = rate;
+
+		if (this.Element)
+			this.Element.playbackRate = rate;
 	};
 
 	AyleHTML5MediaDriver.prototype.GetPlaybackRate = function () {
-		return this.Element.playbackRate;
+		return this.Element ? this.Element.playbackRate : this._playbackRate;
 	};
 
 	AyleHTML5MediaDriver.prototype.SetAudioTrack = function (track) {
@@ -1962,8 +2019,8 @@
 	};
 
 
-	function AyleMSEMediaDriver (element) {
-		AyleHTML5MediaDriver.call(this, element);
+	function AyleMSEMediaDriver () {
+		AyleHTML5MediaDriver.call(this);
 
 		this.Source = null;
 		this._mediaSource = null;
@@ -1987,15 +2044,19 @@
 		this._endOfStreamPending = false;
 		this._endOfStreamDone = false;
 
-		var self = this;
-		var pump = function () { self._pumpStreams(); };
-		this.Element.addEventListener('timeupdate', pump);
-		this.Element.addEventListener('waiting', pump);
-		this.Element.addEventListener('playing', pump);
 	}
 
 	AyleMSEMediaDriver.prototype = Object.create(AyleHTML5MediaDriver.prototype);
 	AyleMSEMediaDriver.prototype.constructor = AyleMSEMediaDriver;
+
+	AyleMSEMediaDriver.prototype._bindDriverMediaEvents = function () {
+		var self = this;
+		var pump = function () { self._pumpStreams(); };
+
+		this.Element.addEventListener('timeupdate', pump);
+		this.Element.addEventListener('waiting', pump);
+		this.Element.addEventListener('playing', pump);
+	};
 
 	AyleMSEMediaDriver.CodecCandidates = [
 		{ Type: 'video/mp4', Codecs: [
@@ -6549,8 +6610,12 @@ function Ayle (driver, options) {
 		}
 		this.MediaElement = element.querySelector('.ayle-media, .ayle-video, .ayle-audio');
 
-		if (player)
-			player.MediaElement = this.MediaElement || (player.Driver ? player.Driver.Element : null);
+		if (player) {
+			player.MediaElement = this.MediaElement || null;
+
+			if (player.Driver && typeof player.Driver.SetUI === 'function')
+				player.Driver.SetUI(this);
+		}
 		this.AudioCover = element.querySelector('.ayle-audio-cover');
 		this.ArtworkSlideshow = element.querySelector('.ayle-artwork-slideshow');
 		this.ArtworkSlideA = element.querySelector('.ayle-artwork-slide-a');
@@ -12234,19 +12299,16 @@ function Ayle (driver, options) {
 		if (typeof Driver !== 'function')
 			throw new Error('Ayle driver constructor is required');
 
-		var mediaElement = element.querySelector('.ayle-media, .ayle-video, .ayle-audio');
+		var driver = new Driver();
 
-		if (!mediaElement)
-			throw new Error('Ayle media element was not found');
+		if (
+			driverOptions !== undefined &&
+			typeof driver.SetOptions === 'function'
+		)
+			driver.SetOptions(driverOptions || {});
 
-		var driver = new Driver(mediaElement, driverOptions || {});
 		var player = new Ayle(driver, options || {});
-		var ui = new AyleUI(element, player);
-
-		player.Element = element;
-		player.MediaElement = mediaElement;
-		player.Driver = driver;
-		player.UI = ui;
+		new AyleUI(element, player);
 
 		return player;
 	};

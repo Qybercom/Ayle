@@ -84,9 +84,32 @@ var element = document.getElementById('player-minimal-audio');
 var player = Ayle.Init(element, AyleMSEMediaDriver, options);
 ```
 
-An instance created this way exposes the assembled runtime objects as `player.Element`, `player.MediaElement`, `player.Driver`, and `player.UI`. An optional fourth argument is forwarded to the driver constructor for custom/future driver options.
+An instance created this way exposes the assembled runtime objects as `player.Element`, `player.MediaElement`, `player.Driver`, and `player.UI`.
 
-The explicit low-level construction (`new Driver(...)`, `new Ayle(...)`, `new AyleUI(...)`) remains available as an escape hatch and is intentionally demonstrated by `examples/low-level.html`.
+Drivers are dependency-free at construction time. The driver contract receives its dependencies explicitly through `SetUI(ui)` and `SetOptions(options)`. `Ayle.Init()` calls `SetOptions()` for the optional fourth argument and `AyleUI` calls `SetUI()` after the media element is resolved:
+
+```js
+var player = Ayle.Init(
+	'#player',
+	AyleMSEMediaDriver,
+	playerOptions,
+	driverOptions
+);
+```
+
+The equivalent explicit low-level assembly is:
+
+```js
+var root = document.querySelector('#player');
+var driver = new AyleMSEMediaDriver();
+
+driver.SetOptions(driverOptions);
+
+var player = new Ayle(driver, playerOptions);
+var ui = new AyleUI(root, player);
+```
+
+`new AyleUI(...)` supplies itself to the driver through `driver.SetUI(ui)`, so neither a media element nor options belong in a driver constructor. Both `Ayle.Init()` and the explicit assembly are demonstrated by `examples/low-level.html`.
 
 ## Loader attributes
 
