@@ -33,13 +33,30 @@ function run (command, args, cwd) {
 	return result.stdout;
 }
 
-function npmCommand () {
-	return process.platform === 'win32' ? 'npm.cmd' : 'npm';
+function runNpm (args, cwd) {
+	/*
+	 * Do not spawn npm.cmd directly on Windows. Recent Node versions can reject
+	 * direct .cmd execution through spawnSync() with EINVAL. npm exposes the
+	 * JavaScript CLI entrypoint in npm_execpath when launched through an npm
+	 * script, so run that entrypoint with the current Node executable instead.
+	 */
+	if (process.env.npm_execpath)
+		return run(process.execPath, [process.env.npm_execpath].concat(args), cwd);
+
+	if (process.platform === 'win32') {
+		const command = process.env.ComSpec || 'cmd.exe';
+		const escaped = ['npm'].concat(args).map(function (value) {
+			return '"' + String(value).replace(/"/g, '\\"') + '"';
+		}).join(' ');
+
+		return run(command, ['/d', '/s', '/c', escaped], cwd);
+	}
+
+	return run('npm', args, cwd);
 }
 
 async function pack (directory) {
-	const output = run(
-		npmCommand(),
+	const output = runNpm(
 		['pack', '--json', '--ignore-scripts', '--pack-destination', temporary, directory],
 		root
 	);
