@@ -21,9 +21,10 @@ export function Movie () {
 	return (
 		<AylePlayer
 			preset="video"
-			file="example.mkv"
 			driver="mse"
-			http={{
+			mediaProvider={{
+				Type: 'http',
+				File: 'example.mkv',
 				MetadataURL: '/media/metadata?file={file}',
 				TrackURL: '/media/track?file={file}&type={kind}&track={track}&start={time}'
 			}}
@@ -40,7 +41,7 @@ export function Movie () {
 }
 ```
 
-The binding is intentionally thin: Ayle core still owns playback, HTTP, tracks,
+The binding is intentionally thin: Ayle core still owns playback, media providers, tracks,
 subtitles, hints, Settings, and UI.
 
 ## Props
@@ -49,11 +50,11 @@ subtitles, hints, Settings, and UI.
 | --- | --- |
 | `id` | Ayle instance ID. |
 | `preset` | Ayle preset such as `video` or `audio`. |
-| `file` | Media identifier passed to `AyleHTTP`. |
+| `file` | Convenience shortcut for `MediaProvider.File`; defaults the provider type to `http` when no provider is supplied. |
 | `config` | Complete Ayle config object. |
 | `playerConfig` / `mediaConfig` | Split configuration form. |
 | `player` | Values merged into `config.Player`. |
-| `http` | Values merged into `config.HTTP`. |
+| `mediaProvider` | Values merged into `config.MediaProvider`; `Type` selects a registered media provider. |
 | `driver` | Driver type, normally `mse` or `html5`. |
 | `driverOptions` | Values merged into `Driver.Options`. |
 | `localization` | Locale string or localization object. Omit for browser auto-detection. |
@@ -66,7 +67,7 @@ subtitles, hints, Settings, and UI.
 | `reloadKey` | Recreates Ayle when the value changes. |
 | `className` / `style` | Applied to the host `<div>`. |
 
-The forwarded ref exposes `Element`, `Instance`, `Player`, `UI`, `HTTP`, and
+The forwarded ref exposes `Element`, `Instance`, `Player`, `UI`, `MediaProvider`, and
 `Reload()`.
 
 Core lifecycle cleanup is used on unmount, including React development Strict

@@ -17,9 +17,8 @@
 			<div class="example-preview">
 				<ayle-player
 					id="angular-minimal-video"
-					file="example.mkv"
 					driver="mse"
-					[http]="HTTP"
+					[mediaProvider]="MinimalVideoMediaProvider"
 					[player]="MinimalVideo">
 				</ayle-player>
 			</div>
@@ -38,9 +37,8 @@
 			<div class="example-preview">
 				<ayle-player
 					id="angular-minimal-audio"
-					file="example.mp3"
 					driver="mse"
-					[http]="HTTP"
+					[mediaProvider]="MinimalAudioMediaProvider"
 					[player]="MinimalAudio">
 				</ayle-player>
 			</div>
@@ -59,10 +57,9 @@
 			<div class="example-preview">
 				<ayle-player
 					id="angular-full-video"
-					file="example.mkv"
 					driver="mse"
 					settings="localStorage"
-					[http]="FullVideoHTTP"
+					[mediaProvider]="FullVideoMediaProvider"
 					[player]="FullVideo"
 					[events]="FullEvents"
 					(ayleEvent)="OnEvent($event)">
@@ -83,10 +80,9 @@
 			<div class="example-preview">
 				<ayle-player
 					id="angular-full-audio"
-					file="example.mp3"
 					driver="mse"
 					settings="localStorage"
-					[http]="FullAudioHTTP"
+					[mediaProvider]="FullAudioMediaProvider"
 					[player]="FullAudio"
 					[events]="FullEvents"
 					(ayleEvent)="OnEvent($event)">

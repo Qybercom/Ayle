@@ -50,7 +50,8 @@ const exports = [
 	'AyleMediaDriver',
 	'AyleHTML5MediaDriver',
 	'AyleMSEMediaDriver',
-	'AyleHTTP',
+	'AyleMediaProvider',
+	'AyleHTTPMediaProvider',
 	'AyleUI'
 ];
 
@@ -70,7 +71,8 @@ const bootstrapESMSource = await fs.readFile(
 for (const token of [
 	"from './ayle.esm.js'",
 	'globalThis.Ayle = Ayle;',
-	'globalThis.AyleHTTP = AyleHTTP;',
+	'globalThis.AyleMediaProvider = AyleMediaProvider;',
+	'globalThis.AyleHTTPMediaProvider = AyleHTTPMediaProvider;',
 	'globalThis.AyleUI = AyleUI;',
 	'globalThis.AyleHTML5MediaDriver = AyleHTML5MediaDriver;',
 	'globalThis.AyleMSEMediaDriver = AyleMSEMediaDriver;'

@@ -283,7 +283,7 @@ player.On('error', function (error) {
 	console.error('player-minimal-video error:', error);
 });
 
-var http = new AyleHTTP(player, {
+var mediaProvider = Ayle.CreateMediaProvider('http', player, {
 	File: 'example.mkv',
 	MetadataURL: '../../server/metadata.php?file={file}',
 	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
@@ -292,7 +292,7 @@ var http = new AyleHTTP(player, {
 	}
 });
 
-http.Load(function (error, source, metadata) {
+mediaProvider.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else
@@ -568,7 +568,7 @@ player.On('error', function (error) {
 	console.error('player-minimal-audio error:', error);
 });
 
-var http = new AyleHTTP(player, {
+var mediaProvider = Ayle.CreateMediaProvider('http', player, {
 	File: 'example.mp3',
 	MetadataURL: '../../server/metadata.php?file={file}',
 	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
@@ -577,7 +577,7 @@ var http = new AyleHTTP(player, {
 	}
 });
 
-http.Load(function (error, source, metadata) {
+mediaProvider.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else
@@ -1087,7 +1087,7 @@ player.On('favoriteAction', function (context) {
 	console.log('player-full-video favorite button clicked:', context.Item.ID);
 });
 
-var http = new AyleHTTP(player, {
+var mediaProvider = Ayle.CreateMediaProvider('http', player, {
 	File: 'example.mkv',
 	MetadataURL: '../../server/metadata.php?file={file}',
 	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
@@ -1140,7 +1140,7 @@ var http = new AyleHTTP(player, {
 	SubtitleType: 'text/vtt'
 });
 
-http.Load(function (error, source, metadata) {
+mediaProvider.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else
@@ -1650,7 +1650,7 @@ player.On('favoriteAction', function (context) {
 	console.log('player-full-audio favorite button clicked:', context.Item.ID);
 });
 
-var http = new AyleHTTP(player, {
+var mediaProvider = Ayle.CreateMediaProvider('http', player, {
 	File: 'example.mp3',
 	MetadataURL: '../../server/metadata.php?file={file}',
 	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
@@ -1703,7 +1703,7 @@ var http = new AyleHTTP(player, {
 	SubtitleType: 'text/vtt'
 });
 
-http.Load(function (error, source, metadata) {
+mediaProvider.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else
@@ -1731,11 +1731,12 @@ http.Load(function (error, source, metadata) {
 						data-ayle-preset="video"
 						data-ayle-auto="false">
 					{
-						"File": "example.mkv",
 						"Driver": {
 							"Type": "mse"
 						},
-						"HTTP": {
+						"MediaProvider": {
+							"Type": "http",
+							"File": "example.mkv",
 							"MetadataURL": "../../server/metadata.php?file={file}",
 							"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
 							"Stream": {
@@ -1753,11 +1754,12 @@ http.Load(function (error, source, metadata) {
 	data-ayle-preset="video"
 	data-ayle-auto="false"&gt;
 {
-	"File": "example.mkv",
 	"Driver": {
 		"Type": "mse"
 	},
-	"HTTP": {
+	"MediaProvider": {
+		"Type": "http",
+		"File": "example.mkv",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
 		"Stream": {
@@ -1789,11 +1791,12 @@ bootstrap.InitConfig(config);</code></pre>
 						data-ayle-preset="audio"
 						data-ayle-auto="false">
 					{
-						"File": "example.mp3",
 						"Driver": {
 							"Type": "mse"
 						},
-						"HTTP": {
+						"MediaProvider": {
+							"Type": "http",
+							"File": "example.mp3",
 							"MetadataURL": "../../server/metadata.php?file={file}",
 							"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
 							"Stream": {
@@ -1811,11 +1814,12 @@ bootstrap.InitConfig(config);</code></pre>
 	data-ayle-preset="audio"
 	data-ayle-auto="false"&gt;
 {
-	"File": "example.mp3",
 	"Driver": {
 		"Type": "mse"
 	},
-	"HTTP": {
+	"MediaProvider": {
+		"Type": "http",
+		"File": "example.mp3",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
 		"Stream": {
@@ -1848,7 +1852,7 @@ player.On('error', function (error) {
 	console.error('player-minimal-video error:', error);
 });
 
-var http = new AyleHTTP(player, {
+var mediaProvider = Ayle.CreateMediaProvider('http', player, {
 	File: 'example.mkv',
 	MetadataURL: '../../server/metadata.php?file={file}',
 	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
@@ -1857,7 +1861,7 @@ var http = new AyleHTTP(player, {
 	}
 });
 
-http.Load(function (error, source, metadata) {
+mediaProvider.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else
@@ -1878,7 +1882,7 @@ player.On('error', function (error) {
 	console.error('player-minimal-audio error:', error);
 });
 
-var http = new AyleHTTP(player, {
+var mediaProvider = Ayle.CreateMediaProvider('http', player, {
 	File: 'example.mp3',
 	MetadataURL: '../../server/metadata.php?file={file}',
 	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
@@ -1887,7 +1891,7 @@ var http = new AyleHTTP(player, {
 	}
 });
 
-http.Load(function (error, source, metadata) {
+mediaProvider.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else
@@ -2146,7 +2150,7 @@ player.On('favoriteAction', function (context) {
 	console.log('player-full-video favorite button clicked:', context.Item.ID);
 });
 
-var http = new AyleHTTP(player, {
+var mediaProvider = Ayle.CreateMediaProvider('http', player, {
 	File: 'example.mkv',
 	MetadataURL: '../../server/metadata.php?file={file}',
 	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
@@ -2199,7 +2203,7 @@ var http = new AyleHTTP(player, {
 	SubtitleType: 'text/vtt'
 });
 
-http.Load(function (error, source, metadata) {
+mediaProvider.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else
@@ -2458,7 +2462,7 @@ player.On('favoriteAction', function (context) {
 	console.log('player-full-audio favorite button clicked:', context.Item.ID);
 });
 
-var http = new AyleHTTP(player, {
+var mediaProvider = Ayle.CreateMediaProvider('http', player, {
 	File: 'example.mp3',
 	MetadataURL: '../../server/metadata.php?file={file}',
 	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
@@ -2511,7 +2515,7 @@ var http = new AyleHTTP(player, {
 	SubtitleType: 'text/vtt'
 });
 
-http.Load(function (error, source, metadata) {
+mediaProvider.Load(function (error, source, metadata) {
 	if (error)
 		console.error(error);
 	else

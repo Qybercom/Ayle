@@ -15,7 +15,7 @@ import {
 import type {
 	AyleAnyAngularEvent,
 	AyleEventMap,
-	AyleHTTP,
+	AyleMediaProvider,
 	AyleInstance,
 	AylePlayerCore,
 	AyleUI
@@ -39,7 +39,7 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 	@Input() playerConfig?: Record<string, any>;
 	@Input() mediaConfig?: Record<string, any>;
 	@Input() player?: Record<string, any>;
-	@Input() http?: Record<string, any>;
+	@Input() mediaProvider?: Record<string, any>;
 	@Input() driver?: 'mse' | 'html5' | string;
 	@Input() driverOptions?: Record<string, any>;
 	@Input() localization?: string | Record<string, string> | null;
@@ -86,8 +86,8 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 		return this.InstanceValue ? this.InstanceValue.UI : null;
 	}
 
-	get HTTP (): AyleHTTP | null {
-		return this.InstanceValue ? this.InstanceValue.HTTP : null;
+	get MediaProvider (): AyleMediaProvider | null {
+		return this.InstanceValue ? this.InstanceValue.MediaProvider : null;
 	}
 
 	ngAfterViewInit (): void {
@@ -127,14 +127,24 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 		if (this.preset !== undefined)
 			config.Preset = this.preset;
 
-		if (this.file !== undefined)
-			config.File = this.file;
-
 		if (this.player !== undefined)
 			config.Player = AyleBootstrap.Merge(config.Player || {}, this.player);
 
-		if (this.http !== undefined)
-			config.HTTP = AyleBootstrap.Merge(config.HTTP || {}, this.http);
+		if (this.mediaProvider !== undefined)
+			config.MediaProvider = AyleBootstrap.Merge(
+				config.MediaProvider || {},
+				this.mediaProvider
+			);
+
+		if (this.file !== undefined) {
+			if (!config.MediaProvider)
+				config.MediaProvider = {};
+
+			if (config.MediaProvider.Type === undefined)
+				config.MediaProvider.Type = 'http';
+
+			config.MediaProvider.File = this.file;
+		}
 
 		if (this.driver !== undefined) {
 			if (!config.Driver)

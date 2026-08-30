@@ -66,6 +66,35 @@
 		return result;
 	};
 
+	AyleBootstrap.MergeMediaProvider = function (base, override) {
+		var hasBase = AyleBootstrap.IsObject(base);
+		var hasOverride = AyleBootstrap.IsObject(override);
+
+		if (!hasBase)
+			return hasOverride ? AyleBootstrap.Clone(override) : null;
+
+		if (!hasOverride)
+			return AyleBootstrap.Clone(base);
+
+		var baseType = base.Type !== undefined ?
+			String(base.Type).toLowerCase() : 'http';
+		var overrideType = override.Type !== undefined ?
+			String(override.Type).toLowerCase() : baseType;
+
+		/*
+		 * Provider-specific options must never leak from one provider type into
+		 * another. A concrete Type switch replaces the inherited provider
+		 * descriptor instead of deep-merging transport-specific settings.
+		 */
+		if (
+			override.Type !== undefined &&
+			overrideType !== baseType
+		)
+			return AyleBootstrap.Clone(override);
+
+		return AyleBootstrap.Merge(base, override);
+	};
+
 
 	/*
 	 * Ayle core owns the preset registry.
@@ -118,6 +147,64 @@
 
 	AyleBootstrap.prototype.RemovePreset = function (name) {
 		return AyleBootstrap.RemovePreset(name);
+	};
+
+	AyleBootstrap.RegisterMediaProvider = function (name, Provider) {
+		if (!global.Ayle || typeof global.Ayle.RegisterMediaProvider !== 'function')
+			throw new Error('Ayle media provider registry is not available');
+
+		global.Ayle.RegisterMediaProvider(name, Provider);
+		return AyleBootstrap;
+	};
+
+	AyleBootstrap.GetMediaProvider = function (name) {
+		if (!global.Ayle || typeof global.Ayle.GetMediaProvider !== 'function')
+			return null;
+
+		return global.Ayle.GetMediaProvider(name);
+	};
+
+	AyleBootstrap.HasMediaProvider = function (name) {
+		return !!(
+			global.Ayle &&
+			typeof global.Ayle.HasMediaProvider === 'function' &&
+			global.Ayle.HasMediaProvider(name)
+		);
+	};
+
+	AyleBootstrap.RemoveMediaProvider = function (name) {
+		if (!global.Ayle || typeof global.Ayle.RemoveMediaProvider !== 'function')
+			return false;
+
+		return global.Ayle.RemoveMediaProvider(name);
+	};
+
+	AyleBootstrap.CreateMediaProvider = function (name, player, options) {
+		if (!global.Ayle || typeof global.Ayle.CreateMediaProvider !== 'function')
+			throw new Error('Ayle media provider registry is not available');
+
+		return global.Ayle.CreateMediaProvider(name, player, options);
+	};
+
+	AyleBootstrap.prototype.RegisterMediaProvider = function (name, Provider) {
+		AyleBootstrap.RegisterMediaProvider(name, Provider);
+		return this;
+	};
+
+	AyleBootstrap.prototype.GetMediaProvider = function (name) {
+		return AyleBootstrap.GetMediaProvider(name);
+	};
+
+	AyleBootstrap.prototype.HasMediaProvider = function (name) {
+		return AyleBootstrap.HasMediaProvider(name);
+	};
+
+	AyleBootstrap.prototype.RemoveMediaProvider = function (name) {
+		return AyleBootstrap.RemoveMediaProvider(name);
+	};
+
+	AyleBootstrap.prototype.CreateMediaProvider = function (name, player, options) {
+		return AyleBootstrap.CreateMediaProvider(name, player, options);
 	};
 
 	AyleBootstrap.prototype.EnsureSettingsItem = function (order, name, before) {
@@ -511,24 +598,37 @@
 		var result = {};
 		var integration = {};
 
-		if (media.File !== undefined)
-			result.File = media.File;
+		if (media.MediaProvider !== undefined)
+			result.MediaProvider = AyleBootstrap.Clone(media.MediaProvider);
+
+		if (media.File !== undefined) {
+			if (!AyleBootstrap.IsObject(result.MediaProvider))
+				result.MediaProvider = { Type: 'http' };
+
+			if (result.MediaProvider.Type === undefined)
+				result.MediaProvider.Type = 'http';
+
+			result.MediaProvider.File = media.File;
+		}
 
 		if (media.Files instanceof Array) {
-			result.Files = AyleBootstrap.Clone(media.Files);
+			if (!AyleBootstrap.IsObject(result.MediaProvider))
+				result.MediaProvider = { Type: 'http' };
 
-			if (result.File === undefined && media.Files.length) {
+			if (result.MediaProvider.Type === undefined)
+				result.MediaProvider.Type = 'http';
+
+			result.MediaProvider.Files = AyleBootstrap.Clone(media.Files);
+
+			if (result.MediaProvider.File === undefined && media.Files.length) {
 				var first = media.Files[0];
 
 				if (typeof first === 'string')
-					result.File = first;
+					result.MediaProvider.File = first;
 				else if (AyleBootstrap.IsObject(first) && first.File !== undefined)
-					result.File = first.File;
+					result.MediaProvider.File = first.File;
 			}
 		}
-
-		if (media.HTTP !== undefined)
-			result.HTTP = AyleBootstrap.Clone(media.HTTP);
 
 		if (media.Driver !== undefined)
 			result.Driver = AyleBootstrap.Clone(media.Driver);
@@ -586,10 +686,17 @@
 	};
 
 	AyleBootstrap.prototype.ComposeConfig = function (playerConfig, mediaConfig) {
-		return AyleBootstrap.Merge(
-			AyleBootstrap.Clone(playerConfig || {}),
-			this.NormalizeMediaConfig(mediaConfig || {})
-		);
+		var player = AyleBootstrap.Clone(playerConfig || {});
+		var media = this.NormalizeMediaConfig(mediaConfig || {});
+		var result = AyleBootstrap.Merge(player, media);
+
+		if (player.MediaProvider !== undefined || media.MediaProvider !== undefined)
+			result.MediaProvider = AyleBootstrap.MergeMediaProvider(
+				player.MediaProvider,
+				media.MediaProvider
+			);
+
+		return result;
 	};
 
 	AyleBootstrap.prototype.NormalizeConfig = function (config) {
@@ -704,8 +811,15 @@
 
 				config.MediaConfig.File = file;
 			}
-			else
-				config.File = file;
+			else {
+				if (!AyleBootstrap.IsObject(config.MediaProvider))
+					config.MediaProvider = { Type: 'http' };
+
+				if (config.MediaProvider.Type === undefined)
+					config.MediaProvider.Type = 'http';
+
+				config.MediaProvider.File = file;
+			}
 		}
 
 		return config;
@@ -949,7 +1063,19 @@
 		config = config || this.ParseConfig(element);
 		config = this.ApplyDataAttributes(element, config);
 		config = this.NormalizeConfig(config);
+
+		var instanceMediaProviderConfig = config.MediaProvider;
 		config = AyleBootstrap.Merge(this.Options, config);
+
+		if (
+			this.Options.MediaProvider !== undefined ||
+			instanceMediaProviderConfig !== undefined
+		)
+			config.MediaProvider = AyleBootstrap.MergeMediaProvider(
+				this.Options.MediaProvider,
+				instanceMediaProviderConfig
+			);
+
 		config = this.ApplyPreset(config);
 
 		var id = element.getAttribute('data-ayle') || config.ID || ('ayle-' + (++this._counter));
@@ -993,11 +1119,16 @@
 			);
 
 		playerOptions = this._resolveLocalization(playerOptions);
-		var httpOptions = AyleBootstrap.Merge(
-			this.LoaderHTTP || {},
-			config.HTTP || {}
-		);
-		if (config.File !== undefined) httpOptions.File = config.File;
+
+		var mediaProviderConfig = AyleBootstrap.IsObject(config.MediaProvider) ?
+			AyleBootstrap.Clone(config.MediaProvider) : null;
+		var mediaProviderType = mediaProviderConfig ?
+			String(mediaProviderConfig.Type || 'http').toLowerCase() : '';
+		var mediaProviderOptions = mediaProviderConfig ?
+			AyleBootstrap.Clone(mediaProviderConfig) : null;
+
+		if (mediaProviderOptions)
+			delete mediaProviderOptions.Type;
 
 		this.CreateDOM(element, config);
 		if (!driverConfig.Type)
@@ -1021,7 +1152,7 @@
 		var driver = player.Driver;
 		var ui = player.UI;
 		var video = player.MediaElement;
-		var http = null;
+		var mediaProvider = null;
 		var instance = {
 			ID: id,
 			Element: element,
@@ -1029,8 +1160,9 @@
 			Driver: driver,
 			Player: player,
 			UI: ui,
-			HTTP: null,
-			HTTPOptions: AyleBootstrap.Clone(httpOptions),
+			MediaProvider: null,
+			MediaProviderOptions: mediaProviderConfig ?
+				AyleBootstrap.Clone(mediaProviderConfig) : null,
 			Config: config
 		};
 		element.__playerInstance = instance;
@@ -1049,10 +1181,14 @@
 
 		this.BindDataEvents(instance, element);
 
-		if (httpOptions.File) {
-			http = new global.AyleHTTP(player, httpOptions);
-			instance.HTTP = http;
-			http.Load(function (error, source, metadata) {
+		if (mediaProviderConfig) {
+			mediaProvider = global.Ayle.CreateMediaProvider(
+				mediaProviderType,
+				player,
+				mediaProviderOptions || {}
+			);
+			instance.MediaProvider = mediaProvider;
+			mediaProvider.Load(function (error, source, metadata) {
 				instance.Source = source || null;
 				instance.Metadata = metadata || null;
 				instance.Error = error || null;
@@ -1108,6 +1244,12 @@
 
 		if (!instance)
 			return false;
+
+		if (
+			instance.MediaProvider &&
+			typeof instance.MediaProvider.Destroy === 'function'
+		)
+			instance.MediaProvider.Destroy();
 
 		if (instance.UI && typeof instance.UI.Destroy === 'function')
 			instance.UI.Destroy();
@@ -1302,28 +1444,36 @@
 		defaults.Driver.Options = parsedDriverOptions;
 	}
 
+	var mediaProviderType = AyleLoaderAttribute('data-ayle-media-provider');
+	if (mediaProviderType === null && query.mediaProvider !== undefined)
+		mediaProviderType = query.mediaProvider;
+	if (AyleLoaderTrim(mediaProviderType)) {
+		if (!defaults.MediaProvider) defaults.MediaProvider = {};
+		defaults.MediaProvider.Type = AyleLoaderTrim(mediaProviderType);
+	}
+
 	var metadataURL = AyleLoaderAttribute('data-ayle-url-metadata');
 	if (metadataURL === null && query.metadataURL !== undefined)
 		metadataURL = query.metadataURL;
 	if (AyleLoaderTrim(metadataURL)) {
-		if (!defaults.HTTP) defaults.HTTP = {};
-		defaults.HTTP.MetadataURL = AyleLoaderTrim(metadataURL);
+		if (!defaults.MediaProvider) defaults.MediaProvider = { Type: 'http' };
+		defaults.MediaProvider.MetadataURL = AyleLoaderTrim(metadataURL);
 	}
 
 	var trackURL = AyleLoaderAttribute('data-ayle-url-track');
 	if (trackURL === null && query.trackURL !== undefined)
 		trackURL = query.trackURL;
 	if (AyleLoaderTrim(trackURL)) {
-		if (!defaults.HTTP) defaults.HTTP = {};
-		defaults.HTTP.TrackURL = AyleLoaderTrim(trackURL);
+		if (!defaults.MediaProvider) defaults.MediaProvider = { Type: 'http' };
+		defaults.MediaProvider.TrackURL = AyleLoaderTrim(trackURL);
 	}
 
 	var skipInit = AyleLoaderAttribute('data-ayle-skip-init');
 	if (skipInit === null && query.skipInit !== undefined)
 		skipInit = query.skipInit;
 	if (skipInit !== null) {
-		if (!defaults.HTTP) defaults.HTTP = {};
-		defaults.HTTP.Stream = {
+		if (!defaults.MediaProvider) defaults.MediaProvider = { Type: 'http' };
+		defaults.MediaProvider.Stream = {
 			SkipInit: AyleLoaderBool(skipInit, true)
 		};
 	}
@@ -1388,23 +1538,17 @@
 
 		var bootstrap = new global.AyleBootstrap(defaults);
 
-		bootstrap.LoaderHTTP = {};
-
-		if (metadataURL)
-			bootstrap.LoaderHTTP.MetadataURL = AyleLoaderTrim(metadataURL);
-
-		if (trackURL)
-			bootstrap.LoaderHTTP.TrackURL = AyleLoaderTrim(trackURL);
-
 		bootstrap.Loader = {
 			Element: loaderScript || null,
+			MediaProvider: bootstrap.Options.MediaProvider ?
+				AyleBootstrap.Clone(bootstrap.Options.MediaProvider) : null,
 			MetadataURL: AyleLoaderTrim(metadataURL) || (
-				bootstrap.Options.HTTP ?
-					bootstrap.Options.HTTP.MetadataURL : null
+				bootstrap.Options.MediaProvider ?
+					bootstrap.Options.MediaProvider.MetadataURL : null
 			),
 			TrackURL: AyleLoaderTrim(trackURL) || (
-				bootstrap.Options.HTTP ?
-					bootstrap.Options.HTTP.TrackURL : null
+				bootstrap.Options.MediaProvider ?
+					bootstrap.Options.MediaProvider.TrackURL : null
 			),
 			SettingsStorage: AyleLoaderHasAttribute('data-ayle-settings') ?
 				AyleLoaderAttribute('data-ayle-settings') : null

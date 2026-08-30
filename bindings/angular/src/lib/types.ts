@@ -271,10 +271,18 @@ export interface AyleUI {
 	[key: string]: any;
 }
 
-export interface AyleHTTP {
+export interface AyleMediaProvider {
 	Player: AylePlayerCore;
 	Options: Record<string, any>;
-	File?: string;
+	Source?: AyleSource | null;
+	Metadata?: Record<string, any> | null;
+	Load(callback?: (error?: Error | null, source?: AyleSource | null, metadata?: Record<string, any> | null) => void): any;
+	Destroy?(): any;
+	[key: string]: any;
+}
+
+export interface AyleHTTPMediaProvider extends AyleMediaProvider {
+	SupportedCodecs?: string[];
 	[key: string]: any;
 }
 
@@ -295,8 +303,8 @@ export interface AyleInstance {
 	Driver: AyleDriver;
 	Player: AylePlayerCore;
 	UI: AyleUI;
-	HTTP: AyleHTTP | null;
-	HTTPOptions: Record<string, any>;
+	MediaProvider: AyleMediaProvider | null;
+	MediaProviderOptions: Record<string, any> | null;
 	Config: Record<string, any>;
 	Source?: AyleSource | null;
 	Metadata?: Record<string, any> | null;

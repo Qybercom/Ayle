@@ -277,10 +277,18 @@ export interface AyleUI {
 	[key: string]: any;
 }
 
-export interface AyleHTTP {
+export interface AyleMediaProvider {
 	Player: AylePlayerCore;
 	Options: Record<string, any>;
-	File?: string;
+	Source?: AyleSource | null;
+	Metadata?: Record<string, any> | null;
+	Load(callback?: (error?: Error | null, source?: AyleSource | null, metadata?: Record<string, any> | null) => void): any;
+	Destroy?(): any;
+	[key: string]: any;
+}
+
+export interface AyleHTTPMediaProvider extends AyleMediaProvider {
+	SupportedCodecs?: string[];
 	[key: string]: any;
 }
 
@@ -301,8 +309,8 @@ export interface AyleInstance {
 	Driver: AyleDriver;
 	Player: AylePlayerCore;
 	UI: AyleUI;
-	HTTP: AyleHTTP | null;
-	HTTPOptions: Record<string, any>;
+	MediaProvider: AyleMediaProvider | null;
+	MediaProviderOptions: Record<string, any> | null;
 	Config: Record<string, any>;
 	Source?: AyleSource | null;
 	Metadata?: Record<string, any> | null;
@@ -626,7 +634,7 @@ export interface AylePlayerHandle {
 	readonly Instance: AyleInstance | null;
 	readonly Player: AylePlayerCore | null;
 	readonly UI: AyleUI | null;
-	readonly HTTP: AyleHTTP | null;
+	readonly MediaProvider: AyleMediaProvider | null;
 	Reload(): AyleInstance | false;
 }
 
@@ -638,7 +646,7 @@ export interface AylePlayerProps {
 	playerConfig?: Record<string, any>;
 	mediaConfig?: Record<string, any>;
 	player?: Record<string, any>;
-	http?: Record<string, any>;
+	mediaProvider?: Record<string, any>;
 	driver?: 'mse' | 'html5' | string;
 	driverOptions?: Record<string, any>;
 	localization?: string | Record<string, string> | null;

@@ -71,7 +71,8 @@ const AyleSource = globalThis.AyleSource;
 const AyleMediaDriver = globalThis.AyleMediaDriver;
 const AyleHTML5MediaDriver = globalThis.AyleHTML5MediaDriver;
 const AyleMSEMediaDriver = globalThis.AyleMSEMediaDriver;
-const AyleHTTP = globalThis.AyleHTTP;
+const AyleMediaProvider = globalThis.AyleMediaProvider;
+const AyleHTTPMediaProvider = globalThis.AyleHTTPMediaProvider;
 const AyleUI = globalThis.AyleUI;
 
 export {
@@ -85,7 +86,8 @@ export {
 	AyleMediaDriver,
 	AyleHTML5MediaDriver,
 	AyleMSEMediaDriver,
-	AyleHTTP,
+	AyleMediaProvider,
+	AyleHTTPMediaProvider,
 	AyleUI
 };
 `;
@@ -103,14 +105,16 @@ function createBootstrapESM (source) {
 
 	return `import {
 	Ayle,
-	AyleHTTP,
+	AyleMediaProvider,
+	AyleHTTPMediaProvider,
 	AyleUI,
 	AyleHTML5MediaDriver,
 	AyleMSEMediaDriver
 } from './ayle.esm.js';
 
 globalThis.Ayle = Ayle;
-globalThis.AyleHTTP = AyleHTTP;
+globalThis.AyleMediaProvider = AyleMediaProvider;
+globalThis.AyleHTTPMediaProvider = AyleHTTPMediaProvider;
 globalThis.AyleUI = AyleUI;
 globalThis.AyleHTML5MediaDriver = AyleHTML5MediaDriver;
 globalThis.AyleMSEMediaDriver = AyleMSEMediaDriver;

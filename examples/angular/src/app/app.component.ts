@@ -16,13 +16,8 @@ import {
 	styleUrl: './app.component.css'
 })
 export class AppComponent {
-	readonly HTTP = {
-		MetadataURL: '/server/metadata.php?file={file}',
-		TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
-		Stream: {
-			SkipInit: true
-		}
-	};
+	readonly MinimalVideoMediaProvider = this.MinimalMediaProvider('example.mkv');
+	readonly MinimalAudioMediaProvider = this.MinimalMediaProvider('example.mp3');
 
 	readonly MinimalVideo = {
 		MediaMode: 'video'
@@ -32,8 +27,8 @@ export class AppComponent {
 		MediaMode: 'audio'
 	};
 
-	readonly FullVideoHTTP = this.FullHTTP('example.mkv');
-	readonly FullAudioHTTP = this.FullHTTP('example.mp3');
+	readonly FullVideoMediaProvider = this.FullMediaProvider('example.mkv');
+	readonly FullAudioMediaProvider = this.FullMediaProvider('example.mp3');
 	readonly FullVideo = this.FullPlayer('video');
 	readonly FullAudio = this.FullPlayer('audio');
 	readonly FullEvents = {
@@ -45,26 +40,23 @@ export class AppComponent {
 
 	readonly MinimalVideoCode = `<ayle-player
 	id="angular-minimal-video"
-	file="example.mkv"
 	driver="mse"
-	[http]="HTTP"
+	[mediaProvider]="MinimalVideoMediaProvider"
 	[player]="MinimalVideo">
 </ayle-player>`;
 
 	readonly MinimalAudioCode = `<ayle-player
 	id="angular-minimal-audio"
-	file="example.mp3"
 	driver="mse"
-	[http]="HTTP"
+	[mediaProvider]="MinimalAudioMediaProvider"
 	[player]="MinimalAudio">
 </ayle-player>`;
 
 	readonly FullVideoCode = `<ayle-player
 	id="angular-full-video"
-	file="example.mkv"
 	driver="mse"
 	settings="localStorage"
-	[http]="FullVideoHTTP"
+	[mediaProvider]="FullVideoMediaProvider"
 	[player]="FullVideo"
 	[events]="FullEvents"
 	(ayleEvent)="OnEvent($event)">
@@ -72,10 +64,9 @@ export class AppComponent {
 
 	readonly FullAudioCode = `<ayle-player
 	id="angular-full-audio"
-	file="example.mp3"
 	driver="mse"
 	settings="localStorage"
-	[http]="FullAudioHTTP"
+	[mediaProvider]="FullAudioMediaProvider"
 	[player]="FullAudio"
 	[events]="FullEvents"
 	(ayleEvent)="OnEvent($event)">
@@ -85,9 +76,22 @@ export class AppComponent {
 		console.log('Ayle Angular event:', event.Type, event.Data);
 	}
 
-	private FullHTTP (file: string) {
+	private MinimalMediaProvider (file: string) {
 		return {
-		File: file,
+			Type: 'http',
+			File: file,
+			MetadataURL: '/server/metadata.php?file={file}',
+			TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
+			Stream: {
+				SkipInit: true
+			}
+		};
+	}
+
+	private FullMediaProvider (file: string) {
+		return {
+		Type: 'http',
+			File: file,
 		MetadataURL: '/server/metadata.php?file={file}',
 		TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
 		VideoURL: '',

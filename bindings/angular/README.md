@@ -22,14 +22,18 @@ Import the Ayle stylesheet once:
 ```
 
 The binding exports the standalone `AylePlayerComponent`. It keeps playback,
-HTTP, tracks, subtitles, hints and UI inside Ayle core; Angular only owns
+media providers, tracks, subtitles, hints and UI inside Ayle core; Angular only owns
 component lifecycle, inputs and outputs.
+
+`mediaProvider` maps to `config.MediaProvider`; its `Type` selects a registered
+core provider. The optional `file` input is only a convenience shortcut for
+`MediaProvider.File` and defaults the provider type to `http` when needed.
 
 Common outputs are strongly typed: `ready`, `play`, `playing`, `pause`,
 `ended`, `error`, `buffering`, `timeUpdate`, `volumeChange`, `sourceChange`.
 The generic `ayleEvent` output exposes the complete built-in event stream.
 
-The component also exposes `Instance`, `Player`, `UI`, `HTTP`, `Element` and
+The component also exposes `Instance`, `Player`, `UI`, `MediaProvider`, `Element` and
 `Reload()` for `@ViewChild` access.
 
 For local development, `@qybercom/ayle` remains a `peerDependency` for the

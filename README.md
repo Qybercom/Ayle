@@ -31,7 +31,7 @@ The repository intentionally keeps four example entry points, each presented as 
 | `examples/angular/` | minimal-video, minimal-audio, full-video, full-audio |
 | `examples/react/` | minimal-video, minimal-audio, full-video, full-audio |
 
-The minimal variants demonstrate the smallest practical configuration for each media mode and intentionally omit values that already match Ayle defaults. The full variants are exhaustive reference examples: they explicitly enumerate the complete current Player and HTTP option surface, including nested/default-valued options, while also exercising integrations.
+The minimal variants demonstrate the smallest practical configuration for each media mode and intentionally omit values that already match Ayle defaults. The full variants are exhaustive reference examples: they explicitly enumerate the complete current Player and built-in HTTP MediaProvider option surface, including nested/default-valued options, while also exercising integrations.
 
 ## Quick start
 
@@ -40,6 +40,7 @@ The minimal variants demonstrate the smallest practical configuration for each m
     src="ayle-bootstrap.js"
     data-ayle-loader
     data-ayle-driver="mse"
+    data-ayle-media-provider="http"
     data-ayle-url-metadata="/media/metadata?file={file}"
     data-ayle-url-track="/media/track?file={file}&type={kind}&track={track}&start={time}">
 </script>
@@ -121,7 +122,7 @@ The table below is a quick overview. See **Configuration reference → `data-ayl
 | `data-ayle-volume="0..1"` | Set the global default initial volume. |
 | `data-ayle-start="seconds"` | Set the global default initial playback position. |
 | `data-ayle-muted="true|false"` | Set the global default muted state. |
-| `data-ayle-skip-init="true\|false"` | Set HTTP stream `SkipInit`. |
+| `data-ayle-skip-init="true\|false"` | Set the built-in HTTP `MediaProvider.Stream.SkipInit`. |
 
 The driver must be configured explicitly; there is no hidden MSE fallback.
 
@@ -161,10 +162,9 @@ Instance values override loader defaults.
         "Type": "mse",
         "Options": {}
     },
-    "MediaConfig": {
-        "File": "example.mkv"
-    },
-    "HTTP": {
+    "MediaProvider": {
+        "Type": "http",
+        "File": "example.mkv",
         "MetadataURL": "/media/metadata?file={file}",
         "TrackURL": "/media/track?file={file}&type={kind}&track={track}&start={time}",
         "Stream": {
@@ -176,7 +176,7 @@ Instance values override loader defaults.
 ```
 
 `Ayle` is the runtime class. `Player` is still the configuration section for
-player options. `MediaConfig` is the media/source side of split configuration.
+player options. `MediaProvider` selects and configures the media acquisition implementation. `MediaConfig` remains the media/source side of the optional split-configuration form.
 Do not rename the JSON `Player` key to `Ayle`.
 
 ## Configuration reference
@@ -193,9 +193,7 @@ A normal declarative config is an object with these top-level fields:
 | `Preset` | string / none | Bootstrap shortcut for `Player.Preset`. Built-in names are `video` and `audio`; registered custom presets use the shared Ayle core registry. |
 | `Player` | object / `{}` | Options passed to the `Ayle` runtime object. Fully documented below. |
 | `Driver` | object / required | Driver selection. `Driver.Type` must currently be `html5` or `mse`. |
-| `HTTP` | object / `{}` | Metadata and track loading configuration used by `AyleHTTP`. |
-| `File` | string / empty | Media identifier passed to `AyleHTTP`. Usually supplied by `data-ayle-file` or `MediaConfig.File`. |
-| `Files` | array / none | Accepted by `MediaConfig` normalization. If `File` is absent, the first string or first `{File: ...}` entry becomes `File`. The current bootstrap still loads one effective `File` at a time. |
+| `MediaProvider` | object / none | Media acquisition configuration. `MediaProvider.Type` selects a registered provider; `http` is built in. All remaining properties are provider-specific. |
 | `PlayerConfig` | object / none | Split-config envelope. Merged with normalized `MediaConfig` before normal initialization. |
 | `MediaConfig` | object / none | Media-oriented split configuration. See the dedicated table below. |
 
@@ -521,10 +519,11 @@ A number may be supplied to apply the same padding to all sides, or an object ma
 | `Callback` | function / none | Callback for a `callback` action: `Callback(action, hint, player, event)`. |
 | `Correct` | boolean / unspecified | Marks a quiz option as correct/incorrect for result highlighting. |
 
-### `HTTP` (`AyleHTTP` options)
+### `MediaProvider` (`AyleHTTPMediaProvider` options)
 
 | Option | Type / default | Description |
 | --- | --- | --- |
+| `Type` | string / `http` when omitted on an explicit provider descriptor | Registered provider name. Reserved by Ayle and not passed into the provider constructor options. |
 | `File` | string / empty | Media identifier substituted into `{file}` placeholders. |
 | `MetadataURL` | string / empty | Metadata endpoint template. `{file}` is replaced with the encoded file value. |
 | `TrackURL` | string / empty | Generic track endpoint template used when a per-kind URL is absent. Supports `{file}`, `{kind}`, `{track}` and usually `{time}` through stream mode. |
@@ -542,20 +541,20 @@ A number may be supplied to apply the same padding to all sides, or an object ma
 | `AudioType` | string / `audio/mp4` | MIME type used when generating audio tracks from metadata. |
 | `SubtitleType` | string / `text/vtt` | MIME type used for generated subtitle tracks. |
 
-#### `HTTP.CodecCandidates[]`
+#### `MediaProvider.CodecCandidates[]`
 
 | Option | Type / default | Description |
 | --- | --- | --- |
 | `Type` | string | MIME type tested by the active driver, for example `video/mp4`. |
 | `Codecs` | array of strings | Codec strings tested with `MediaSource.isTypeSupported()` or `HTMLMediaElement.canPlayType()`. |
 
-### `HTTP.Stream`
+### `MediaProvider.Stream`
 
-`HTTP.Stream` is copied into `AyleMediaVariant.Stream` / `AyleMediaTrack.Stream`. The MSE stream loader currently understands the following options:
+`MediaProvider.Stream` is copied into `AyleMediaVariant.Stream` / `AyleMediaTrack.Stream`. The MSE stream loader currently understands the following options:
 
 | Option | Type / default | Description |
 | --- | --- | --- |
-| `Mode` | `range`, `segments`, `time` / `time` when built by `AyleHTTP`, otherwise loader fallback `range` | Select byte-range loading, explicit segment descriptors, or time-addressed requests. |
+| `Mode` | `range`, `segments`, `time` / `time` when built by `AyleHTTPMediaProvider`, otherwise loader fallback `range` | Select byte-range loading, explicit segment descriptors, or time-addressed requests. |
 | `ChunkSize` | number / `2097152` | Byte size of each Range request in `range` mode. |
 | `BufferAhead` | number / `30` | Target buffered time ahead of the current position, in seconds. |
 | `BufferBehind` | number / `20` | Amount of old buffered media generally retained behind the playhead. |
@@ -576,8 +575,8 @@ A number may be supplied to apply the same padding to all sides, or an object ma
 | `GapTolerance` | number / `0.15` | Tolerance in seconds used when deciding whether the playback head is inside a buffered range. |
 | `MaxGapRetries` | number / `2` | Maximum repeated gap-repair attempts at the same playback position. |
 | `TimeEpsilon` | number / `0.001` | Small time tolerance used when validating and terminating time-addressed fragments. |
-| `Codec` | string / generated | Selected codec for the concrete stream. Normally injected by `AyleHTTP.BuildStreamOptions()`. |
-| `CodecHeader` | string / generated | Per-pipeline codec header name, normally copied from `HTTP.CodecHeader`. |
+| `Codec` | string / generated | Selected codec for the concrete stream. Normally injected by `AyleHTTPMediaProvider.BuildStreamOptions()`. |
+| `CodecHeader` | string / generated | Per-pipeline codec header name, normally copied from `MediaProvider.CodecHeader`. |
 | `CodecListHeader` | string / generated | Supported-codec-list header name. |
 | `CodecList` | array / generated | Supported codec list propagated into stream requests. |
 
@@ -597,9 +596,9 @@ A number may be supplied to apply the same padding to all sides, or an object ma
 
 | Option | Type / default | Description |
 | --- | --- | --- |
-| `File` | string / empty | Primary media identifier. |
-| `Files` | array / none | Optional media list. If `File` is missing, the first string or first object with `File` supplies the effective file. |
-| `HTTP` | object / none | Media-specific HTTP overrides. |
+| `File` | string / empty | Convenience shortcut normalized into `MediaProvider.File`; if no provider exists yet, `Type: 'http'` is assumed. |
+| `Files` | array / none | Optional media list normalized into `MediaProvider.Files`; if `MediaProvider.File` is absent, the first string or first object with `File` supplies it. |
+| `MediaProvider` | object / none | Provider descriptor. `Type` selects a registered provider and the remaining fields are provider-specific. |
 | `Driver` | object / none | Media-specific driver override. |
 | `Player` | object / none | Media-specific player option overrides. |
 | `Mode` | string / none | Shortcut mapped to `Player.MediaMode`. |
@@ -705,8 +704,9 @@ Public attributes are intended for embedding/configuration. Runtime/internal att
 | `data-ayle-loader` | boolean marker | Marks the script element used as the Ayle loader. `document.currentScript` is preferred; this marker is the fallback lookup. |
 | `data-ayle-driver` | `mse` or `html5` | Default driver for all declarative instances created by this loader. |
 | `data-ayle-driver-options` | JSON object | Default `Driver.Options`. Parsed as JSON. |
-| `data-ayle-url-metadata` | URL template | Default `HTTP.MetadataURL`. |
-| `data-ayle-url-track` | URL template | Default `HTTP.TrackURL`. |
+| `data-ayle-media-provider` | registered provider name | Default `MediaProvider.Type` for declarative instances. |
+| `data-ayle-url-metadata` | URL template | Default built-in HTTP `MediaProvider.MetadataURL`. |
+| `data-ayle-url-track` | URL template | Default built-in HTTP `MediaProvider.TrackURL`. |
 | `data-ayle-settings` | `localStorage`, `sessionStorage`, `cookie`, or empty | Global settings-persistence backend. Empty disables persistence; absence means no loader-level value. |
 | `data-ayle-localization` | locale key | Default player localization. |
 | `data-ayle-auto-focus` | boolean attribute/value | Default `Player.AutoFocus`. Bare/empty means true. |
@@ -716,7 +716,7 @@ Public attributes are intended for embedding/configuration. Runtime/internal att
 | `data-ayle-start` | seconds / `0` | Default `Player.Start`. Negative values are clamped to `0`. |
 | `data-ayle-muted` | boolean attribute/value | Default `Player.Muted`. Bare/empty means true. |
 | `data-ayle-auto-init` | boolean / `true` | Controls whether the bootstrap automatically runs `InitAll()`. |
-| `data-ayle-skip-init` | boolean | Default `HTTP.Stream.SkipInit`. |
+| `data-ayle-skip-init` | boolean | Default built-in HTTP `MediaProvider.Stream.SkipInit`. |
 
 #### Public instance attributes
 
@@ -725,7 +725,7 @@ Public attributes are intended for embedding/configuration. Runtime/internal att
 | `data-ayle` | string | Declares an instance and supplies its ID. It is also the default selector used by `InitAll()`. |
 | `data-ayle-auto` | `false` or other / enabled | Per-instance automatic initialization switch. Exactly `false` causes `InitAll()` to skip the element. |
 | `data-ayle-preset` | `video`, `audio`, or registered preset | Shortcut for top-level `Preset`. |
-| `data-ayle-file` | string | Shortcut for `File`; in split config it maps to `MediaConfig.File`. |
+| `data-ayle-file` | string | Shortcut for `MediaProvider.File`; in split config it maps through `MediaConfig.File`. |
 | `data-ayle-localization` | locale key | Overrides `Player.Localization` for this instance. |
 | `data-ayle-driver` | `mse` or `html5` | Overrides `Driver.Type`. |
 | `data-ayle-driver-options` | JSON object | Merged over inherited `Driver.Options`. |
@@ -821,7 +821,7 @@ Ayle.RegisterPreset('podcast', {
 `Player` contains partial player behaviour options. `UI` contains the partial
 UI composition. A preset cannot change `MediaMode`; `MediaMode`, `Preset` and
 nested `Player.UI` are ignored during preset registration so that media
-semantics stay explicit. HTTP/Driver/File configuration is not part of the
+semantics stay explicit. MediaProvider/Driver configuration is not part of the
 preset contract.
 
 Use a registered preset directly:
@@ -870,7 +870,8 @@ For declarative configuration, the top-level `Preset` shortcut and
 
 ```text
 Ayle
-AyleHTTP
+AyleMediaProvider
+AyleHTTPMediaProvider
 AyleUI
 AyleEventEmitter
 AyleMediaVariant
@@ -1125,8 +1126,7 @@ Hindi
 
 Recognized aliases include `en`, `en-US`, `ru`, `ru-RU`, `ru-MD`, `ro`, `ro-MD`, `md`, `md-MD`, `de`, `es`, `fr`, `zh`, `zh-CN`, `ja`, `el`, `it`, `tr`, `ar`, `hi` and `hi-IN`.
 
-Without an explicit localization, the bootstrap can resolve the browser
-language.
+Without an explicit localization, Ayle resolves the browser language automatically.
 
 ## CSS
 
@@ -1145,9 +1145,85 @@ sprite and loading spinner are embedded by `ayle-bootstrap.js`.
 `ayle-icons.svg` and `icons/*.svg` remain because the manual low-level
 examples contain hand-written UI markup and reference those assets directly.
 
-## HTTP integration
+## Media providers
 
-`AyleHTTP` supports URL templates using:
+Media acquisition is transport-independent. `AyleMediaProvider` is the base
+contract, while `AyleHTTPMediaProvider` is the built-in HTTP implementation.
+
+A canonical declarative configuration uses `MediaProvider`:
+
+```js
+MediaProvider: {
+	Type: 'http',
+	File: 'example.mkv',
+	MetadataURL: '/media/metadata?file={file}',
+	TrackURL: '/media/track?file={file}&type={kind}&track={track}&start={time}',
+	Stream: {
+		SkipInit: true
+	}
+}
+```
+
+`Type` is reserved by Ayle and selects a registered provider. The remaining
+properties are passed to that provider. `AyleBootstrap` stores the created
+provider on `instance.MediaProvider`; provider-specific configuration is exposed
+as `instance.MediaProviderOptions`.
+
+The provider contract intentionally stays small:
+
+```js
+function CustomMediaProvider (player, options) {
+	AyleMediaProvider.call(this, player, options);
+}
+
+CustomMediaProvider.prototype = Object.create(AyleMediaProvider.prototype);
+CustomMediaProvider.prototype.constructor = CustomMediaProvider;
+
+CustomMediaProvider.prototype.Load = function (callback) {
+	// Resolve a source using any transport, then:
+	// this.Source = source;
+	// this.Metadata = metadata;
+	// this.Player.Load(source);
+	// callback(null, source, metadata);
+};
+
+CustomMediaProvider.prototype.Destroy = function () {
+	AyleMediaProvider.prototype.Destroy.call(this);
+	return this;
+};
+```
+
+Providers are registered in the shared core registry:
+
+```js
+Ayle.RegisterMediaProvider('custom', CustomMediaProvider);
+Ayle.GetMediaProvider('custom');
+Ayle.HasMediaProvider('custom');
+Ayle.CreateMediaProvider('custom', player, options);
+Ayle.RemoveMediaProvider('custom');
+```
+
+Provider names are case-insensitive and normalized to lowercase. The built-in
+`http` provider is protected from overwrite/removal. `AyleBootstrap` exposes
+delegates for the same provider registry so declarative and framework bindings
+use the core registry rather than a second implementation.
+
+The low-level API can create the built-in provider through the registry:
+
+```js
+var mediaProvider = Ayle.CreateMediaProvider('http', player, {
+	File: 'example.mkv',
+	MetadataURL: '/media/metadata?file={file}',
+	TrackURL: '/media/track?file={file}&type={kind}&track={track}&start={time}'
+});
+
+mediaProvider.Load(function (error, source, metadata) {
+	if (error)
+		console.error(error);
+});
+```
+
+`AyleHTTPMediaProvider` supports URL templates using:
 
 ```text
 {file}
@@ -1158,12 +1234,12 @@ examples contain hand-written UI markup and reference those assets directly.
 
 `{kind}` may resolve to `video`, `audio`, `subtitle` or `artwork`.
 
-URLs under `../../server/...` in examples are integration placeholders. This archive
-does not contain a PHP backend.
+URLs under `../../server/...` in examples are integration placeholders. This
+archive does not contain a PHP backend.
 
 ### Codec negotiation
 
-Ayle distinguishes:
+The built-in HTTP provider distinguishes:
 
 ```text
 X-Media-Codec
@@ -1174,7 +1250,9 @@ X-Media-Codec-List
 path. `X-Media-Codec` is the preferred/fixed codec for one concrete pipeline or
 SourceBuffer. A backend should not treat them as interchangeable.
 
-`metadata.example.json` contains every metadata field currently consumed by `AyleHTTP`, including supported aliases/fallbacks, and intentionally omits backend/ffprobe fields that the player does not read.
+`metadata.example.json` contains every metadata field currently consumed by
+`AyleHTTPMediaProvider`, including supported aliases/fallbacks, and
+intentionally omits backend/ffprobe fields that the player does not read.
 
 ## MSE notes
 
@@ -1390,7 +1468,8 @@ the standalone source format:
 ```js
 import {
     Ayle,
-    AyleHTTP,
+    AyleMediaProvider,
+    AyleHTTPMediaProvider,
     AyleUI,
     AyleMSEMediaDriver
 } from '@qybercom/ayle';

@@ -97,6 +97,7 @@ if (embedded.indexOf('embedded-config-source') !== -1)
 
 
 const core = await fs.readFile(path.join(root, 'ayle.js'), 'utf8');
+const bootstrap = await fs.readFile(path.join(root, 'ayle-bootstrap.js'), 'utf8');
 const css = await fs.readFile(path.join(root, 'ayle.css'), 'utf8');
 
 if (
@@ -185,7 +186,8 @@ const fullStructuredOptions = {
 	]
 };
 
-const fullHTTPOptions = [
+const fullMediaProviderOptions = [
+	'Type',
 	'File',
 	'MetadataURL',
 	'TrackURL',
@@ -232,7 +234,7 @@ const hasOwn = function (object, name) {
 	return Object.prototype.hasOwnProperty.call(object || {}, name);
 };
 
-const validateFullObject = function (player, http, label) {
+const validateFullObject = function (player, mediaProvider, label) {
 	for (const name of fullPlayerOptions) {
 		if (!hasOwn(player, name))
 			throw new Error(label + ' full Player is missing option ' + name);
@@ -245,27 +247,27 @@ const validateFullObject = function (player, http, label) {
 		}
 	}
 
-	for (const name of fullHTTPOptions) {
-		if (!hasOwn(http, name))
-			throw new Error(label + ' full HTTP is missing option ' + name);
+	for (const name of fullMediaProviderOptions) {
+		if (!hasOwn(mediaProvider, name))
+			throw new Error(label + ' full MediaProvider is missing option ' + name);
 	}
 
 	for (const name of fullStreamOptions) {
-		if (!hasOwn(http.Stream, name))
-			throw new Error(label + ' full HTTP.Stream is missing suboption ' + name);
+		if (!hasOwn(mediaProvider.Stream, name))
+			throw new Error(label + ' full MediaProvider.Stream is missing suboption ' + name);
 	}
 
 	for (const name of ['URL', 'RangeStart', 'RangeEnd']) {
-		if (!hasOwn(http.Stream.Init, name))
-			throw new Error(label + ' full HTTP.Stream.Init is missing suboption ' + name);
+		if (!hasOwn(mediaProvider.Stream.Init, name))
+			throw new Error(label + ' full MediaProvider.Stream.Init is missing suboption ' + name);
 	}
 
-	if (!(http.Stream.Segments instanceof Array) || !http.Stream.Segments.length)
-		throw new Error(label + ' full HTTP.Stream.Segments must demonstrate a descriptor');
+	if (!(mediaProvider.Stream.Segments instanceof Array) || !mediaProvider.Stream.Segments.length)
+		throw new Error(label + ' full MediaProvider.Stream.Segments must demonstrate a descriptor');
 
 	for (const name of ['Start', 'End', 'URL', 'RangeStart', 'RangeEnd']) {
-		if (!hasOwn(http.Stream.Segments[0], name))
-			throw new Error(label + ' full HTTP.Stream.Segments[] is missing suboption ' + name);
+		if (!hasOwn(mediaProvider.Stream.Segments[0], name))
+			throw new Error(label + ' full MediaProvider.Stream.Segments[] is missing suboption ' + name);
 	}
 
 	for (const name of ['Title', 'Artist', 'Album', 'Artwork']) {
@@ -357,12 +359,12 @@ while ((embeddedMatch = embeddedConfigPattern.exec(embedded)) !== null)
 
 validateFullObject(
 	embeddedConfigs['embedded-full-video'].Player,
-	embeddedConfigs['embedded-full-video'].HTTP,
+	embeddedConfigs['embedded-full-video'].MediaProvider,
 	'embedded-full-video'
 );
 validateFullObject(
 	embeddedConfigs['embedded-full-audio'].Player,
-	embeddedConfigs['embedded-full-audio'].HTTP,
+	embeddedConfigs['embedded-full-audio'].MediaProvider,
 	'embedded-full-audio'
 );
 
@@ -399,6 +401,21 @@ const minimalDefaultNames = [
 	'HintSafeArea',
 	'Integration'
 ];
+
+for (const id of [
+	'embedded-minimal-video',
+	'embedded-minimal-audio',
+	'embedded-full-video',
+	'embedded-full-audio'
+]) {
+	const config = embeddedConfigs[id];
+
+	if (!config.MediaProvider || config.MediaProvider.Type !== 'http')
+		throw new Error(id + ' must use MediaProvider.Type=http');
+
+	if (hasOwn(config, 'HTTP'))
+		throw new Error(id + ' must not expose legacy HTTP config');
+}
 
 for (const id of ['embedded-minimal-video', 'embedded-minimal-audio']) {
 	const player = embeddedConfigs[id].Player;
@@ -506,15 +523,15 @@ for (const token of fullPlayerOptions.concat([
 		throw new Error('Angular full example is missing ' + token);
 }
 
-for (const token of fullHTTPOptions.concat(fullStreamOptions)) {
+for (const token of fullMediaProviderOptions.concat(fullStreamOptions)) {
 	if (reactSource.indexOf(token) === -1)
-		throw new Error('React full HTTP example is missing ' + token);
+		throw new Error('React full MediaProvider example is missing ' + token);
 
 	if (angularSource.indexOf(token) === -1)
-		throw new Error('Angular full HTTP example is missing ' + token);
+		throw new Error('Angular full MediaProvider example is missing ' + token);
 
 	if (lowLevel.indexOf(token + ':') === -1)
-		throw new Error('Low-level full HTTP example is missing ' + token);
+		throw new Error('Low-level full MediaProvider example is missing ' + token);
 }
 
 if ((lowLevel.match(/^\t\tAutoPlay: false,/gm) || []).length !== 4)
@@ -537,6 +554,48 @@ if (
 	core.indexOf('explicitOptions.Localization === undefined ?') === -1
 )
 	throw new Error('Core must auto-resolve browser localization when Localization is omitted');
+
+if (
+	core.indexOf('function AyleMediaProvider (player, options)') === -1 ||
+	core.indexOf('function AyleHTTPMediaProvider (player, options)') === -1 ||
+	core.indexOf('AyleHTTPMediaProvider.prototype = Object.create(AyleMediaProvider.prototype);') === -1 ||
+	core.indexOf('AyleMediaProviderRegistry.http = AyleHTTPMediaProvider;') === -1
+)
+	throw new Error('Core media provider contract or built-in HTTP provider is incomplete');
+
+if (
+	core.indexOf('Ayle.RegisterMediaProvider = function') === -1 ||
+	core.indexOf('Ayle.GetMediaProvider = function') === -1 ||
+	core.indexOf('Ayle.HasMediaProvider = function') === -1 ||
+	core.indexOf('Ayle.RemoveMediaProvider = function') === -1 ||
+	core.indexOf('Ayle.CreateMediaProvider = function') === -1
+)
+	throw new Error('Core media provider registry API is incomplete');
+
+const legacyHTTPClassName = 'Ayle' + 'HTTP';
+if (new RegExp('\\b' + legacyHTTPClassName + '\\b').test(core))
+	throw new Error('Legacy HTTP-specific class name must not remain in core');
+
+if (
+	bootstrap.indexOf('MediaProvider: null') === -1 ||
+	bootstrap.indexOf('instance.MediaProvider = mediaProvider;') === -1 ||
+	bootstrap.indexOf('global.Ayle.CreateMediaProvider') === -1
+)
+	throw new Error('Bootstrap must create media through instance.MediaProvider');
+
+if (
+	bootstrap.indexOf('AyleBootstrap.MergeMediaProvider = function') === -1 ||
+	bootstrap.indexOf('overrideType !== baseType') === -1
+)
+	throw new Error('Bootstrap must keep provider-specific option sets isolated by Type');
+
+const legacyHTTPOptionsName = 'HTTP' + 'Options';
+const legacyInstanceHTTP = 'instance.' + 'H' + 'TTP';
+if (
+	bootstrap.indexOf(legacyHTTPOptionsName) !== -1 ||
+	bootstrap.indexOf(legacyInstanceHTTP) !== -1
+)
+	throw new Error('Bootstrap must not expose legacy HTTP-specific instance state');
 
 if (
 	core.indexOf("Ayle.RegisterPreset = function") === -1 ||

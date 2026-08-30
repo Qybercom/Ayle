@@ -15,11 +15,29 @@ declare module '@qybercom/ayle/bootstrap' {
 		static GetPreset(name: string): Record<string, any> | null;
 		static HasPreset(name: string): boolean;
 		static RemovePreset(name: string): boolean;
+		static RegisterMediaProvider(name: string, provider: Function): typeof AyleBootstrap;
+		static GetMediaProvider(name: string): Function | null;
+		static HasMediaProvider(name: string): boolean;
+		static RemoveMediaProvider(name: string): boolean;
+		static CreateMediaProvider(
+			name: string,
+			player: any,
+			options?: Record<string, any>
+		): any;
 
 		RegisterPreset(name: string, preset: Record<string, any>): this;
 		GetPreset(name: string): Record<string, any> | null;
 		HasPreset(name: string): boolean;
 		RemovePreset(name: string): boolean;
+		RegisterMediaProvider(name: string, provider: Function): this;
+		GetMediaProvider(name: string): Function | null;
+		HasMediaProvider(name: string): boolean;
+		RemoveMediaProvider(name: string): boolean;
+		CreateMediaProvider(
+			name: string,
+			player: any,
+			options?: Record<string, any>
+		): any;
 
 		Init(element: HTMLElement, config?: Record<string, any>): AyleInstance;
 		Destroy(target: string | AyleInstance): boolean;

@@ -6,16 +6,21 @@ import {
 	type AylePlayerProps
 } from '@qybercom/ayle-react';
 
-const HTTP = {
-	MetadataURL: '/server/metadata.php?file={file}',
-	TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
-	Stream: {
-		SkipInit: true
-	}
-};
-
-function fullHTTP (file: string) {
+function minimalMediaProvider (file: string) {
 	return {
+		Type: 'http',
+		File: file,
+		MetadataURL: '/server/metadata.php?file={file}',
+		TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
+		Stream: {
+			SkipInit: true
+		}
+	};
+}
+
+function fullMediaProvider (file: string) {
+	return {
+	Type: 'http',
 	File: file,
 	MetadataURL: '/server/metadata.php?file={file}',
 	TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
@@ -68,6 +73,11 @@ function fullHTTP (file: string) {
 	SubtitleType: 'text/vtt'
 };
 }
+
+const MINIMAL_VIDEO_MEDIA_PROVIDER = minimalMediaProvider('example.mkv');
+const MINIMAL_AUDIO_MEDIA_PROVIDER = minimalMediaProvider('example.mp3');
+const FULL_VIDEO_MEDIA_PROVIDER = fullMediaProvider('example.mkv');
+const FULL_AUDIO_MEDIA_PROVIDER = fullMediaProvider('example.mp3');
 
 const MINIMAL_VIDEO = {
     MediaMode: 'video'
@@ -368,16 +378,14 @@ export default function App () {
 				badge: 'minimal-video',
 				code: `<AylePlayer
 	id="react-minimal-video"
-	file="example.mkv"
 	driver="mse"
-	http={HTTP}
+	mediaProvider={MINIMAL_VIDEO_MEDIA_PROVIDER}
 	player={MINIMAL_VIDEO}
 />`,
 				player: {
 					id: 'react-minimal-video',
-					file: 'example.mkv',
 					driver: 'mse',
-					http: HTTP,
+					mediaProvider: MINIMAL_VIDEO_MEDIA_PROVIDER,
 					player: MINIMAL_VIDEO
 				}
 			},
@@ -387,16 +395,14 @@ export default function App () {
 				badge: 'minimal-audio',
 				code: `<AylePlayer
 	id="react-minimal-audio"
-	file="example.mp3"
 	driver="mse"
-	http={HTTP}
+	mediaProvider={MINIMAL_AUDIO_MEDIA_PROVIDER}
 	player={MINIMAL_AUDIO}
 />`,
 				player: {
 					id: 'react-minimal-audio',
-					file: 'example.mp3',
 					driver: 'mse',
-					http: HTTP,
+					mediaProvider: MINIMAL_AUDIO_MEDIA_PROVIDER,
 					player: MINIMAL_AUDIO
 				}
 			},
@@ -406,20 +412,18 @@ export default function App () {
 				badge: 'full-video',
 				code: `<AylePlayer
 	id="react-full-video"
-	file="example.mkv"
 	driver="mse"
 	settings="localStorage"
-	http={fullHTTP('example.mkv')}
+	mediaProvider={FULL_VIDEO_MEDIA_PROVIDER}
 	player={FULL_VIDEO}
 	events={FULL_EVENTS}
 	onEvent={handleEvent}
 />`,
 				player: {
 					id: 'react-full-video',
-					file: 'example.mkv',
 					driver: 'mse',
 					settings: 'localStorage',
-					http: fullHTTP('example.mkv'),
+					mediaProvider: FULL_VIDEO_MEDIA_PROVIDER,
 					player: FULL_VIDEO,
 					events: FULL_EVENTS,
 					onEvent: function (event) {
@@ -433,20 +437,18 @@ export default function App () {
 				badge: 'full-audio',
 				code: `<AylePlayer
 	id="react-full-audio"
-	file="example.mp3"
 	driver="mse"
 	settings="localStorage"
-	http={fullHTTP('example.mp3')}
+	mediaProvider={FULL_AUDIO_MEDIA_PROVIDER}
 	player={FULL_AUDIO}
 	events={FULL_EVENTS}
 	onEvent={handleEvent}
 />`,
 				player: {
 					id: 'react-full-audio',
-					file: 'example.mp3',
 					driver: 'mse',
 					settings: 'localStorage',
-					http: fullHTTP('example.mp3'),
+					mediaProvider: FULL_AUDIO_MEDIA_PROVIDER,
 					player: FULL_AUDIO,
 					events: FULL_EVENTS,
 					onEvent: function (event) {

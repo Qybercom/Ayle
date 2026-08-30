@@ -6287,13 +6287,95 @@ function Ayle (driver, options) {
 
 
 
-	function AyleHTTP (player, options) {
-		if (!player)
-			throw new Error('AyleHTTP requires Ayle');
+	var AyleMediaProviderRegistry = {};
+	var AyleBuiltInMediaProviders = {
+		http: true
+	};
 
-		options = options || {};
+	function AyleNormalizeMediaProviderName (name) {
+		return String(name || '').replace(/^\s+|\s+$/g, '').toLowerCase();
+	}
+
+	function AyleMediaProvider (player, options) {
+		if (!player)
+			throw new Error('AyleMediaProvider requires Ayle');
 
 		this.Player = player;
+		this.Options = options || {};
+		this.Source = null;
+		this.Metadata = null;
+	}
+
+	AyleMediaProvider.prototype.Load = function (callback) {
+		throw new Error('AyleMediaProvider.Load() is not implemented');
+	};
+
+	AyleMediaProvider.prototype.Destroy = function () {
+		this.Source = null;
+		this.Metadata = null;
+		return this;
+	};
+
+	Ayle.RegisterMediaProvider = function (name, Provider) {
+		name = AyleNormalizeMediaProviderName(name);
+
+		if (!name)
+			throw new Error('Ayle media provider name is empty');
+
+		if (AyleBuiltInMediaProviders[name])
+			throw new Error('Built-in Ayle media provider cannot be overwritten: ' + name);
+
+		if (typeof Provider !== 'function')
+			throw new Error('Ayle media provider must be a constructor: ' + name);
+
+		AyleMediaProviderRegistry[name] = Provider;
+		return Ayle;
+	};
+
+	Ayle.GetMediaProvider = function (name) {
+		name = AyleNormalizeMediaProviderName(name);
+		return name && AyleMediaProviderRegistry[name] ?
+			AyleMediaProviderRegistry[name] : null;
+	};
+
+	Ayle.HasMediaProvider = function (name) {
+		return !!Ayle.GetMediaProvider(name);
+	};
+
+	Ayle.RemoveMediaProvider = function (name) {
+		name = AyleNormalizeMediaProviderName(name);
+
+		if (!name || AyleBuiltInMediaProviders[name])
+			return false;
+
+		if (!AyleMediaProviderRegistry[name])
+			return false;
+
+		delete AyleMediaProviderRegistry[name];
+		return true;
+	};
+
+	Ayle.CreateMediaProvider = function (name, player, options) {
+		name = AyleNormalizeMediaProviderName(name);
+
+		var Provider = Ayle.GetMediaProvider(name);
+
+		if (!Provider)
+			throw new Error('Unknown Ayle media provider: ' + name);
+
+		var provider = new Provider(player, options || {});
+
+		if (!provider || typeof provider.Load !== 'function')
+			throw new Error('Invalid Ayle media provider implementation: ' + name);
+
+		return provider;
+	};
+
+
+	function AyleHTTPMediaProvider (player, options) {
+		options = options || {};
+		AyleMediaProvider.call(this, player, options);
+
 		this.Options = {
 			File: options.File || '',
 			MetadataURL: options.MetadataURL || '',
@@ -6317,7 +6399,10 @@ function Ayle (driver, options) {
 		this.UpdateCodecSupport();
 	}
 
-	AyleHTTP.GetQueryParameter = function (name) {
+	AyleHTTPMediaProvider.prototype = Object.create(AyleMediaProvider.prototype);
+	AyleHTTPMediaProvider.prototype.constructor = AyleHTTPMediaProvider;
+
+	AyleHTTPMediaProvider.GetQueryParameter = function (name) {
 		var query = global.location ? global.location.search : '';
 		if (!query || query.length < 2)
 			return '';
@@ -6338,18 +6423,18 @@ function Ayle (driver, options) {
 		return '';
 	};
 
-	AyleHTTP.prototype._replaceURLValue = function (url, key, value) {
+	AyleHTTPMediaProvider.prototype._replaceURLValue = function (url, key, value) {
 		return String(url || '').replace(
 			new RegExp('\\{' + key + '\\}', 'g'),
 			encodeURIComponent(String(value))
 		);
 	};
 
-	AyleHTTP.prototype._codecCandidates = function () {
+	AyleHTTPMediaProvider.prototype._codecCandidates = function () {
 		return this.Options.CodecCandidates || this.Player.GetCodecCandidates() || [];
 	};
 
-	AyleHTTP.prototype.UpdateCodecSupport = function () {
+	AyleHTTPMediaProvider.prototype.UpdateCodecSupport = function () {
 		var candidates = this._codecCandidates();
 		var supported = this.Player.GetSupportedCodecs(candidates);
 		var map = {};
@@ -6396,7 +6481,7 @@ function Ayle (driver, options) {
 		return supported;
 	};
 
-	AyleHTTP.prototype.GetSupportedCodecs = function (type) {
+	AyleHTTPMediaProvider.prototype.GetSupportedCodecs = function (type) {
 		if (!type)
 			return this.SupportedCodecs.slice(0);
 
@@ -6404,12 +6489,12 @@ function Ayle (driver, options) {
 		return codecs.slice(0);
 	};
 
-	AyleHTTP.prototype.GetPreferredCodec = function (type) {
+	AyleHTTPMediaProvider.prototype.GetPreferredCodec = function (type) {
 		var codecs = this._supportedCodecMap[type] || [];
 		return codecs.length ? codecs[0] : '';
 	};
 
-	AyleHTTP.prototype._applyMetadataHeaders = function (xhr) {
+	AyleHTTPMediaProvider.prototype._applyMetadataHeaders = function (xhr) {
 		var headers = this.Options.RequestHeaders || {};
 		var name;
 
@@ -6427,11 +6512,11 @@ function Ayle (driver, options) {
 		}
 	};
 
-	AyleHTTP.prototype.BuildMetadataURL = function (file) {
+	AyleHTTPMediaProvider.prototype.BuildMetadataURL = function (file) {
 		return this._replaceURLValue(this.Options.MetadataURL, 'file', file);
 	};
 
-	AyleHTTP.prototype.ResolveTrackURL = function (kind) {
+	AyleHTTPMediaProvider.prototype.ResolveTrackURL = function (kind) {
 		if (kind === 'video' && this.Options.VideoURL)
 			return this.Options.VideoURL;
 
@@ -6447,7 +6532,7 @@ function Ayle (driver, options) {
 		return this.Options.TrackURL || '';
 	};
 
-	AyleHTTP.prototype.BuildTrackURL = function (kind, file, track) {
+	AyleHTTPMediaProvider.prototype.BuildTrackURL = function (kind, file, track) {
 		var template = this.ResolveTrackURL(kind);
 		if (!template)
 			throw new Error('No URL template configured for ' + kind + ' track');
@@ -6459,7 +6544,7 @@ function Ayle (driver, options) {
 		return url;
 	};
 
-	AyleHTTP.prototype.LoadMetadata = function (file, callback) {
+	AyleHTTPMediaProvider.prototype.LoadMetadata = function (file, callback) {
 		var self = this;
 		var xhr = new XMLHttpRequest();
 		var url = this.BuildMetadataURL(file);
@@ -6499,29 +6584,29 @@ function Ayle (driver, options) {
 		return xhr;
 	};
 
-	AyleHTTP.prototype._trackLanguage = function (track) {
+	AyleHTTPMediaProvider.prototype._trackLanguage = function (track) {
 		return track.tags && track.tags.language ? track.tags.language : '';
 	};
 
-	AyleHTTP.prototype._trackTitle = function (track) {
+	AyleHTTPMediaProvider.prototype._trackTitle = function (track) {
 		return track.tags && track.tags.title ? track.tags.title : '';
 	};
 
-	AyleHTTP.prototype._trackDefault = function (track) {
+	AyleHTTPMediaProvider.prototype._trackDefault = function (track) {
 		return !!(
 			track.disposition &&
 			Number(track.disposition.default) === 1
 		);
 	};
 
-	AyleHTTP.prototype._trackForced = function (track) {
+	AyleHTTPMediaProvider.prototype._trackForced = function (track) {
 		return !!(
 			track.disposition &&
 			Number(track.disposition.forced) === 1
 		);
 	};
 
-	AyleHTTP.prototype._hasDefaultTrack = function (items) {
+	AyleHTTPMediaProvider.prototype._hasDefaultTrack = function (items) {
 		var i = 0;
 
 		while (i < items.length) {
@@ -6534,7 +6619,7 @@ function Ayle (driver, options) {
 		return false;
 	};
 
-	AyleHTTP.prototype._trackLabel = function (track, fallback) {
+	AyleHTTPMediaProvider.prototype._trackLabel = function (track, fallback) {
 		var title = this._trackTitle(track);
 		var language = this._trackLanguage(track);
 
@@ -6550,7 +6635,7 @@ function Ayle (driver, options) {
 		return fallback;
 	};
 
-	AyleHTTP.prototype._metadataCodec = function (track) {
+	AyleHTTPMediaProvider.prototype._metadataCodec = function (track) {
 		return track.mseCodec ||
 			track.outputMseCodec ||
 			track.sourceMseCodec ||
@@ -6558,7 +6643,7 @@ function Ayle (driver, options) {
 	};
 
 
-	AyleHTTP.prototype._frameRate = function (track) {
+	AyleHTTPMediaProvider.prototype._frameRate = function (track) {
 		var value = track ? (
 			track.avg_frame_rate ||
 			track.r_frame_rate ||
@@ -6581,7 +6666,7 @@ function Ayle (driver, options) {
 		return Math.max(0, Number(value) || 0);
 	};
 
-	AyleHTTP.prototype.ResolveVideoCodec = function (track) {
+	AyleHTTPMediaProvider.prototype.ResolveVideoCodec = function (track) {
 		var codec = this._metadataCodec(track);
 
 		if (codec)
@@ -6590,7 +6675,7 @@ function Ayle (driver, options) {
 		return this.GetPreferredCodec(this.Options.VideoType);
 	};
 
-	AyleHTTP.prototype.ResolveAudioCodec = function (track) {
+	AyleHTTPMediaProvider.prototype.ResolveAudioCodec = function (track) {
 		var codec = this._metadataCodec(track);
 
 		if (codec)
@@ -6602,7 +6687,7 @@ function Ayle (driver, options) {
 		return this.GetPreferredCodec(this.Options.AudioType);
 	};
 
-	AyleHTTP.prototype.BuildStreamOptions = function (codec) {
+	AyleHTTPMediaProvider.prototype.BuildStreamOptions = function (codec) {
 		var source = this.Options.Stream || {};
 		var result = {
 			Mode: source.Mode || 'time',
@@ -6623,7 +6708,7 @@ function Ayle (driver, options) {
 
 
 
-	AyleHTTP.prototype._isAttachedPicture = function (item) {
+	AyleHTTPMediaProvider.prototype._isAttachedPicture = function (item) {
 		return !!(
 			item &&
 			(
@@ -6633,7 +6718,7 @@ function Ayle (driver, options) {
 		);
 	};
 
-	AyleHTTP.prototype._coverItems = function (metadata) {
+	AyleHTTPMediaProvider.prototype._coverItems = function (metadata) {
 		metadata = metadata || {};
 
 		var artwork = metadata.artwork || [];
@@ -6657,7 +6742,7 @@ function Ayle (driver, options) {
 		return result;
 	};
 
-	AyleHTTP.prototype._coverLabel = function (item, fallback) {
+	AyleHTTPMediaProvider.prototype._coverLabel = function (item, fallback) {
 		var tags = item && item.tags ? item.tags : {};
 
 		return tags.title ||
@@ -6666,7 +6751,7 @@ function Ayle (driver, options) {
 			fallback;
 	};
 
-	AyleHTTP.prototype.BuildCovers = function (metadata, file) {
+	AyleHTTPMediaProvider.prototype.BuildCovers = function (metadata, file) {
 		var items = this._coverItems(metadata);
 		var result = [];
 		var i = 0;
@@ -6720,7 +6805,7 @@ function Ayle (driver, options) {
 		return result;
 	};
 
-	AyleHTTP.prototype.SelectCover = function (covers) {
+	AyleHTTPMediaProvider.prototype.SelectCover = function (covers) {
 		covers = covers || [];
 
 		if (!covers.length)
@@ -6751,7 +6836,7 @@ function Ayle (driver, options) {
 		return covers[0];
 	};
 
-	AyleHTTP.prototype.BuildSource = function (metadata, file) {
+	AyleHTTPMediaProvider.prototype.BuildSource = function (metadata, file) {
 		metadata = metadata || {};
 		file = file || this.Options.File || metadata.file || '';
 
@@ -6901,24 +6986,18 @@ function Ayle (driver, options) {
 		});
 	};
 
-	AyleHTTP.prototype.Load = function (file, callback) {
+	AyleHTTPMediaProvider.prototype.Load = function (callback) {
 		var self = this;
+		var file = this.Options.File;
 
-		if (typeof file === 'function') {
-			callback = file;
-			file = '';
-		}
-
-		file = file || this.Options.File;
 		callback = callback || function () {};
 
 		if (!file) {
-			var fileError = new Error('AyleHTTP file is empty');
+			var fileError = new Error('AyleHTTPMediaProvider file is empty');
 			callback(fileError);
 			return null;
 		}
 
-		this.Options.File = file;
 		this.UpdateCodecSupport();
 
 		return this.LoadMetadata(file, function (error, metadata) {
@@ -6937,10 +7016,15 @@ function Ayle (driver, options) {
 				return;
 			}
 
+			self.Source = source;
+			self.Metadata = metadata;
 			self.Player.Load(source);
 			callback(null, source, metadata);
 		});
 	};
+
+
+	AyleMediaProviderRegistry.http = AyleHTTPMediaProvider;
 
 
 	function AyleUI (element, player) {
@@ -12731,6 +12815,7 @@ function Ayle (driver, options) {
 	};
 
 	global.Ayle = Ayle;
-	global.AyleHTTP = AyleHTTP;
+	global.AyleMediaProvider = AyleMediaProvider;
+	global.AyleHTTPMediaProvider = AyleHTTPMediaProvider;
 	global.AyleUI = AyleUI;
 })(window);

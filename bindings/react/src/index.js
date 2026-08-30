@@ -50,13 +50,25 @@ function buildConfig (props) {
 		config = cloneConfig(props.config);
 
 	if (props.preset !== undefined) config.Preset = props.preset;
-	if (props.file !== undefined) config.File = props.file;
 
 	if (props.player !== undefined)
 		config.Player = AyleBootstrap.Merge(config.Player || {}, props.player);
 
-	if (props.http !== undefined)
-		config.HTTP = AyleBootstrap.Merge(config.HTTP || {}, props.http);
+	if (props.mediaProvider !== undefined)
+		config.MediaProvider = AyleBootstrap.Merge(
+			config.MediaProvider || {},
+			props.mediaProvider
+		);
+
+	if (props.file !== undefined) {
+		if (!config.MediaProvider)
+			config.MediaProvider = {};
+
+		if (config.MediaProvider.Type === undefined)
+			config.MediaProvider.Type = 'http';
+
+		config.MediaProvider.File = props.file;
+	}
 
 	if (props.driver !== undefined) {
 		if (!config.Driver) config.Driver = {};
@@ -167,7 +179,7 @@ export const AylePlayer = forwardRef(function AylePlayer (props, ref) {
 			get Instance () { return instanceRef.current; },
 			get Player () { return instanceRef.current ? instanceRef.current.Player : null; },
 			get UI () { return instanceRef.current ? instanceRef.current.UI : null; },
-			get HTTP () { return instanceRef.current ? instanceRef.current.HTTP : null; },
+			get MediaProvider () { return instanceRef.current ? instanceRef.current.MediaProvider : null; },
 			Reload: function () {
 				if (!bootstrapRef.current || !instanceRef.current || !elementRef.current)
 					return false;

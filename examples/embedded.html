@@ -41,14 +41,15 @@
 		type="application/json"
 		data-ayle="embedded-minimal-video">
 {
-	"File": "example.mkv",
 	"Driver": {
 		"Type": "mse"
 	},
 	"Player": {
 		"MediaMode": "video"
 	},
-	"HTTP": {
+	"MediaProvider": {
+		"Type": "http",
+		"File": "example.mkv",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
 		"Stream": {
@@ -64,7 +65,6 @@
 	type="application/json"
 	data-ayle="embedded-minimal-video"&gt;
 {
-	"File": "example.mkv",
 	"Driver": {
 		"Type": "mse"
 	},
@@ -85,7 +85,9 @@
 			}
 		}
 	},
-	"HTTP": {
+	"MediaProvider": {
+		"Type": "http",
+		"File": "example.mkv",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
 		"Stream": {
@@ -109,14 +111,15 @@
 		type="application/json"
 		data-ayle="embedded-minimal-audio">
 {
-	"File": "example.mp3",
 	"Driver": {
 		"Type": "mse"
 	},
 	"Player": {
 		"MediaMode": "audio"
 	},
-	"HTTP": {
+	"MediaProvider": {
+		"Type": "http",
+		"File": "example.mp3",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
 		"Stream": {
@@ -132,7 +135,6 @@
 	type="application/json"
 	data-ayle="embedded-minimal-audio"&gt;
 {
-	"File": "example.mp3",
 	"Driver": {
 		"Type": "mse"
 	},
@@ -160,7 +162,9 @@
 			}
 		}
 	},
-	"HTTP": {
+	"MediaProvider": {
+		"Type": "http",
+		"File": "example.mp3",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
 		"Stream": {
@@ -186,7 +190,6 @@
 		data-ayle-settings="localStorage"
 		data-ayle-on="favoriteAction:handleFavoriteAction">
 {
-	"File": "example.mkv",
 	"Driver": {
 		"Type": "mse"
 	},
@@ -444,7 +447,8 @@
 			}
 		}
 	},
-	"HTTP": {
+	"MediaProvider": {
+		"Type": "http",
 		"File": "example.mkv",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
@@ -506,7 +510,6 @@
 	data-ayle="embedded-full-video"
 	data-ayle-settings="localStorage"&gt;
 {
-	"File": "example.mkv",
 	"Driver": {
 		"Type": "mse"
 	},
@@ -764,7 +767,8 @@
 			}
 		}
 	},
-	"HTTP": {
+	"MediaProvider": {
+		"Type": "http",
 		"File": "example.mkv",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
@@ -835,7 +839,6 @@
 		data-ayle-settings="localStorage"
 		data-ayle-on="favoriteAction:handleFavoriteAction">
 {
-	"File": "example.mp3",
 	"Driver": {
 		"Type": "mse"
 	},
@@ -1093,7 +1096,8 @@
 			}
 		}
 	},
-	"HTTP": {
+	"MediaProvider": {
+		"Type": "http",
 		"File": "example.mp3",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
@@ -1155,7 +1159,6 @@
 	data-ayle="embedded-full-audio"
 	data-ayle-settings="localStorage"&gt;
 {
-	"File": "example.mp3",
 	"Driver": {
 		"Type": "mse"
 	},
@@ -1415,7 +1418,8 @@
 			}
 		}
 	},
-	"HTTP": {
+	"MediaProvider": {
+		"Type": "http",
 		"File": "example.mp3",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
