@@ -111,9 +111,6 @@ while (i < configurationSources.length) {
 	if (configurationSources[i].indexOf('MinimalUI') !== -1)
 		throw new Error('Canonical examples must use the declarative UI configuration');
 
-	if (configurationSources[i].indexOf('UI') === -1)
-		throw new Error('Canonical example is missing UI composition');
-
 	i++;
 }
 
@@ -138,9 +135,11 @@ const fullPlayerOptions = [
 	'SubtitleStyle',
 	'LoadingDelay',
 	'ForceShowQualityList',
+	'ForceShowChaptersList',
 	'ShowCenterPlayButton',
 	'AutoFocus',
 	'MediaMode',
+	'Preset',
 	'UI',
 	'AudioVisual',
 	'ArtworkSlideshow',
@@ -374,7 +373,9 @@ const minimalDefaultNames = [
 	'SubtitleStyle',
 	'LoadingDelay',
 	'ForceShowQualityList',
+	'ForceShowChaptersList',
 	'ShowCenterPlayButton',
+	'Preset',
 	'AutoFocus',
 	'AudioVisual',
 	'ArtworkSlideshow',
@@ -401,21 +402,24 @@ for (const id of ['embedded-minimal-video', 'embedded-minimal-audio']) {
 			throw new Error(id + ' should omit default/nonessential Player option ' + name);
 	}
 
-	if (hasOwn(player.UI, 'Channel'))
-		throw new Error(id + ' should inherit the default UI.Channel');
-
-	if (hasOwn(player.UI.Toolbar, 'Layout'))
-		throw new Error(id + ' should inherit the default UI.Toolbar.Layout');
+	if (hasOwn(player, 'UI'))
+		throw new Error(id + ' should inherit the complete MediaMode UI layout');
 }
-
-if (hasOwn(embeddedConfigs['embedded-minimal-video'].Player.UI, 'Track'))
-	throw new Error('embedded-minimal-video should inherit the default UI.Track');
 
 if (embeddedConfigs['embedded-full-video'].Player.ShowCenterPlayButton !== true)
 	throw new Error('embedded-full-video should explicitly set ShowCenterPlayButton to true');
 
 if (embeddedConfigs['embedded-full-audio'].Player.ShowCenterPlayButton !== false)
 	throw new Error('embedded-full-audio should explicitly set ShowCenterPlayButton to false');
+
+if (embeddedConfigs['embedded-full-video'].Player.ForceShowQualityList !== true)
+	throw new Error('embedded-full-video should demonstrate ForceShowQualityList:true');
+
+if (embeddedConfigs['embedded-full-audio'].Player.AudioVisual.Type !== 'cover')
+	throw new Error('embedded-full-audio should explicitly demonstrate the large cover visual');
+
+if (embeddedConfigs['embedded-full-audio'].Player.SubtitleOffset !== -2.85)
+	throw new Error('embedded-full-audio should demonstrate SubtitleOffset:-2.85');
 
 if (
 	embedded.indexOf('data-ayle="embedded-minimal-video"\n\t\tdata-ayle-settings=') !== -1 ||
@@ -425,6 +429,25 @@ if (
 
 const reactSource = configurationSources[3];
 const angularSource = configurationSources[2];
+
+if (
+	reactSource.indexOf("ForceShowQualityList: mediaMode === 'video'") === -1 ||
+	angularSource.indexOf("ForceShowQualityList: mediaMode === 'video'") === -1
+)
+	throw new Error('Framework full examples must force-show Quality for video');
+
+if (
+	reactSource.indexOf("Type: mediaMode === 'audio' ? 'cover' : 'auto'") === -1 ||
+	angularSource.indexOf("Type: mediaMode === 'audio' ? 'cover' : 'auto'") === -1
+)
+	throw new Error('Framework full examples must force the large cover visual for audio');
+
+if (
+	reactSource.indexOf("SubtitleOffset: mediaMode === 'audio' ? -2.85 : 0") === -1 ||
+	angularSource.indexOf("SubtitleOffset: mediaMode === 'audio' ? -2.85 : 0") === -1
+)
+	throw new Error('Framework full examples must demonstrate audio SubtitleOffset:-2.85');
+
 
 for (const token of fullPlayerOptions.concat([
 	'Padding', 'BorderRadius', 'LetterSpacing', 'Bottom', 'MaxWidth',
@@ -460,6 +483,50 @@ if ((lowLevel.match(/^\t\tStart: 0,/gm) || []).length !== 4)
 
 if ((lowLevel.match(/^\t\t\t\tLayout: 'inline',/gm) || []).length !== 4)
 	throw new Error('Low-level minimal examples must inherit default Toolbar.Layout');
+
+if (
+	core.indexOf("Ayle.RegisterPreset = function") === -1 ||
+	core.indexOf("Ayle.GetPreset = function") === -1 ||
+	core.indexOf("Ayle.HasPreset = function") === -1 ||
+	core.indexOf("Ayle.RemovePreset = function") === -1
+)
+	throw new Error('Core preset registry API is incomplete');
+
+if (
+	core.indexOf("Items: ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']") === -1 ||
+	core.indexOf("Items: ['play', 'timeline', 'time', 'volume', 'settings']") === -1
+)
+	throw new Error('Built-in video/audio preset toolbar defaults are incomplete');
+
+if (
+	core.indexOf("var visible = count > 1 || this.Player.Options.ForceShowQualityList;") === -1 ||
+	core.indexOf("count > 0 || this.Player.Options.ForceShowChaptersList") === -1
+)
+	throw new Error('ForceShow Chapters/Quality visibility semantics are incomplete');
+
+if (
+	core.indexOf("this.UpdateChapterMenu();\n\t\tthis.UpdateQualityMenu();") === -1
+)
+	throw new Error('Toolbar rebuild must restore Chapters/Quality data-dependent visibility');
+
+if (
+	core.indexOf('ShowCenterPlayButton: true') === -1 ||
+	core.indexOf('ShowCenterPlayButton: false') === -1
+)
+	throw new Error('Built-in video/audio presets must define center Play visibility');
+
+if (
+	css.indexOf('.ayle-media-audio.ayle-ui-headerless.ayle-has-track-compact .ayle-loading') === -1 ||
+	css.indexOf('\n.ayle-ui-headerless.ayle-has-track-compact .ayle-loading {') !== -1
+)
+	throw new Error('Compact timeline loading must be audio-only; video must keep the centered spinner');
+
+if (
+	core.indexOf('AyleUI.prototype._inlineToolbarOverflows = function ()') === -1 ||
+	core.indexOf('this.Controls.scrollWidth > available + 1') === -1 ||
+	core.indexOf('width > 0 && width <= 760') !== -1
+)
+	throw new Error('Toolbar narrow mode must be selected from real overflow, not a fixed 760px breakpoint');
 
 if (core.indexOf("headerItem === 'channel:contact'") === -1)
 	throw new Error('Core UI composition is missing channel:contact');
@@ -511,7 +578,7 @@ if (
 if (
 	overlayREADME.indexOf('`track:compact`') === -1 ||
 	overlayREADME.indexOf('`subtitles`') === -1 ||
-	overlayBootstrap.indexOf("Overlay: ['track:compact', 'subtitles']") === -1
+	overlayCore.indexOf("Overlay: ['track:compact', 'subtitles']") === -1
 )
 	throw new Error('Overlay documentation/bootstrap preset is incomplete');
 
@@ -520,7 +587,7 @@ if (
 	overlayCore.indexOf("item === 'artist'") === -1 ||
 	overlayCore.indexOf("item === 'album'") === -1 ||
 	overlayCore.indexOf("meta.join(' · ')") === -1 ||
-	overlayBootstrap.indexOf("Track: ['artwork', 'title', 'artist', 'album']") === -1 ||
+	overlayCore.indexOf("Track: ['artwork', 'title', 'artist', 'album']") === -1 ||
 	overlayREADME.indexOf('`artwork`, `title`, `artist`, `album`, `chapter`') === -1
 )
 	throw new Error('Declarative track metadata/compact overlay support is incomplete');
@@ -589,6 +656,15 @@ for (const token of [
 	if (initCore.indexOf(token) === -1)
 		throw new Error('Ayle.Init regression: missing token ' + token);
 }
+
+if (
+	initBootstrap.indexOf('global.Ayle.RegisterPreset(name, config);') === -1 ||
+	initBootstrap.indexOf('global.Ayle.GetPreset(name)') === -1 ||
+	initBootstrap.indexOf('AyleBootstrap.Presets = {}') !== -1 ||
+	initBootstrap.indexOf("AyleBootstrap.RegisterPreset('video'") !== -1 ||
+	initBootstrap.indexOf("AyleBootstrap.RegisterPreset('audio'") !== -1
+)
+	throw new Error('Bootstrap must delegate to the shared Ayle preset registry');
 
 if (initBootstrap.indexOf('global.Ayle.Init(') === -1)
 	throw new Error('Bootstrap must assemble runtime instances through Ayle.Init');

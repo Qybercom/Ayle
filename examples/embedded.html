@@ -38,21 +38,7 @@
 		"Type": "mse"
 	},
 	"Player": {
-		"MediaMode": "video",
-		"UI": {
-			"Header": [],
-			"Overlay": [
-				"track:compact"
-			],
-			"Toolbar": {
-				"Items": [
-					"play",
-					"timeline",
-					"time",
-					"volume"
-				]
-			}
-		}
+		"MediaMode": "video"
 	},
 	"HTTP": {
 		"MetadataURL": "../../server/metadata.php?file={file}",
@@ -120,28 +106,7 @@
 		"Type": "mse"
 	},
 	"Player": {
-		"MediaMode": "audio",
-		"UI": {
-			"Header": [],
-			"Track": [
-				"artwork",
-				"title",
-				"artist",
-				"album"
-			],
-			"Overlay": [
-				"track:compact",
-				"subtitles"
-			],
-			"Toolbar": {
-				"Items": [
-					"play",
-					"timeline",
-					"time",
-					"volume"
-				]
-			}
-		}
+		"MediaMode": "audio"
 	},
 	"HTTP": {
 		"MetadataURL": "../../server/metadata.php?file={file}",
@@ -241,15 +206,14 @@
 			"MaxWidth": "90%"
 		},
 		"LoadingDelay": 180,
-		"ForceShowQualityList": false,
+		"ForceShowQualityList": true,
+		"ForceShowChaptersList": false,
 		"ShowCenterPlayButton": true,
 		"AutoFocus": false,
 		"MediaMode": "video",
+		"Preset": "",
 		"UI": {
-			"Header": [
-				"channel:card",
-				"track"
-			],
+			"Header": [],
 			"Track": [
 				"title",
 				"chapter"
@@ -258,7 +222,9 @@
 				"name",
 				"profile"
 			],
-			"Overlay": [],
+			"Overlay": [
+				"track:compact"
+			],
 			"Toolbar": {
 				"Layout": "inline",
 				"Items": [
@@ -268,9 +234,8 @@
 					"volume",
 					"chapters",
 					"quality",
-					"settings",
-					"pip",
-					"fullscreen"
+					"fullscreen",
+					"settings"
 				]
 			}
 		},
@@ -421,7 +386,7 @@
 					"Before": "settings",
 					"After": "",
 					"Icon": "",
-					"Label": "★",
+					"Label": "\u2605",
 					"Title": "Favorite",
 					"ClassName": "",
 					"Visible": true,
@@ -872,7 +837,7 @@
 		"Muted": false,
 		"Start": 0,
 		"NativeSubtitles": false,
-		"SubtitleOffset": 0,
+		"SubtitleOffset": -2.85,
 		"AutoNativeSubtitlesInPictureInPicture": false,
 		"SubtitleStyle": {
 			"Color": "#fff",
@@ -890,14 +855,13 @@
 		},
 		"LoadingDelay": 180,
 		"ForceShowQualityList": false,
+		"ForceShowChaptersList": false,
 		"ShowCenterPlayButton": false,
 		"AutoFocus": false,
 		"MediaMode": "audio",
+		"Preset": "",
 		"UI": {
-			"Header": [
-				"channel:card",
-				"track"
-			],
+			"Header": [],
 			"Track": [
 				"artwork",
 				"title",
@@ -908,7 +872,10 @@
 				"name",
 				"profile"
 			],
-			"Overlay": [],
+			"Overlay": [
+				"track:compact",
+				"subtitles"
+			],
 			"Toolbar": {
 				"Layout": "inline",
 				"Items": [
@@ -916,16 +883,12 @@
 					"timeline",
 					"time",
 					"volume",
-					"chapters",
-					"quality",
-					"settings",
-					"pip",
-					"fullscreen"
+					"settings"
 				]
 			}
 		},
 		"AudioVisual": {
-			"Type": "auto",
+			"Type": "cover",
 			"Image": "",
 			"Subtitles": true,
 			"MinHeight": 240
@@ -1071,7 +1034,7 @@
 					"Before": "settings",
 					"After": "",
 					"Icon": "",
-					"Label": "★",
+					"Label": "\u2605",
 					"Title": "Favorite",
 					"ClassName": "",
 					"Visible": true,

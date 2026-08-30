@@ -11,6 +11,15 @@ declare module '@qybercom/ayle/bootstrap' {
 			base: T,
 			extra: U
 		): T & U;
+		static RegisterPreset(name: string, preset: Record<string, any>): typeof AyleBootstrap;
+		static GetPreset(name: string): Record<string, any> | null;
+		static HasPreset(name: string): boolean;
+		static RemovePreset(name: string): boolean;
+
+		RegisterPreset(name: string, preset: Record<string, any>): this;
+		GetPreset(name: string): Record<string, any> | null;
+		HasPreset(name: string): boolean;
+		RemovePreset(name: string): boolean;
 
 		Init(element: HTMLElement, config?: Record<string, any>): AyleInstance;
 		Destroy(target: string | AyleInstance): boolean;

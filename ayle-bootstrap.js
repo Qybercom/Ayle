@@ -68,47 +68,39 @@
 
 
 	/*
-	 * Presets describe Player behaviour/UI only.
+	 * Ayle core owns the preset registry.
 	 *
-	 * Resource/transport URLs (MetadataURL, TrackURL, etc.) stay in the
-	 * Bootstrap/HTTP configuration and are intentionally not part of presets.
-	 *
-	 * Merge order:
-	 *
-	 *   bootstrap defaults -> preset Player config -> instance config
-	 *
-	 * Media-specific Integration data (Channel, Hints, custom Settings, etc.)
-	 * also belongs to MediaConfig rather than to presets.
+	 * Bootstrap only exposes compatibility/convenience delegates and maps its
+	 * top-level Preset shortcut to Player.Preset before constructing Ayle.
 	 */
-	AyleBootstrap.Presets = {};
-
 	AyleBootstrap.RegisterPreset = function (name, config) {
-		name = String(name || '').toLowerCase();
+		if (!global.Ayle || typeof global.Ayle.RegisterPreset !== 'function')
+			throw new Error('Ayle preset registry is not available');
 
-		if (!name)
-			throw new Error('Player preset name is required');
-
-		config = AyleBootstrap.Clone(config || {});
-
-		/*
-		 * Presets must not carry endpoint/resource URLs. Keep HTTP and Driver
-		 * setup in Bootstrap/options or in the concrete instance config.
-		 */
-		delete config.HTTP;
-		delete config.File;
-		delete config.Files;
-
-		AyleBootstrap.Presets[name] = config;
+		global.Ayle.RegisterPreset(name, config);
 		return AyleBootstrap;
 	};
 
 	AyleBootstrap.GetPreset = function (name) {
-		name = String(name || '').toLowerCase();
-
-		if (!name || !AyleBootstrap.Presets[name])
+		if (!global.Ayle || typeof global.Ayle.GetPreset !== 'function')
 			return null;
 
-		return AyleBootstrap.Clone(AyleBootstrap.Presets[name]);
+		return global.Ayle.GetPreset(name);
+	};
+
+	AyleBootstrap.HasPreset = function (name) {
+		return !!(
+			global.Ayle &&
+			typeof global.Ayle.HasPreset === 'function' &&
+			global.Ayle.HasPreset(name)
+		);
+	};
+
+	AyleBootstrap.RemovePreset = function (name) {
+		if (!global.Ayle || typeof global.Ayle.RemovePreset !== 'function')
+			return false;
+
+		return global.Ayle.RemovePreset(name);
 	};
 
 	AyleBootstrap.prototype.RegisterPreset = function (name, config) {
@@ -120,103 +112,13 @@
 		return AyleBootstrap.GetPreset(name);
 	};
 
-	AyleBootstrap.RegisterPreset('video', {
-		Player: {
-			AutoPlay: false,
-			AutoPlayMode: 'muted',
-			FontFamily: 'Calibri, sans-serif',
-			KeyboardArrowSeekStep: 10,
-			KeyboardAngleSeekStep: 'frame',
-			KeyboardFrameRateFallback: 30,
-			Shortcuts: {
-				PlayPause: true,
-				SeekArrows: true,
-				SeekAngle: true,
-				Volume: true,
-				Mute: true,
-				Subtitles: true,
-				Fullscreen: true,
-				PictureInPicture: true
-			},
-			SettingsOrder: [
-				'autoplay',
-				'audio',
-				'subtitles',
-				'nativeSubtitles',
-				'nativeSubtitlesInPiP',
-				'',
-				'shortcuts',
-				'',
-				'integration'
-			],
-			Debug: false,
-			DebugMP4: false,
-			AutoSelectFirstSubtitleTrack: false,
-			NativeSubtitles: false,
-			AutoNativeSubtitlesInPictureInPicture: true,
-			ForceShowQualityList: true,
-			ShowCenterPlayButton: true,
-			AutoFocus: true,
-			ArtworkSlideshow: {
-				Enabled: true,
-				HideControls: false,
-				Interval: 3000,
-				FadeDuration: 500,
-				Fit: 'cover'
-			},
-			HintSafeArea: {
-				Top: 16,
-				Right: 16,
-				Bottom: 16,
-				Left: 16
-			}
-		}
-	});
+	AyleBootstrap.prototype.HasPreset = function (name) {
+		return AyleBootstrap.HasPreset(name);
+	};
 
-	AyleBootstrap.RegisterPreset('audio', {
-		Player: {
-			MediaMode: 'audio',
-			ShowCenterPlayButton: false,
-			AutoFocus: true,
-			FontFamily: 'Calibri, sans-serif',
-			AudioVisual: {
-				Type: 'auto',
-				Subtitles: true
-			},
-			UI: {
-				Header: [],
-				Track: ['artwork', 'title', 'artist', 'album'],
-				Channel: ['name', 'profile'],
-				Overlay: ['track:compact', 'subtitles'],
-				Toolbar: {
-					Layout: 'inline',
-					Items: ['play', 'timeline', 'time', 'volume', 'settings']
-				}
-			},
-			Shortcuts: {
-				PlayPause: true,
-				SeekArrows: true,
-				SeekAngle: true,
-				Volume: true,
-				Mute: true,
-				Subtitles: true,
-				Fullscreen: false,
-				PictureInPicture: false
-			},
-			SettingsOrder: [
-				'autoplay',
-				'audio',
-				'subtitles',
-				'',
-				'shortcuts',
-				'',
-				'integration'
-			],
-			NativeSubtitles: false,
-			AutoSelectFirstSubtitleTrack: false
-		}
-	});
-
+	AyleBootstrap.prototype.RemovePreset = function (name) {
+		return AyleBootstrap.RemovePreset(name);
+	};
 
 	AyleBootstrap.prototype.EnsureSettingsItem = function (order, name, before) {
 		order = order instanceof Array ? order.slice(0) : [];
@@ -462,14 +364,15 @@
 
 	AyleBootstrap.prototype.ResolvePresetName = function (config) {
 		config = config || {};
+		var player = config.Player || {};
+
+		if (player.Preset !== undefined && player.Preset !== null && player.Preset !== '')
+			return String(player.Preset).toLowerCase();
 
 		if (config.Preset !== undefined && config.Preset !== null && config.Preset !== '')
 			return String(config.Preset).toLowerCase();
 
-		var player = config.Player || {};
-		var mode = String(player.MediaMode || '').toLowerCase();
-
-		return mode === 'audio' ? 'audio' : 'video';
+		return '';
 	};
 
 	AyleBootstrap.prototype.ApplyPreset = function (config) {
@@ -477,29 +380,20 @@
 
 		var name = this.ResolvePresetName(config);
 
-		if (name === 'auto') {
-			var player = config.Player || {};
-			name = String(player.MediaMode || '').toLowerCase() === 'audio' ?
-				'audio' : 'video';
-		}
-
-		var preset = this.GetPreset(name);
-
-		if (!preset)
-			throw new Error('Unknown player preset: ' + name);
-
 		delete config.Preset;
 
-		/*
-		 * Instance config wins over preset.
-		 * Bootstrap Options are applied later by Init() as the global base.
-		 */
-		config = AyleBootstrap.Merge(preset, config);
-		config.Preset = name;
+		if (!name)
+			return config;
 
+		if (!AyleBootstrap.HasPreset(name))
+			throw new Error('Unknown Ayle preset: ' + name);
+
+		if (!AyleBootstrap.IsObject(config.Player))
+			config.Player = {};
+
+		config.Player.Preset = name;
 		return config;
 	};
-
 
 	AyleBootstrap.NormalizeLocalizationCode = function (value) {
 		value = String(value === null || value === undefined ? '' : value)
@@ -1056,6 +950,7 @@
 		config = this.ApplyDataAttributes(element, config);
 		config = this.NormalizeConfig(config);
 		config = AyleBootstrap.Merge(this.Options, config);
+		config = this.ApplyPreset(config);
 
 		var id = element.getAttribute('data-ayle') || config.ID || ('ayle-' + (++this._counter));
 		var instanceSettingsStorage = this.ResolveSettingsStorage(element);

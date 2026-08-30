@@ -2424,18 +2424,18 @@
 
 
 /* -------------------------------------------------------------------------
- * Compact UI loading indicator
+ * Compact audio UI loading indicator
  *
- * The large centered spinner competes visually with the compact control bar.
- * In compact headerless composition loading/seeking is represented directly on the timeline as
+ * The large centered spinner competes visually with the compact audio control bar.
+ * In compact headerless audio composition loading/seeking is represented directly on the timeline as
  * an indeterminate moving segment.
  * ---------------------------------------------------------------------- */
 
-.ayle-ui-headerless.ayle-has-track-compact .ayle-loading {
+.ayle-media-audio.ayle-ui-headerless.ayle-has-track-compact .ayle-loading {
 	display: none !important;
 }
 
-.ayle-ui-headerless.ayle-has-track-compact .ayle-timeline:after {
+.ayle-media-audio.ayle-ui-headerless.ayle-has-track-compact .ayle-timeline:after {
 	content: "";
 	position: absolute;
 	left: 0;
@@ -2450,7 +2450,7 @@
 	pointer-events: none;
 }
 
-.ayle-ui-headerless.ayle-has-track-compact.is-loading .ayle-timeline:after {
+.ayle-media-audio.ayle-ui-headerless.ayle-has-track-compact.is-loading .ayle-timeline:after {
 	opacity: .9;
 	animation: ayle-compact-loading 1s ease-in-out infinite;
 }
@@ -2491,12 +2491,12 @@
  * subtle animated shimmer instead.
  * ---------------------------------------------------------------------- */
 
-.ayle-ui-headerless.ayle-has-track-compact .ayle-timeline:after {
+.ayle-media-audio.ayle-ui-headerless.ayle-has-track-compact .ayle-timeline:after {
 	display: none !important;
 	animation: none !important;
 }
 
-.ayle-ui-headerless.ayle-has-track-compact.is-loading .ayle-timeline:before {
+.ayle-media-audio.ayle-ui-headerless.ayle-has-track-compact.is-loading .ayle-timeline:before {
 	background:
 		linear-gradient(
 			90deg,

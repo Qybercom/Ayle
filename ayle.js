@@ -4130,10 +4130,203 @@
 		return result;
 	}
 
+
+	var AylePresetRegistry = {};
+	var AyleBuiltInPresets = {
+		video: true,
+		audio: true
+	};
+
+	function AylePresetCloneValue (value) {
+		if (value instanceof Array) {
+			var array = [];
+			var i = 0;
+
+			while (i < value.length) {
+				array.push(AylePresetCloneValue(value[i]));
+				i++;
+			}
+
+			return array;
+		}
+
+		if (value && typeof value === 'object') {
+			var object = {};
+
+			for (var key in value) {
+				if (Object.prototype.hasOwnProperty.call(value, key))
+					object[key] = AylePresetCloneValue(value[key]);
+			}
+
+			return object;
+		}
+
+		return value;
+	}
+
+	function AylePresetMerge (base, override) {
+		var result = AylePresetCloneValue(base || {});
+		override = override || {};
+
+		for (var key in override) {
+			if (!Object.prototype.hasOwnProperty.call(override, key))
+				continue;
+
+			if (
+				result[key] &&
+				override[key] &&
+				typeof result[key] === 'object' &&
+				typeof override[key] === 'object' &&
+				!(result[key] instanceof Array) &&
+				!(override[key] instanceof Array)
+			)
+				result[key] = AylePresetMerge(result[key], override[key]);
+			else
+				result[key] = AylePresetCloneValue(override[key]);
+		}
+
+		return result;
+	}
+
+	function AyleNormalizePreset (preset) {
+		preset = preset || {};
+
+		var player = AylePresetCloneValue(preset.Player || {});
+		var ui = preset.UI || player.UI || {};
+
+		delete player.MediaMode;
+		delete player.Preset;
+		delete player.UI;
+
+		var result = {
+			Player: player,
+			UI: {}
+		};
+
+		if (ui.Header instanceof Array)
+			result.UI.Header = AylePresetCloneValue(ui.Header);
+
+		if (ui.Track instanceof Array)
+			result.UI.Track = AylePresetCloneValue(ui.Track);
+
+		if (ui.Channel instanceof Array)
+			result.UI.Channel = AylePresetCloneValue(ui.Channel);
+
+		if (ui.Overlay instanceof Array)
+			result.UI.Overlay = AylePresetCloneValue(ui.Overlay);
+
+		if (ui.Toolbar) {
+			result.UI.Toolbar = {};
+
+			if (ui.Toolbar.Layout !== undefined)
+				result.UI.Toolbar.Layout = String(ui.Toolbar.Layout).toLowerCase();
+
+			if (ui.Toolbar.Items instanceof Array)
+				result.UI.Toolbar.Items = AylePresetCloneValue(ui.Toolbar.Items);
+		}
+
+		return result;
+	}
+
+	function AyleGetPresetInternal (name) {
+		name = String(name || '').toLowerCase();
+
+		if (!name || !Object.prototype.hasOwnProperty.call(AylePresetRegistry, name))
+			return null;
+
+		return AylePresetRegistry[name];
+	}
+
+	function AylePresetToPlayerOptions (preset) {
+		preset = AyleNormalizePreset(preset);
+
+		var result = AylePresetCloneValue(preset.Player);
+
+		if (
+			preset.UI.Header instanceof Array ||
+			preset.UI.Track instanceof Array ||
+			preset.UI.Channel instanceof Array ||
+			preset.UI.Overlay instanceof Array ||
+			preset.UI.Toolbar
+		)
+			result.UI = AylePresetCloneValue(preset.UI);
+
+		return result;
+	}
+
+	function AyleGetEffectivePreset (mode, customName) {
+		var builtIn = AyleGetPresetInternal(mode === 'audio' ? 'audio' : 'video') || {};
+		var result = AyleNormalizePreset(builtIn);
+		var custom = customName ? AyleGetPresetInternal(customName) : null;
+
+		if (custom) {
+			result.Player = AylePresetMerge(result.Player, custom.Player);
+			result.UI = AylePresetMerge(result.UI, custom.UI);
+		}
+
+		return result;
+	}
+
+	AylePresetRegistry.video = AyleNormalizePreset({
+		Player: {
+			ShowCenterPlayButton: true
+		},
+		UI: {
+			Header: [],
+			Track: ['title', 'chapter'],
+			Channel: ['name', 'profile'],
+			Overlay: ['track:compact'],
+			Toolbar: {
+				Layout: 'inline',
+				Items: ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
+			}
+		}
+	});
+
+	AylePresetRegistry.audio = AyleNormalizePreset({
+		Player: {
+			ShowCenterPlayButton: false
+		},
+		UI: {
+			Header: [],
+			Track: ['artwork', 'title', 'artist', 'album'],
+			Channel: ['name', 'profile'],
+			Overlay: ['track:compact', 'subtitles'],
+			Toolbar: {
+				Layout: 'inline',
+				Items: ['play', 'timeline', 'time', 'volume', 'settings']
+			}
+		}
+	});
+
+
 function Ayle (driver, options) {
 		AyleEventEmitter.call(this);
 
-		options = options || {};
+		var explicitOptions = options || {};
+		var requestedMediaMode = explicitOptions.MediaMode || 'auto';
+		if (requestedMediaMode !== 'auto' && requestedMediaMode !== 'video' && requestedMediaMode !== 'audio')
+			requestedMediaMode = 'auto';
+
+		var requestedPreset = explicitOptions.Preset !== undefined && explicitOptions.Preset !== null ?
+			String(explicitOptions.Preset).toLowerCase() : '';
+
+		if (requestedPreset && !AyleGetPresetInternal(requestedPreset))
+			throw new Error('Unknown Ayle preset: ' + requestedPreset);
+
+		var effectivePreset = AyleGetEffectivePreset(
+			requestedMediaMode === 'audio' ? 'audio' : 'video',
+			requestedPreset
+		);
+
+		options = AylePresetMerge(
+			AylePresetToPlayerOptions(effectivePreset),
+			explicitOptions
+		);
+
+		options.MediaMode = requestedMediaMode;
+		options.Preset = requestedPreset;
+
 		var integration = options.Integration || {};
 		var shortcuts = options.Shortcuts || {};
 		var ui = options.UI || {};
@@ -4152,11 +4345,18 @@ function Ayle (driver, options) {
 		else
 			hintSafeArea = hintSafeArea || {};
 
-		var requestedMediaMode = options.MediaMode || 'auto';
-		if (requestedMediaMode !== 'auto' && requestedMediaMode !== 'video' && requestedMediaMode !== 'audio')
-			requestedMediaMode = 'auto';
+		var explicitUI = explicitOptions.UI || {};
+		var explicitToolbar = explicitUI.Toolbar || {};
 
-		this._showCenterPlayButtonExplicit = options.ShowCenterPlayButton !== undefined;
+		this._showCenterPlayButtonExplicit = explicitOptions.ShowCenterPlayButton !== undefined;
+		this._uiExplicit = {
+			Header: explicitUI.Header instanceof Array,
+			Track: explicitUI.Track instanceof Array,
+			Channel: explicitUI.Channel instanceof Array,
+			Overlay: explicitUI.Overlay instanceof Array,
+			ToolbarLayout: explicitToolbar.Layout !== undefined,
+			ToolbarItems: explicitToolbar.Items instanceof Array
+		};
 
 		this.Options = {
 			AutoSelectFirstSubtitleTrack: !!options.AutoSelectFirstSubtitleTrack,
@@ -4171,23 +4371,19 @@ function Ayle (driver, options) {
 			SubtitleStyle: options.SubtitleStyle || {},
 			LoadingDelay: options.LoadingDelay !== undefined ? Math.max(0, Number(options.LoadingDelay) || 0) : 180,
 			ForceShowQualityList: !!options.ForceShowQualityList,
-			ShowCenterPlayButton: this._showCenterPlayButtonExplicit ? !!options.ShowCenterPlayButton : requestedMediaMode !== 'audio',
+			ForceShowChaptersList: !!options.ForceShowChaptersList,
+			ShowCenterPlayButton: !!options.ShowCenterPlayButton,
 			AutoFocus: options.AutoFocus === true,
 			MediaMode: requestedMediaMode,
+			Preset: requestedPreset,
 			UI: {
-				Header: ui.Header instanceof Array ?
-					ui.Header.slice(0) : ['channel:card', 'track'],
-				Track: ui.Track instanceof Array ?
-					ui.Track.slice(0) : ['title', 'chapter'],
-				Channel: ui.Channel instanceof Array ?
-					ui.Channel.slice(0) : ['name', 'profile'],
-				Overlay: ui.Overlay instanceof Array ?
-					ui.Overlay.slice(0) : [],
+				Header: ui.Header instanceof Array ? ui.Header.slice(0) : [],
+				Track: ui.Track instanceof Array ? ui.Track.slice(0) : [],
+				Channel: ui.Channel instanceof Array ? ui.Channel.slice(0) : [],
+				Overlay: ui.Overlay instanceof Array ? ui.Overlay.slice(0) : [],
 				Toolbar: {
 					Layout: toolbar.Layout ? String(toolbar.Layout).toLowerCase() : 'inline',
-					Items: toolbar.Items instanceof Array ?
-						toolbar.Items.slice(0) :
-						['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'settings', 'pip', 'fullscreen']
+					Items: toolbar.Items instanceof Array ? toolbar.Items.slice(0) : []
 				}
 			},
 			AudioVisual: {
@@ -4355,6 +4551,39 @@ function Ayle (driver, options) {
 
 	Ayle.prototype = Object.create(AyleEventEmitter.prototype);
 	Ayle.prototype.constructor = Ayle;
+
+	Ayle.RegisterPreset = function (name, preset) {
+		name = String(name || '').toLowerCase();
+
+		if (!name)
+			throw new Error('Ayle preset name is required');
+
+		if (AyleBuiltInPresets[name])
+			throw new Error('Built-in Ayle preset cannot be overwritten: ' + name);
+
+		AylePresetRegistry[name] = AyleNormalizePreset(preset);
+		return Ayle;
+	};
+
+	Ayle.GetPreset = function (name) {
+		var preset = AyleGetPresetInternal(name);
+		return preset ? AylePresetCloneValue(preset) : null;
+	};
+
+	Ayle.HasPreset = function (name) {
+		return !!AyleGetPresetInternal(name);
+	};
+
+	Ayle.RemovePreset = function (name) {
+		name = String(name || '').toLowerCase();
+
+		if (!name || AyleBuiltInPresets[name] || !AyleGetPresetInternal(name))
+			return false;
+
+		delete AylePresetRegistry[name];
+		return true;
+	};
+
 
 
 	Ayle.prototype.HasPlayableSource = function () {
@@ -4914,8 +5143,7 @@ function Ayle (driver, options) {
 		this.State.Source = source;
 		var previousMediaMode = this.State.MediaMode;
 		this.State.MediaMode = this.ResolveMediaMode(source);
-		if (!this._showCenterPlayButtonExplicit)
-			this.Options.ShowCenterPlayButton = this.State.MediaMode !== 'audio';
+		this._applyPresetForMediaMode(this.State.MediaMode);
 		this.State.Ready = false;
 		this.State.Loading = true;
 		this.State.Playing = false;
@@ -5613,6 +5841,45 @@ function Ayle (driver, options) {
 
 
 
+	Ayle.prototype._getEffectivePreset = function (mode) {
+		return AyleGetEffectivePreset(mode, this.Options.Preset);
+	};
+
+	Ayle.prototype._applyPresetForMediaMode = function (mode) {
+		var preset = this._getEffectivePreset(mode);
+		var player = preset.Player || {};
+		var presetUI = preset.UI || {};
+		var presetToolbar = presetUI.Toolbar || {};
+		var ui = this.Options.UI;
+
+		if (
+			!this._showCenterPlayButtonExplicit &&
+			player.ShowCenterPlayButton !== undefined
+		)
+			this.Options.ShowCenterPlayButton = !!player.ShowCenterPlayButton;
+
+		if (!this._uiExplicit.Header && presetUI.Header instanceof Array)
+			ui.Header = presetUI.Header.slice(0);
+
+		if (!this._uiExplicit.Track && presetUI.Track instanceof Array)
+			ui.Track = presetUI.Track.slice(0);
+
+		if (!this._uiExplicit.Channel && presetUI.Channel instanceof Array)
+			ui.Channel = presetUI.Channel.slice(0);
+
+		if (!this._uiExplicit.Overlay && presetUI.Overlay instanceof Array)
+			ui.Overlay = presetUI.Overlay.slice(0);
+
+		if (!this._uiExplicit.ToolbarLayout && presetToolbar.Layout !== undefined)
+			ui.Toolbar.Layout = presetToolbar.Layout;
+
+		if (!this._uiExplicit.ToolbarItems && presetToolbar.Items instanceof Array)
+			ui.Toolbar.Items = presetToolbar.Items.slice(0);
+
+		return this;
+	};
+
+
 	Ayle.prototype.ResolveMediaMode = function (source) {
 		if (this.Options.MediaMode !== 'auto')
 			return this.Options.MediaMode;
@@ -5641,8 +5908,7 @@ function Ayle (driver, options) {
 		this.Options.MediaMode = mode;
 
 		var resolved = this.ResolveMediaMode(this.State.Source);
-		if (!this._showCenterPlayButtonExplicit)
-			this.Options.ShowCenterPlayButton = resolved !== 'audio';
+		this._applyPresetForMediaMode(resolved);
 
 		if (this.State.MediaMode !== resolved) {
 			this.State.MediaMode = resolved;
@@ -5657,24 +5923,36 @@ function Ayle (driver, options) {
 		options = options || {};
 		var ui = this.Options.UI;
 
-		if (options.Header instanceof Array)
+		if (options.Header instanceof Array) {
+			this._uiExplicit.Header = true;
 			ui.Header = options.Header.slice(0);
+		}
 
-		if (options.Track instanceof Array)
+		if (options.Track instanceof Array) {
+			this._uiExplicit.Track = true;
 			ui.Track = options.Track.slice(0);
+		}
 
-		if (options.Channel instanceof Array)
+		if (options.Channel instanceof Array) {
+			this._uiExplicit.Channel = true;
 			ui.Channel = options.Channel.slice(0);
+		}
 
-		if (options.Overlay instanceof Array)
+		if (options.Overlay instanceof Array) {
+			this._uiExplicit.Overlay = true;
 			ui.Overlay = options.Overlay.slice(0);
+		}
 
 		if (options.Toolbar) {
-			if (options.Toolbar.Layout !== undefined)
+			if (options.Toolbar.Layout !== undefined) {
+				this._uiExplicit.ToolbarLayout = true;
 				ui.Toolbar.Layout = String(options.Toolbar.Layout).toLowerCase();
+			}
 
-			if (options.Toolbar.Items instanceof Array)
+			if (options.Toolbar.Items instanceof Array) {
+				this._uiExplicit.ToolbarItems = true;
 				ui.Toolbar.Items = options.Toolbar.Items.slice(0);
+			}
 
 			if (
 				ui.Toolbar.Layout !== 'inline' &&
@@ -7875,6 +8153,16 @@ function Ayle (driver, options) {
 		}
 
 		this._applyToolbarLayoutGeometry();
+
+		/*
+		 * ApplyToolbar() temporarily exposes every configured built-in control
+		 * while rebuilding the ordered layout. Restore data-dependent
+		 * visibility afterwards so Chapters/Quality immediately respect both
+		 * their available data and ForceShow* options.
+		 */
+		this.UpdateChapterMenu();
+		this.UpdateQualityMenu();
+
 		return this;
 	};
 
@@ -10429,7 +10717,7 @@ function Ayle (driver, options) {
 			this.QualityButton.disabled = switching;
 		}
 
-		var visible = count > 1 || (count > 0 && this.Player.Options.ForceShowQualityList);
+		var visible = count > 1 || this.Player.Options.ForceShowQualityList;
 		if (this.QualityControl)
 			this.QualityControl.style.display = visible ? '' : 'none';
 
@@ -10746,7 +11034,17 @@ function Ayle (driver, options) {
 			i++;
 		}
 
-		if (!cues.length && track.Native && track.Native.mode !== 'disabled') {
+		/*
+		 * Parsed cues are authoritative for the HTML renderer. In particular,
+		 * SubtitleOffset is applied above to their Start/End timestamps. Falling
+		 * back to TextTrack.activeCues when the shifted interval has no active cue
+		 * would re-introduce the browser's unshifted cue and can make the previous
+		 * subtitle flash/persist around fragment boundaries.
+		 *
+		 * Native activeCues are therefore only a fallback when no parsed cue data
+		 * exists at all.
+		 */
+		if (!customCues.length && track.Native && track.Native.mode !== 'disabled') {
 			var activeCues = track.Native.activeCues;
 			var nativeCount = activeCues ? activeCues.length : 0;
 			i = 0;
@@ -10945,7 +11243,9 @@ function Ayle (driver, options) {
 
 		if (!list) {
 			if (this.ChaptersControl)
-				this.ChaptersControl.style.display = chapters.length ? '' : 'none';
+				this.ChaptersControl.style.display =
+					chapters.length || this.Player.Options.ForceShowChaptersList ?
+						'' : 'none';
 			return;
 		}
 
@@ -10985,9 +11285,12 @@ function Ayle (driver, options) {
 			i++;
 		}
 
+		var visible = count > 0 || this.Player.Options.ForceShowChaptersList;
+
 		if (this.ChaptersControl)
-			this.ChaptersControl.style.display = count ? '' : 'none';
-		if (!count)
+			this.ChaptersControl.style.display = visible ? '' : 'none';
+
+		if (!visible)
 			this._closePopovers();
 	};
 
@@ -11290,8 +11593,26 @@ function Ayle (driver, options) {
 	};
 
 
+	AyleUI.prototype._inlineToolbarOverflows = function () {
+		if (!this.Controls)
+			return false;
+
+		var available = this.Controls.clientWidth || 0;
+
+		if (!available)
+			return false;
+
+		/*
+		 * Measure the actual inline composition instead of guessing from the
+		 * Player width. Different toolbar presets can have radically different
+		 * fixed-width controls, so a hard 760px breakpoint caused perfectly
+		 * valid compact toolbars to jump to the multi-row layout.
+		 */
+		return this.Controls.scrollWidth > available + 1;
+	};
+
 	AyleUI.prototype.UpdateControlLayoutMode = function () {
-		if (!this.Element)
+		if (!this.Element || !this.Controls)
 			return;
 
 		var width =
@@ -11300,14 +11621,40 @@ function Ayle (driver, options) {
 			0;
 		var layout = this.Player.Options.UI && this.Player.Options.UI.Toolbar ?
 			this.Player.Options.UI.Toolbar.Layout : 'inline';
-		var narrow = width > 0 && width <= 760;
-		var veryNarrow = width > 0 && width <= 430;
-		var timelineTop =
-			!narrow &&
-			(
-				layout === 'timeline-top' ||
-				(layout === 'auto' && width > 0 && width <= 1100)
-			);
+
+		/* Always measure from the normal inline geometry first. */
+		this.Element.classList.remove('ayle-controls-narrow');
+		this.Element.classList.remove('ayle-controls-very-narrow');
+		this.Element.classList.remove('ayle-controls-timeline-top');
+		this._applyToolbarLayoutGeometry();
+
+		var inlineOverflow = this._inlineToolbarOverflows();
+		var timelineTop = false;
+		var narrow = false;
+
+		if (layout === 'timeline-top')
+			timelineTop = true;
+		else if (layout === 'auto' && inlineOverflow)
+			timelineTop = true;
+		else if (layout === 'inline' && inlineOverflow)
+			narrow = true;
+
+		/*
+		 * The explicit/automatic timeline-top layout itself can still become too
+		 * wide on very small Players. In that case fall back to the narrow grid.
+		 */
+		if (timelineTop) {
+			this.Element.classList.add('ayle-controls-timeline-top');
+			this._applyToolbarLayoutGeometry();
+
+			if (this.Controls.scrollWidth > this.Controls.clientWidth + 1) {
+				timelineTop = false;
+				narrow = true;
+				this.Element.classList.remove('ayle-controls-timeline-top');
+			}
+		}
+
+		var veryNarrow = narrow && width > 0 && width <= 430;
 
 		this.Element.classList.toggle('ayle-controls-narrow', narrow);
 		this.Element.classList.toggle('ayle-controls-very-narrow', veryNarrow);
@@ -11942,6 +12289,7 @@ function Ayle (driver, options) {
 
 		player.On('mediaModeChange', function () {
 			self.ApplyMediaMode();
+			self.UpdatePlayButton();
 
 			if (self.Player.State.MediaMode === 'video' && !self._artworkSlideshowPlayed)
 				self.StartArtworkSlideshow();
@@ -11961,6 +12309,7 @@ function Ayle (driver, options) {
 			player.State.VideoHeight = 0;
 			self._artworkSlideshowPlayed = false;
 			self.ApplyMediaMode();
+			self.UpdatePlayButton();
 			self.UpdateTrackCompactOverlay(true);
 			self.StartArtworkSlideshow();
 		});

@@ -25,26 +25,11 @@ export class AppComponent {
 	};
 
 	readonly MinimalVideo = {
-		MediaMode: 'video',
-		UI: {
-			Header: [],
-			Overlay: ['track:compact'],
-			Toolbar: {
-				Items: ['play', 'timeline', 'time', 'volume']
-			}
-		}
+		MediaMode: 'video'
 	};
 
 	readonly MinimalAudio = {
-		MediaMode: 'audio',
-		UI: {
-			Header: [],
-			Track: ['artwork', 'title', 'artist', 'album'],
-			Overlay: ['track:compact', 'subtitles'],
-			Toolbar: {
-				Items: ['play', 'timeline', 'time', 'volume']
-			}
-		}
+		MediaMode: 'audio'
 	};
 
 	readonly FullVideoHTTP = this.FullHTTP('example.mkv');
@@ -156,7 +141,7 @@ export class AppComponent {
 			Muted: false,
 			Start: 0,
 			NativeSubtitles: false,
-			SubtitleOffset: 0,
+			SubtitleOffset: mediaMode === 'audio' ? -2.85 : 0,
 			AutoNativeSubtitlesInPictureInPicture: false,
 			SubtitleStyle: {
 				Color: '#fff',
@@ -173,34 +158,30 @@ export class AppComponent {
 				MaxWidth: '90%'
 			},
 			LoadingDelay: 180,
-			ForceShowQualityList: false,
+			ForceShowQualityList: mediaMode === 'video',
+			ForceShowChaptersList: false,
 			ShowCenterPlayButton: mediaMode !== 'audio',
 			AutoFocus: false,
 			MediaMode: mediaMode,
+			Preset: '',
 			UI: {
-				Header: ['channel:card', 'track'],
+				Header: [],
 				Track: mediaMode === 'audio' ?
 					['artwork', 'title', 'artist', 'album'] :
 					['title', 'chapter'],
 				Channel: ['name', 'profile'],
-				Overlay: [],
+				Overlay: mediaMode === 'audio' ?
+					['track:compact', 'subtitles'] :
+					['track:compact'],
 				Toolbar: {
 					Layout: 'inline',
-					Items: [
-						'play',
-						'timeline',
-						'time',
-						'volume',
-						'chapters',
-						'quality',
-						'settings',
-						'pip',
-						'fullscreen'
-					]
+					Items: mediaMode === 'audio' ?
+						['play', 'timeline', 'time', 'volume', 'settings'] :
+						['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
 				}
 			},
 			AudioVisual: {
-				Type: 'auto',
+				Type: mediaMode === 'audio' ? 'cover' : 'auto',
 				Image: '',
 				Subtitles: true,
 				MinHeight: 240

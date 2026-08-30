@@ -60,15 +60,7 @@ For normal imperative use, `Ayle.Init()` is the assembly entry point. It accepts
 
 ```js
 var player = Ayle.Init('#player-minimal-audio', AyleMSEMediaDriver, {
-	MediaMode: 'audio',
-	UI: {
-		Header: [],
-		Track: ['artwork', 'title', 'artist', 'album'],
-		Overlay: ['track:compact', 'subtitles'],
-		Toolbar: {
-			Items: ['play', 'timeline', 'time', 'volume']
-		}
-	}
+	MediaMode: 'audio'
 });
 ```
 
@@ -80,6 +72,8 @@ var player = Ayle.Init(element, AyleMSEMediaDriver, options);
 ```
 
 An instance created this way exposes the assembled runtime objects as `player.Element`, `player.MediaElement`, `player.Driver`, and `player.UI`.
+
+`MediaMode` also selects the default UI composition. `video` defaults to an empty header, compact track overlay, and the core playback toolbar; `audio` defaults to an empty header, artwork/title/artist/album track content, compact track + subtitles overlays, and the same core playback toolbar. Any explicitly supplied `UI` field overrides only that field. An explicit empty array such as `UI.Header: []` always means exactly an empty header and is never treated as “use defaults”.
 
 Drivers are dependency-free at construction time. The driver contract receives its dependencies explicitly through `SetUI(ui)` and `SetOptions(options)`. `Ayle.Init()` calls `SetOptions()` for the optional fourth argument and `AyleUI` calls `SetUI()` after the media element is resolved:
 
@@ -196,7 +190,7 @@ A normal declarative config is an object with these top-level fields:
 | Option | Type / default | Description |
 | --- | --- | --- |
 | `ID` | string / generated | Optional instance ID when `data-ayle` does not provide one. |
-| `Preset` | string / none | Preset name. Built-in values are `video` and `audio`. Preset values are merged first; concrete config values override them. |
+| `Preset` | string / none | Bootstrap shortcut for `Player.Preset`. Built-in names are `video` and `audio`; registered custom presets use the shared Ayle core registry. |
 | `Player` | object / `{}` | Options passed to the `Ayle` runtime object. Fully documented below. |
 | `Driver` | object / required | Driver selection. `Driver.Type` must currently be `html5` or `mse`. |
 | `HTTP` | object / `{}` | Metadata and track loading configuration used by `AyleHTTP`. |
@@ -228,9 +222,11 @@ A normal declarative config is an object with these top-level fields:
 | `SubtitleStyle` | object / `{}` | Custom subtitle-overlay style. See `Player.SubtitleStyle`. |
 | `LoadingDelay` | number / `180` | Delay in milliseconds before the loading indicator becomes visible. |
 | `ForceShowQualityList` | boolean / `false` | Keep the quality/variant selector available even when only one variant exists. |
+| `ForceShowChaptersList` | boolean / `false` | Keep the Chapters control visible even when the current source has no chapters. |
 | `ShowCenterPlayButton` | boolean / mode-dependent (`true` for video, `false` for audio) | Show the large center Play button. When omitted, the default follows the resolved media mode, including sources resolved through `MediaMode: 'auto'`. |
 | `AutoFocus` | boolean / `false` | Focus the player automatically when the user interacts with its controls/surface. |
 | `MediaMode` | `auto`, `video`, `audio` / `auto` | Select media mode. `auto` resolves from the loaded source. |
+| `Preset` | string / empty | Optional registered custom preset layered over the built-in preset selected by `MediaMode`. |
 | `UI` | object | Declarative UI composition: header, track, channel, overlay, and toolbar. |
 | `AudioVisual` | object | Controls the visual area used by audio mode. |
 | `ArtworkSlideshow` | object | Controls the pre-playback artwork slideshow. |
@@ -273,9 +269,8 @@ UI: {
 			'volume',
 			'chapters',
 			'quality',
-			'settings',
-			'pip',
-			'fullscreen'
+			'fullscreen',
+			'settings'
 		]
 	}
 }
@@ -769,16 +764,105 @@ Public attributes are intended for embedding/configuration. Runtime/internal att
 
 ## Presets
 
-`video` uses the normal video UI, central Play button, keyboard controls,
-quality/chapters/settings integration and artwork slideshow. Slideshow controls
-remain visible by default and artwork uses `cover` fit by default.
+Ayle has one preset registry shared by the direct runtime, Bootstrap, Angular,
+React and declarative embeds. `video` and `audio` are built-in mode presets.
+When `Player.Preset` is omitted, `MediaMode` selects the matching built-in
+preset automatically. `MediaMode: 'auto'` follows the resolved source mode.
 
-`audio` uses a compact headerless audio composition and supports metadata/info, subtitles,
-settings and audio-visual behavior. Its default compact track composition is
-`['artwork', 'title', 'artist', 'album']`, restoring the Now Playing card with
-cover artwork, title, and an `Artist · Album` metadata line.
+Both built-in presets use an empty header. `video` uses
+`['title', 'chapter']` track content and `['track:compact']` overlay. Its
+center Play button is enabled and video loading uses the normal centered
+circular spinner. `audio` uses `['artwork', 'title', 'artist', 'album']` track
+content and `['track:compact', 'subtitles']` overlay; compact audio may use the
+timeline loading treatment instead. The built-in `video` toolbar is:
 
-Presets deliberately contain neither backend URLs nor a concrete media file.
+```js
+['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
+```
+
+`chapters` and `quality` are present in the layout but hide themselves when
+there is no corresponding data. `fullscreen` is always present. `settings` is
+the final/rightmost default item. `pip` is intentionally not part of the
+default video preset and can be added explicitly.
+
+The built-in `audio` toolbar remains:
+
+```js
+['play', 'timeline', 'time', 'volume', 'settings']
+```
+
+`settings` is therefore available by default, but it is still only a layout
+item. A concrete player can remove it by explicitly supplying another
+`UI.Toolbar.Items` array.
+
+The inline toolbar switches to its narrow/multi-row geometry only when the
+rendered controls actually overflow the available Player width; it is not
+selected from a fixed Player-width breakpoint.
+
+Preset contract:
+
+```js
+Ayle.RegisterPreset('podcast', {
+	Player: {
+		ShowCenterPlayButton: false,
+		AutoFocus: true
+	},
+	UI: {
+		Header: [],
+		Track: ['artwork', 'title', 'artist', 'album'],
+		Overlay: ['track:compact'],
+		Toolbar: {
+			Items: ['play', 'timeline', 'time', 'volume', 'settings']
+		}
+	}
+});
+```
+
+`Player` contains partial player behaviour options. `UI` contains the partial
+UI composition. A preset cannot change `MediaMode`; `MediaMode`, `Preset` and
+nested `Player.UI` are ignored during preset registration so that media
+semantics stay explicit. HTTP/Driver/File configuration is not part of the
+preset contract.
+
+Use a registered preset directly:
+
+```js
+var player = new Ayle(driver, {
+	MediaMode: 'audio',
+	Preset: 'podcast'
+});
+```
+
+Resolution order is:
+
+```text
+core defaults
+    -> MediaMode built-in preset
+    -> custom preset
+    -> explicit player options
+```
+
+Explicit values always win, including empty arrays. For example,
+`UI: {Header: []}` always means an empty header; it never means "restore the
+preset value".
+
+Registry API:
+
+```js
+Ayle.RegisterPreset(name, preset);
+Ayle.GetPreset(name);
+Ayle.HasPreset(name);
+Ayle.RemovePreset(name);
+```
+
+The built-in `video` and `audio` names are protected from overwrite/removal.
+`GetPreset()` returns a copy. `AyleBootstrap` exposes delegates with the same
+four method names, so declarative, Angular and React integrations use the same
+registry rather than maintaining a second preset system.
+
+For declarative configuration, the top-level `Preset` shortcut and
+`data-ayle-preset` are normalized to `Player.Preset`.
+
 
 ## Public runtime classes
 
@@ -1552,9 +1636,8 @@ UI: {
 			'volume',
 			'chapters',
 			'quality',
-			'settings',
-			'pip',
-			'fullscreen'
+			'fullscreen',
+			'settings'
 		]
 	}
 }
@@ -1630,9 +1713,8 @@ UI: {
 			'volume',
 			'chapters',
 			'quality',
-			'settings',
-			'pip',
-			'fullscreen'
+			'fullscreen',
+			'settings'
 		]
 	}
 }
@@ -1656,9 +1738,8 @@ UI: {
 			'volume',
 			'chapters',
 			'quality',
-			'settings',
-			'pip',
-			'fullscreen'
+			'fullscreen',
+			'settings'
 		]
 	}
 }

@@ -271,14 +271,7 @@
 			<pre class="example-code"><code>var root = document.getElementById('player-minimal-video');
 var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
-	MediaMode: 'video',
-	UI: {
-		Header: [],
-		Overlay: ['track:compact'],
-		Toolbar: {
-			Items: ['play', 'timeline', 'time', 'volume']
-		}
-	}
+	MediaMode: 'video'
 });
 var ui = new AyleUI(root, player);
 
@@ -307,14 +300,7 @@ http.Load(function (error, source, metadata) {
 });</code></pre>
 			<div class="example-code-title">Same player with Ayle.Init()</div>
 			<pre class="example-code"><code>var player = Ayle.Init('#player-minimal-video', AyleMSEMediaDriver, {
-	MediaMode: 'video',
-	UI: {
-		Header: [],
-		Overlay: ['track:compact'],
-		Toolbar: {
-			Items: ['play', 'timeline', 'time', 'volume']
-		}
-	}
+	MediaMode: 'video'
 });</code></pre>
 		</section>
 		<section class="example-card">
@@ -570,15 +556,7 @@ http.Load(function (error, source, metadata) {
 			<pre class="example-code"><code>var root = document.getElementById('player-minimal-audio');
 var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
-	MediaMode: 'audio',
-	UI: {
-		Header: [],
-		Track: ['artwork', 'title', 'artist', 'album'],
-		Overlay: ['track:compact', 'subtitles'],
-		Toolbar: {
-			Items: ['play', 'timeline', 'time', 'volume']
-		}
-	}
+	MediaMode: 'audio'
 });
 var ui = new AyleUI(root, player);
 
@@ -883,28 +861,20 @@ var player = new Ayle(driver, {
 			MaxWidth: '90%'
 		},
 		LoadingDelay: 180,
-		ForceShowQualityList: false,
+		ForceShowQualityList: true,
+		ForceShowChaptersList: false,
 		ShowCenterPlayButton: true,
 		AutoFocus: false,
 		MediaMode: 'video',
+		Preset: '',
 		UI: {
-			Header: ['channel:card', 'track'],
+			Header: [],
 			Track: ['title', 'chapter'],
 			Channel: ['name', 'profile'],
-			Overlay: [],
+			Overlay: ['track:compact'],
 			Toolbar: {
 				Layout: 'inline',
-				Items: [
-					'play',
-					'timeline',
-					'time',
-					'volume',
-					'chapters',
-					'quality',
-					'settings',
-					'pip',
-					'fullscreen'
-				]
+				Items: ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
 			}
 		},
 		AudioVisual: {
@@ -1433,7 +1403,7 @@ var player = new Ayle(driver, {
 		Muted: false,
 		Start: 0,
 		NativeSubtitles: false,
-		SubtitleOffset: 0,
+		SubtitleOffset: -2.85,
 		AutoNativeSubtitlesInPictureInPicture: false,
 		SubtitleStyle: {
 			Color: '#fff',
@@ -1451,31 +1421,23 @@ var player = new Ayle(driver, {
 		},
 		LoadingDelay: 180,
 		ForceShowQualityList: false,
+		ForceShowChaptersList: false,
 		ShowCenterPlayButton: false,
 		AutoFocus: false,
 		MediaMode: 'audio',
+		Preset: '',
 		UI: {
-			Header: ['channel:card', 'track'],
+			Header: [],
 			Track: ['artwork', 'title', 'artist', 'album'],
 			Channel: ['name', 'profile'],
-			Overlay: [],
+			Overlay: ['track:compact', 'subtitles'],
 			Toolbar: {
 				Layout: 'inline',
-				Items: [
-					'play',
-					'timeline',
-					'time',
-					'volume',
-					'chapters',
-					'quality',
-					'settings',
-					'pip',
-					'fullscreen'
-				]
+				Items: ['play', 'timeline', 'time', 'volume', 'settings']
 			}
 		},
 		AudioVisual: {
-			Type: 'auto',
+			Type: 'cover',
 			Image: '',
 			Subtitles: true,
 			MinHeight: 240
@@ -1866,14 +1828,7 @@ bootstrap.InitConfig(config);</code></pre>
 var root = document.getElementById('player-minimal-video');
 var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
-	MediaMode: 'video',
-	UI: {
-		Header: [],
-		Overlay: ['track:compact'],
-		Toolbar: {
-			Items: ['play', 'timeline', 'time', 'volume']
-		}
-	}
+	MediaMode: 'video'
 });
 var ui = new AyleUI(root, player);
 
@@ -1903,15 +1858,7 @@ http.Load(function (error, source, metadata) {
 var root = document.getElementById('player-minimal-audio');
 var driver = new AyleMSEMediaDriver();
 var player = new Ayle(driver, {
-	MediaMode: 'audio',
-	UI: {
-		Header: [],
-		Track: ['artwork', 'title', 'artist', 'album'],
-		Overlay: ['track:compact', 'subtitles'],
-		Toolbar: {
-			Items: ['play', 'timeline', 'time', 'volume']
-		}
-	}
+	MediaMode: 'audio'
 });
 var ui = new AyleUI(root, player);
 
@@ -1965,28 +1912,20 @@ var player = new Ayle(driver, {
 			MaxWidth: '90%'
 		},
 		LoadingDelay: 180,
-		ForceShowQualityList: false,
+		ForceShowQualityList: true,
+		ForceShowChaptersList: false,
 		ShowCenterPlayButton: true,
 		AutoFocus: false,
 		MediaMode: 'video',
+		Preset: '',
 		UI: {
-			Header: ['channel:card', 'track'],
+			Header: [],
 			Track: ['title', 'chapter'],
 			Channel: ['name', 'profile'],
-			Overlay: [],
+			Overlay: ['track:compact'],
 			Toolbar: {
 				Layout: 'inline',
-				Items: [
-					'play',
-					'timeline',
-					'time',
-					'volume',
-					'chapters',
-					'quality',
-					'settings',
-					'pip',
-					'fullscreen'
-				]
+				Items: ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
 			}
 		},
 		AudioVisual: {
@@ -2264,7 +2203,7 @@ var player = new Ayle(driver, {
 		Muted: false,
 		Start: 0,
 		NativeSubtitles: false,
-		SubtitleOffset: 0,
+		SubtitleOffset: -2.85,
 		AutoNativeSubtitlesInPictureInPicture: false,
 		SubtitleStyle: {
 			Color: '#fff',
@@ -2282,31 +2221,23 @@ var player = new Ayle(driver, {
 		},
 		LoadingDelay: 180,
 		ForceShowQualityList: false,
+		ForceShowChaptersList: false,
 		ShowCenterPlayButton: false,
 		AutoFocus: false,
 		MediaMode: 'audio',
+		Preset: '',
 		UI: {
-			Header: ['channel:card', 'track'],
+			Header: [],
 			Track: ['artwork', 'title', 'artist', 'album'],
 			Channel: ['name', 'profile'],
-			Overlay: [],
+			Overlay: ['track:compact', 'subtitles'],
 			Toolbar: {
 				Layout: 'inline',
-				Items: [
-					'play',
-					'timeline',
-					'time',
-					'volume',
-					'chapters',
-					'quality',
-					'settings',
-					'pip',
-					'fullscreen'
-				]
+				Items: ['play', 'timeline', 'time', 'volume', 'settings']
 			}
 		},
 		AudioVisual: {
-			Type: 'auto',
+			Type: 'cover',
 			Image: '',
 			Subtitles: true,
 			MinHeight: 240
