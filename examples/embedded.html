@@ -181,7 +181,9 @@
 			"Toolbar": {
 				"Layout": "timeline-top",
 				"Items": [
+					"previous",
 					"play",
+					"next",
 					"timeline",
 					"time",
 					"volume",
@@ -304,6 +306,30 @@
 							"Source": null,
 							"Callback": null,
 							"Correct": false
+						},
+						{
+							"Type": "next",
+							"Title": "Next file",
+							"Label": "Next file",
+							"Name": "",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
+						},
+						{
+							"Type": "previous",
+							"Title": "Previous file",
+							"Label": "Previous file",
+							"Name": "",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
 						}
 					],
 					"Dismissible": true,
@@ -339,7 +365,7 @@
 					"Before": "settings",
 					"After": "",
 					"Icon": "",
-					"Label": "\u2605",
+					"Label": "★",
 					"Title": "Favorite",
 					"ClassName": "",
 					"Visible": true,
@@ -386,11 +412,12 @@
 			"Data": {
 				"Example": "full"
 			}
-		}
+		},
+		"ForceShowPreviousButton": true,
+		"ForceShowNextButton": true
 	},
 	"MediaProvider": {
 		"Type": "http",
-		"File": "example.mkv",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
 		"VideoURL": "",
@@ -440,6 +467,33 @@
 		"VideoType": "video/mp4",
 		"AudioType": "audio/mp4",
 		"SubtitleType": "text/vtt"
+	},
+	"Playlist": {
+		"AutoAdvance": true,
+		"AutoAdvanceDelay": 5000,
+		"Loop": false,
+		"StartIndex": 0,
+		"Items": [
+			{
+				"ID": "first",
+				"MediaProvider": {
+					"File": "example.mkv"
+				}
+			},
+			{
+				"ID": "second",
+				"Driver": {
+					"Type": "mse",
+					"Options": {}
+				},
+				"MediaProvider": {
+					"File": "example2.mkv"
+				},
+				"Player": {
+					"MediaMode": "video"
+				}
+			}
+		]
 	}
 }
 	</script>
@@ -500,7 +554,9 @@
 			"Toolbar": {
 				"Layout": "timeline-top",
 				"Items": [
+					"previous",
 					"play",
+					"next",
 					"timeline",
 					"time",
 					"volume",
@@ -624,6 +680,30 @@
 							"Source": null,
 							"Callback": null,
 							"Correct": false
+						},
+						{
+							"Type": "next",
+							"Title": "Next file",
+							"Label": "Next file",
+							"Name": "",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
+						},
+						{
+							"Type": "previous",
+							"Title": "Previous file",
+							"Label": "Previous file",
+							"Name": "",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
 						}
 					],
 					"Dismissible": true,
@@ -706,11 +786,12 @@
 			"Data": {
 				"Example": "full"
 			}
-		}
+		},
+		"ForceShowPreviousButton": true,
+		"ForceShowNextButton": true
 	},
 	"MediaProvider": {
 		"Type": "http",
-		"File": "example.mkv",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
 		"VideoURL": "",
@@ -760,6 +841,33 @@
 		"VideoType": "video/mp4",
 		"AudioType": "audio/mp4",
 		"SubtitleType": "text/vtt"
+	},
+	"Playlist": {
+		"AutoAdvance": true,
+		"AutoAdvanceDelay": 5000,
+		"Loop": false,
+		"StartIndex": 0,
+		"Items": [
+			{
+				"ID": "first",
+				"MediaProvider": {
+					"File": "example.mkv"
+				}
+			},
+			{
+				"ID": "second",
+				"Driver": {
+					"Type": "mse",
+					"Options": {}
+				},
+				"MediaProvider": {
+					"File": "example2.mkv"
+				},
+				"Player": {
+					"MediaMode": "video"
+				}
+			}
+		]
 	}
 }
 &lt;/script&gt;</code></pre>
@@ -833,7 +941,9 @@
 			"Toolbar": {
 				"Layout": "inline",
 				"Items": [
+					"previous",
 					"play",
+					"next",
 					"timeline",
 					"time",
 					"volume",
@@ -953,6 +1063,30 @@
 							"Source": null,
 							"Callback": null,
 							"Correct": false
+						},
+						{
+							"Type": "next",
+							"Title": "Next file",
+							"Label": "Next file",
+							"Name": "",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
+						},
+						{
+							"Type": "previous",
+							"Title": "Previous file",
+							"Label": "Previous file",
+							"Name": "",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
 						}
 					],
 					"Dismissible": true,
@@ -988,7 +1122,7 @@
 					"Before": "settings",
 					"After": "",
 					"Icon": "",
-					"Label": "\u2605",
+					"Label": "★",
 					"Title": "Favorite",
 					"ClassName": "",
 					"Visible": true,
@@ -1035,11 +1169,12 @@
 			"Data": {
 				"Example": "full"
 			}
-		}
+		},
+		"ForceShowPreviousButton": true,
+		"ForceShowNextButton": true
 	},
 	"MediaProvider": {
 		"Type": "http",
-		"File": "example.mp3",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
 		"VideoURL": "",
@@ -1089,6 +1224,33 @@
 		"VideoType": "video/mp4",
 		"AudioType": "audio/mp4",
 		"SubtitleType": "text/vtt"
+	},
+	"Playlist": {
+		"AutoAdvance": true,
+		"AutoAdvanceDelay": 5000,
+		"Loop": false,
+		"StartIndex": 0,
+		"Items": [
+			{
+				"ID": "first",
+				"MediaProvider": {
+					"File": "example.mp3"
+				}
+			},
+			{
+				"ID": "second",
+				"Driver": {
+					"Type": "mse",
+					"Options": {}
+				},
+				"MediaProvider": {
+					"File": "example2.mp3"
+				},
+				"Player": {
+					"MediaMode": "audio"
+				}
+			}
+		]
 	}
 }
 	</script>
@@ -1151,7 +1313,9 @@
 			"Toolbar": {
 				"Layout": "inline",
 				"Items": [
+					"previous",
 					"play",
+					"next",
 					"timeline",
 					"time",
 					"volume",
@@ -1275,6 +1439,30 @@
 							"Source": null,
 							"Callback": null,
 							"Correct": false
+						},
+						{
+							"Type": "next",
+							"Title": "Next file",
+							"Label": "Next file",
+							"Name": "",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
+						},
+						{
+							"Type": "previous",
+							"Title": "Previous file",
+							"Label": "Previous file",
+							"Name": "",
+							"URL": "",
+							"Target": "_blank",
+							"Time": 0,
+							"Source": null,
+							"Callback": null,
+							"Correct": false
 						}
 					],
 					"Dismissible": true,
@@ -1357,11 +1545,12 @@
 			"Data": {
 				"Example": "full"
 			}
-		}
+		},
+		"ForceShowPreviousButton": true,
+		"ForceShowNextButton": true
 	},
 	"MediaProvider": {
 		"Type": "http",
-		"File": "example.mp3",
 		"MetadataURL": "../../server/metadata.php?file={file}",
 		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
 		"VideoURL": "",
@@ -1411,6 +1600,33 @@
 		"VideoType": "video/mp4",
 		"AudioType": "audio/mp4",
 		"SubtitleType": "text/vtt"
+	},
+	"Playlist": {
+		"AutoAdvance": true,
+		"AutoAdvanceDelay": 5000,
+		"Loop": false,
+		"StartIndex": 0,
+		"Items": [
+			{
+				"ID": "first",
+				"MediaProvider": {
+					"File": "example.mp3"
+				}
+			},
+			{
+				"ID": "second",
+				"Driver": {
+					"Type": "mse",
+					"Options": {}
+				},
+				"MediaProvider": {
+					"File": "example2.mp3"
+				},
+				"Player": {
+					"MediaMode": "audio"
+				}
+			}
+		]
 	}
 }
 &lt;/script&gt;</code></pre>

@@ -71,6 +71,24 @@ if (lowLevel.indexOf('new AyleUI(') !== -1)
 if ((lowLevel.match(/player\.AttachUI\(root\);/g) || []).length !== 4)
 	throw new Error('Full low-level examples must attach UI through the DOM object');
 
+
+for (const playerID of [
+	'player-minimal-video',
+	'player-minimal-audio',
+	'player-full-video',
+	'player-full-audio'
+]) {
+	const playerStart = lowLevel.indexOf('id="' + playerID + '"');
+	const playerEnd = lowLevel.indexOf('<div class="example-code-title">', playerStart);
+	const playerDOM = lowLevel.slice(playerStart, playerEnd);
+
+	if (
+		playerDOM.indexOf('class="ayle-icon-button ayle-previous"') === -1 ||
+		playerDOM.indexOf('class="ayle-icon-button ayle-next"') === -1
+	)
+		throw new Error(playerID + ' DOM must contain Previous and Next controls');
+}
+
 if ((lowLevel.match(/player\.AttachUI\('#player-minimal-(?:video|audio)'\);/g) || []).length !== 4)
 	throw new Error('Minimal low-level examples must attach UI directly through a selector');
 
@@ -115,6 +133,39 @@ const embeddedMounts = (embedded.match(/class="example-embedded-player"/g) || []
 
 if (embeddedMounts !== 4)
 	throw new Error('Embedded canonical example must have one stable mount wrapper per variant');
+
+
+if (
+	(lowLevel.match(/AutoAdvanceDelay: 5000/g) || []).length !== 4 ||
+	(lowLevel.match(/ForceShowPreviousButton: true/g) || []).length !== 4 ||
+	(lowLevel.match(/ForceShowNextButton: true/g) || []).length !== 4 ||
+	(lowLevel.match(/Type: 'next'/g) || []).length !== 4 ||
+	(lowLevel.match(/Type: 'previous'/g) || []).length !== 4
+)
+	throw new Error('Low-level full examples must expose Playlist delay, forced controls and Hint navigation');
+
+
+if (
+	(lowLevel.match(/File: 'example2\.mkv'/g) || []).length !== 2 ||
+	(lowLevel.match(/File: 'example2\.mp3'/g) || []).length !== 2
+)
+	throw new Error('Low-level full playlists must use example/example2 as distinct media items');
+
+if (
+	(embedded.match(/"AutoAdvanceDelay": 5000/g) || []).length !== 4 ||
+	(embedded.match(/"ForceShowPreviousButton": true/g) || []).length !== 4 ||
+	(embedded.match(/"ForceShowNextButton": true/g) || []).length !== 4 ||
+	(embedded.match(/"Type": "next"/g) || []).length !== 4 ||
+	(embedded.match(/"Type": "previous"/g) || []).length !== 4
+)
+	throw new Error('Embedded full examples must expose Playlist delay, forced controls and Hint navigation');
+
+
+if (
+	(embedded.match(/"File": "example2\.mkv"/g) || []).length !== 2 ||
+	(embedded.match(/"File": "example2\.mp3"/g) || []).length !== 2
+)
+	throw new Error('Embedded full playlists must use example/example2 as distinct media items');
 
 if (embedded.indexOf('embedded-config-source') !== -1)
 	throw new Error('Embedded canonical example must not use a hidden staging container');
@@ -212,7 +263,6 @@ const fullStructuredOptions = {
 
 const fullMediaProviderOptions = [
 	'Type',
-	'File',
 	'MetadataURL',
 	'TrackURL',
 	'VideoURL',
@@ -392,6 +442,26 @@ validateFullObject(
 	'embedded-full-audio'
 );
 
+
+for (const [name, firstFile, secondFile] of [
+	['embedded-full-video', 'example.mkv', 'example2.mkv'],
+	['embedded-full-audio', 'example.mp3', 'example2.mp3']
+]) {
+	const config = embeddedConfigs[name];
+
+	if (hasOwn(config.MediaProvider, 'File'))
+		throw new Error(name + ' top-level MediaProvider.File must not act as a separate main file');
+
+	if (
+		!config.Playlist ||
+		!Array.isArray(config.Playlist.Items) ||
+		config.Playlist.Items.length !== 2 ||
+		config.Playlist.Items[0].MediaProvider.File !== firstFile ||
+		config.Playlist.Items[1].MediaProvider.File !== secondFile
+	)
+		throw new Error(name + ' Playlist.Items must be the authoritative example/example2 media sequence');
+}
+
 const minimalDefaultNames = [
 	'AutoSelectFirstSubtitleTrack',
 	'AutoPlay',
@@ -509,6 +579,40 @@ if (
 	angularSource.indexOf("ForceShowQualityList: mediaMode === 'video'") === -1
 )
 	throw new Error('Framework full examples must force-show Quality for video');
+
+
+if (
+	reactSource.indexOf('ForceShowPreviousButton: true') === -1 ||
+	reactSource.indexOf('ForceShowNextButton: true') === -1 ||
+	angularSource.indexOf('ForceShowPreviousButton: true') === -1 ||
+	angularSource.indexOf('ForceShowNextButton: true') === -1
+)
+	throw new Error('Framework full examples must explicitly force-show Previous/Next');
+
+if (
+	reactSource.indexOf('AutoAdvanceDelay: 5000') === -1 ||
+	angularSource.indexOf('AutoAdvanceDelay: 5000') === -1 ||
+	reactSource.indexOf('playlist={FULL_VIDEO_PLAYLIST}') === -1 ||
+	angularSource.indexOf('[playlist]="FullVideoPlaylist"') === -1
+)
+	throw new Error('Framework full examples must demonstrate Playlist + AutoAdvanceDelay');
+
+
+if (
+	reactSource.indexOf("fullPlaylist('example.mkv', 'example2.mkv', 'video')") === -1 ||
+	reactSource.indexOf("fullPlaylist('example.mp3', 'example2.mp3', 'audio')") === -1 ||
+	angularSource.indexOf("this.FullPlaylist('example.mkv', 'example2.mkv', 'video')") === -1 ||
+	angularSource.indexOf("this.FullPlaylist('example.mp3', 'example2.mp3', 'audio')") === -1
+)
+	throw new Error('Framework full playlists must demonstrate distinct example/example2 files');
+
+if (
+	reactSource.indexOf("Type: 'next'") === -1 ||
+	reactSource.indexOf("Type: 'previous'") === -1 ||
+	angularSource.indexOf("Type: 'next'") === -1 ||
+	angularSource.indexOf("Type: 'previous'") === -1
+)
+	throw new Error('Framework full Hints must demonstrate next/previous playlist actions');
 
 if (
 	reactSource.indexOf("Layout: mediaMode === 'video' ? 'timeline-top' : 'inline'") === -1 ||
@@ -685,6 +789,62 @@ if (
 	bootstrap.indexOf('ayle-next') === -1
 )
 	throw new Error('Playlist Previous/Next toolbar controls are incomplete');
+
+
+if (
+	core.indexOf('ForceShowPreviousButton: !!options.ForceShowPreviousButton') === -1 ||
+	core.indexOf('ForceShowNextButton: !!options.ForceShowNextButton') === -1 ||
+	core.indexOf('this.Player.Options.ForceShowPreviousButton') === -1 ||
+	core.indexOf('this.Player.Options.ForceShowNextButton') === -1
+)
+	throw new Error('ForceShow Previous/Next button semantics are incomplete');
+
+if (
+	core.indexOf("this.Options.ForceShowPreviousButton = !!options.ForceShowPreviousButton;") === -1 ||
+	core.indexOf("this.Options.ForceShowNextButton = !!options.ForceShowNextButton;") === -1 ||
+	core.indexOf("items.splice(playIndex >= 0 ? playIndex : 0, 0, 'previous');") !== -1 ||
+	core.indexOf("items.splice(playIndex >= 0 ? playIndex + 1 : items.length, 0, 'next');") !== -1 ||
+	core.indexOf("var hasPlaylist = count > 0;") === -1 ||
+	core.indexOf("this.PreviousButton.disabled = !this.Player.HasPrevious();") === -1 ||
+	core.indexOf("this.NextButton.disabled = !this.Player.HasNext();") === -1
+)
+	throw new Error('Previous/Next must keep stable playlist geometry, use disabled availability, and never be force-injected');
+
+if (
+	css.indexOf('.ayle-icon-button:disabled {') === -1 ||
+	css.indexOf('.ayle-icon-button:disabled:hover') === -1
+)
+	throw new Error('Disabled playlist icon buttons must have an explicit visual/non-hover state');
+
+if (
+	core.indexOf('AutoAdvanceDelay: playlist.AutoAdvanceDelay !== undefined') === -1 ||
+	core.indexOf('Ayle.prototype._schedulePlaylistAutoAdvance = function') === -1 ||
+	core.indexOf("this.Emit('playlistAutoAdvanceStart'") === -1 ||
+	core.indexOf("this.Emit('playlistAutoAdvanceCancel'") === -1 ||
+	core.indexOf("this.Emit('playlistAutoAdvanceComplete'") === -1
+)
+	throw new Error('Delayed playlist auto-advance lifecycle is incomplete');
+
+if (
+	core.indexOf("type === 'next' || type === 'playlist-next'") === -1 ||
+	core.indexOf("type === 'previous' || type === 'playlist-previous'") === -1
+)
+	throw new Error('Hint actions must support playlist next/previous navigation');
+
+if (
+	core.indexOf('Ayle.prototype._beginMediaLoad = function') === -1 ||
+	core.indexOf('this.Player.State.Loading && !this.Player.State.Ready') === -1 ||
+	core.indexOf('this.Player.HasPlayableSource() &&') !== -1
+)
+	throw new Error('Media initialization loading indicator must start before provider/source resolution');
+
+if (
+	core.indexOf('AyleUI.prototype.StartPlaylistAutoAdvanceCountdown = function') === -1 ||
+	core.indexOf('ayle-center-play-countdown') === -1 ||
+	css.indexOf('.ayle-center-play-countdown') === -1 ||
+	bootstrap.indexOf('ayle-center-play-countdown') === -1
+)
+	throw new Error('Center Play auto-advance countdown ring is incomplete');
 
 if (
 	core.indexOf("var visible = count > 1 || this.Player.Options.ForceShowQualityList;") === -1 ||
@@ -939,5 +1099,17 @@ if (
 	(lowLevel.match(/&lt;\/script&gt;<\/code><\/pre>/g) || []).length < 2
 )
 	throw new Error('Low-level Bootstrap examples must show the complete configuration script elements');
+
+
+for (const iconName of ['previous.svg', 'next.svg']) {
+	const iconPath = path.join(root, 'icons', iconName);
+	const iconSource = await fs.readFile(iconPath, 'utf8');
+
+	if (
+		iconSource.indexOf('<svg') === -1 ||
+		iconSource.indexOf('viewBox="0 0 24 24"') === -1
+	)
+		throw new Error('Standalone playlist icon is invalid: ' + iconName);
+}
 
 console.log('Ayle canonical examples validation passed: 4 APIs × 4 variants.');

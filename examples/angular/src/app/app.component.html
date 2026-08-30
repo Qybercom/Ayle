@@ -60,6 +60,7 @@
 					driver="mse"
 					settings="localStorage"
 					[mediaProvider]="FullVideoMediaProvider"
+					[playlist]="FullVideoPlaylist"
 					[player]="FullVideo"
 					[events]="FullEvents"
 					(ayleEvent)="OnEvent($event)">
@@ -83,6 +84,7 @@
 					driver="mse"
 					settings="localStorage"
 					[mediaProvider]="FullAudioMediaProvider"
+					[playlist]="FullAudioPlaylist"
 					[player]="FullAudio"
 					[events]="FullEvents"
 					(ayleEvent)="OnEvent($event)">

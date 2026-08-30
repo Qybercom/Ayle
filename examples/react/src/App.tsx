@@ -12,7 +12,7 @@ function minimalMediaProvider (file: string) {
 	};
 }
 
-function fullMediaProvider (file: string) {
+function fullMediaProvider () {
 	return {
 	Type: 'http',
 	File: file,
@@ -70,8 +70,45 @@ function fullMediaProvider (file: string) {
 
 const MINIMAL_VIDEO_MEDIA_PROVIDER = minimalMediaProvider('example.mp4');
 const MINIMAL_AUDIO_MEDIA_PROVIDER = minimalMediaProvider('example.mp3');
-const FULL_VIDEO_MEDIA_PROVIDER = fullMediaProvider('example.mkv');
-const FULL_AUDIO_MEDIA_PROVIDER = fullMediaProvider('example.mp3');
+const FULL_VIDEO_MEDIA_PROVIDER = fullMediaProvider();
+const FULL_AUDIO_MEDIA_PROVIDER = fullMediaProvider();
+
+function fullPlaylist (
+	file: string,
+	nextFile: string,
+	mediaMode: 'video' | 'audio'
+) {
+	return {
+		AutoAdvance: true,
+		AutoAdvanceDelay: 5000,
+		Loop: false,
+		StartIndex: 0,
+		Items: [
+			{
+				ID: 'first',
+				MediaProvider: {
+					File: file
+				}
+			},
+			{
+				ID: 'second',
+				Driver: {
+					Type: 'mse',
+					Options: {}
+				},
+				MediaProvider: {
+					File: nextFile
+				},
+				Player: {
+					MediaMode: mediaMode
+				}
+			}
+		]
+	};
+}
+
+const FULL_VIDEO_PLAYLIST = fullPlaylist('example.mkv', 'example2.mkv', 'video');
+const FULL_AUDIO_PLAYLIST = fullPlaylist('example.mp3', 'example2.mp3', 'audio');
 
 const MINIMAL_VIDEO = {
     MediaMode: 'video'
@@ -109,6 +146,8 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 		LoadingDelay: 180,
 		ForceShowQualityList: mediaMode === 'video',
 		ForceShowChaptersList: false,
+		ForceShowPreviousButton: true,
+		ForceShowNextButton: true,
 		ShowCenterPlayButton: mediaMode !== 'audio',
 		AutoFocus: false,
 		MediaMode: mediaMode,
@@ -235,6 +274,30 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 							Title: 'Action',
 							Label: 'Action',
 							Name: 'example-action',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
+						},
+						{
+							Type: 'next',
+							Title: 'Next file',
+							Label: 'Next file',
+							Name: '',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
+						},
+						{
+							Type: 'previous',
+							Title: 'Previous file',
+							Label: 'Previous file',
+							Name: '',
 							URL: '',
 							Target: '_blank',
 							Time: 0,
@@ -409,6 +472,7 @@ export default function App () {
 	driver="mse"
 	settings="localStorage"
 	mediaProvider={FULL_VIDEO_MEDIA_PROVIDER}
+	playlist={FULL_VIDEO_PLAYLIST}
 	player={FULL_VIDEO}
 	events={FULL_EVENTS}
 	onEvent={handleEvent}
@@ -418,6 +482,7 @@ export default function App () {
 					driver: 'mse',
 					settings: 'localStorage',
 					mediaProvider: FULL_VIDEO_MEDIA_PROVIDER,
+					playlist: FULL_VIDEO_PLAYLIST,
 					player: FULL_VIDEO,
 					events: FULL_EVENTS,
 					onEvent: function (event) {
@@ -434,6 +499,7 @@ export default function App () {
 	driver="mse"
 	settings="localStorage"
 	mediaProvider={FULL_AUDIO_MEDIA_PROVIDER}
+	playlist={FULL_AUDIO_PLAYLIST}
 	player={FULL_AUDIO}
 	events={FULL_EVENTS}
 	onEvent={handleEvent}
@@ -443,6 +509,7 @@ export default function App () {
 					driver: 'mse',
 					settings: 'localStorage',
 					mediaProvider: FULL_AUDIO_MEDIA_PROVIDER,
+					playlist: FULL_AUDIO_PLAYLIST,
 					player: FULL_AUDIO,
 					events: FULL_EVENTS,
 					onEvent: function (event) {

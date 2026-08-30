@@ -296,9 +296,11 @@ A normal declarative config is an object with these top-level fields:
 | `SubtitleOffset` | number / `0` | Time offset in seconds applied to subtitle cue matching. |
 | `AutoNativeSubtitlesInPictureInPicture` | boolean / `false` | Automatically switch to native subtitles while Picture-in-Picture is active. |
 | `SubtitleStyle` | object / `{}` | Custom subtitle-overlay style. See `Player.SubtitleStyle`. |
-| `LoadingDelay` | number / `180` | Delay in milliseconds before the loading indicator becomes visible. |
+| `LoadingDelay` | number / `180` | Delay before transient buffering/seek feedback becomes visible. Initial media loading and playlist transitions show the loading indicator immediately. |
 | `ForceShowQualityList` | boolean / `false` | Keep the quality/variant selector available even when only one variant exists. |
 | `ForceShowChaptersList` | boolean / `false` | Keep the Chapters control visible even when the current source has no chapters. |
+| `ForceShowPreviousButton` | boolean / `false` | Outside a non-empty playlist, keep a configured Previous control visible as disabled; never injects a control absent from `Toolbar.Items`. |
+| `ForceShowNextButton` | boolean / `false` | Outside a non-empty playlist, keep a configured Next control visible as disabled; never injects a control absent from `Toolbar.Items`. |
 | `ShowCenterPlayButton` | boolean / mode-dependent (`true` for video, `false` for audio) | Show the large center Play button. When omitted, the default follows the resolved media mode, including sources resolved through `MediaMode: 'auto'`. |
 | `AutoFocus` | boolean / `false` | Focus the player automatically when the user interacts with its controls/surface. |
 | `MediaMode` | `auto`, `video`, `audio` / `auto` | Select media mode. `auto` resolves from the loaded source. |
@@ -1292,12 +1294,19 @@ resolved `AyleSource`.
 ## Playlists
 
 Ayle can own a sequence of media items at the same orchestration level as its
-Driver, MediaProvider and UI:
+Driver, MediaProvider and UI. Shared provider configuration belongs at the
+top level, while concrete files belong to playlist items:
 
 ```js
 var player = new Ayle({
 	Driver: {
 		Type: 'html5'
+	},
+
+	MediaProvider: {
+		Type: 'http',
+		MetadataURL: '/metadata.php?file={file}',
+		TrackURL: '/track.php?file={file}&type={kind}&track={track}&start={time}'
 	},
 
 	Player: {
@@ -1306,6 +1315,7 @@ var player = new Ayle({
 
 	Playlist: {
 		AutoAdvance: true,
+		AutoAdvanceDelay: 5000,
 		Loop: false,
 		StartIndex: 0,
 
@@ -1344,12 +1354,18 @@ player.AttachUI('#player');
 player.Load();
 ```
 
-Top-level `Driver`, `MediaProvider` and `Player` are the base descriptors.
-Each playlist item can override them. Effective item configuration is rebuilt
-from those base descriptors for every transition, so one item's provider,
-driver or player overrides do not leak into the next item. Changing provider
-`Type` isolates provider-specific options just like the normal provider
-assembly path.
+When `Playlist.Items` is non-empty, those items are the authoritative media
+sequence. There is no separate "main file" before the playlist: the first
+`Load()` activates `Items[StartIndex]` directly. Top-level `Driver`,
+`MediaProvider` and `Player` are inherited base descriptors/defaults only.
+Each playlist item can override them. For clarity, canonical playlist examples
+keep `File` on each item and keep shared transport options such as
+`MetadataURL`, `TrackURL` and `Stream` on the top-level `MediaProvider`.
+
+Effective item configuration is rebuilt from those base descriptors for every
+transition, so one item's provider, driver or player overrides do not leak into
+the next item. Changing provider `Type` isolates provider-specific options just
+like the normal provider assembly path.
 
 Playlist API:
 
@@ -1378,12 +1394,20 @@ player.State.HasPrevious
 player.State.HasNext
 ```
 
-`AutoAdvance` defaults to `true`; `Loop` defaults to `false`; `StartIndex`
-defaults to `0`. On natural `ended`, AutoAdvance loads and starts the next item.
+`AutoAdvance` defaults to `true`; `AutoAdvanceDelay` defaults to `0`
+milliseconds; `Loop` defaults to `false`; `StartIndex` defaults to `0`.
+On natural `ended`, AutoAdvance waits for `AutoAdvanceDelay` and then loads and
+starts the next item. A zero delay preserves immediate transition behavior.
 `Next()` / `Previous()` preserve the logical playback state: a transition made
 while playing starts the new item, while a transition made while paused only
-loads it. `Previous()` always means the previous item; restarting the current
-item remains an explicit `Seek(0)`.
+loads it. Current runtime volume, muted state and playback rate are preserved
+across playlist item changes, including transitions that replace the Driver.
+A playlist transition enters `State.Loading` immediately when navigation starts,
+before the MediaProvider has resolved metadata/source data, so the existing UI
+loading indicator appears as soon as Next/Previous is requested. The initial
+`Load()` uses the same initialization path.
+`Previous()` always means the previous item; restarting the current item remains
+an explicit `Seek(0)`.
 
 Events:
 
@@ -1393,16 +1417,53 @@ playlistItemChanging
 playlistItemChange
 playlistIndexChange
 playlistItemError
+playlistAutoAdvanceStart
+playlistAutoAdvanceCancel
+playlistAutoAdvanceComplete
 ```
 
 `playlistItemChanging` and `playlistItemChange` receive
 `PreviousIndex`, `Index`, `PreviousItem`, `Item` and `Reason`. Reasons include
 `initial`, `next`, `previous`, `index`, `id` and `ended`.
 
-The built-in `previous` and `next` toolbar controls are part of the default
-audio/video toolbars but are hidden when the playlist has fewer than two items.
-At a non-looping boundary the corresponding button stays visible and disabled.
+The built-in `previous` and `next` controls are part of the default audio/video
+toolbars. `Toolbar.Items` alone decides whether a control belongs to the layout:
+`ForceShowPreviousButton` / `ForceShowNextButton` never inject missing controls.
+
+For every non-empty playlist, configured Previous/Next controls keep a stable
+place in the toolbar for the whole playlist. Availability is represented only
+by `disabled`: with `Loop:false`, Previous is disabled on the first item and
+Next is disabled on the last item. This avoids toolbar geometry shifting while
+navigating. With `Loop:true`, both directions are available for every non-empty
+playlist, including a one-item playlist; Next/Previous then wrap to and reload
+that same item.
+
+Outside playlist mode (or with an empty playlist), the corresponding ForceShow
+flag can keep a configured Previous/Next control visible in its disabled state.
 Media Session `previoustrack` and `nexttrack` actions use the same core API.
+
+When `AutoAdvanceDelay > 0`, Ayle emits the auto-advance lifecycle events above
+and the built-in UI renders a circular countdown/progress ring around the
+central Play button while it waits. Manual navigation, Play/seek, playlist
+replacement or destruction cancels the pending transition and removes the ring.
+
+Hints can navigate the playlist through the normal action system:
+
+```js
+Actions: [
+	{
+		Type: 'next',
+		Title: 'Next file'
+	},
+	{
+		Type: 'previous',
+		Title: 'Previous file'
+	}
+]
+```
+
+`playlist-next` and `playlist-previous` are accepted aliases for integrations
+that prefer explicit action names.
 
 Single-file configuration remains unchanged; `Playlist` is optional.
 

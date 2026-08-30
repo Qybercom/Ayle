@@ -27,8 +27,10 @@ export class AppComponent {
 		MediaMode: 'audio'
 	};
 
-	readonly FullVideoMediaProvider = this.FullMediaProvider('example.mkv');
-	readonly FullAudioMediaProvider = this.FullMediaProvider('example.mp3');
+	readonly FullVideoMediaProvider = this.FullMediaProvider();
+	readonly FullAudioMediaProvider = this.FullMediaProvider();
+	readonly FullVideoPlaylist = this.FullPlaylist('example.mkv', 'example2.mkv', 'video');
+	readonly FullAudioPlaylist = this.FullPlaylist('example.mp3', 'example2.mp3', 'audio');
 	readonly FullVideo = this.FullPlayer('video');
 	readonly FullAudio = this.FullPlayer('audio');
 	readonly FullEvents = {
@@ -57,6 +59,7 @@ export class AppComponent {
 	driver="mse"
 	settings="localStorage"
 	[mediaProvider]="FullVideoMediaProvider"
+	[playlist]="FullVideoPlaylist"
 	[player]="FullVideo"
 	[events]="FullEvents"
 	(ayleEvent)="OnEvent($event)">
@@ -67,6 +70,7 @@ export class AppComponent {
 	driver="mse"
 	settings="localStorage"
 	[mediaProvider]="FullAudioMediaProvider"
+	[playlist]="FullAudioPlaylist"
 	[player]="FullAudio"
 	[events]="FullEvents"
 	(ayleEvent)="OnEvent($event)">
@@ -82,10 +86,9 @@ export class AppComponent {
 		};
 	}
 
-	private FullMediaProvider (file: string) {
+	private FullMediaProvider () {
 		return {
 		Type: 'http',
-			File: file,
 		MetadataURL: '/server/metadata.php?file={file}',
 		TrackURL: '/server/track.php?file={file}&type={kind}&track={track}&start={time}',
 		VideoURL: '',
@@ -138,6 +141,40 @@ export class AppComponent {
 	};
 	}
 
+	private FullPlaylist (
+		file: string,
+		nextFile: string,
+		mediaMode: 'video' | 'audio'
+	) {
+		return {
+			AutoAdvance: true,
+			AutoAdvanceDelay: 5000,
+			Loop: false,
+			StartIndex: 0,
+			Items: [
+				{
+					ID: 'first',
+					MediaProvider: {
+						File: file
+					}
+				},
+				{
+					ID: 'second',
+					Driver: {
+						Type: 'mse',
+						Options: {}
+					},
+					MediaProvider: {
+						File: nextFile
+					},
+					Player: {
+						MediaMode: mediaMode
+					}
+				}
+			]
+		};
+	}
+
 	private FullPlayer (mediaMode: 'video' | 'audio') {
 		return {
 			AutoSelectFirstSubtitleTrack: false,
@@ -166,6 +203,8 @@ export class AppComponent {
 			LoadingDelay: 180,
 			ForceShowQualityList: mediaMode === 'video',
 			ForceShowChaptersList: false,
+			ForceShowPreviousButton: true,
+			ForceShowNextButton: true,
 			ShowCenterPlayButton: mediaMode !== 'audio',
 			AutoFocus: false,
 			MediaMode: mediaMode,
@@ -292,6 +331,30 @@ export class AppComponent {
 								Title: 'Action',
 								Label: 'Action',
 								Name: 'example-action',
+								URL: '',
+								Target: '_blank',
+								Time: 0,
+								Source: null,
+								Callback: null,
+								Correct: false
+							},
+							{
+								Type: 'next',
+								Title: 'Next file',
+								Label: 'Next file',
+								Name: '',
+								URL: '',
+								Target: '_blank',
+								Time: 0,
+								Source: null,
+								Callback: null,
+								Correct: false
+							},
+							{
+								Type: 'previous',
+								Title: 'Previous file',
+								Label: 'Previous file',
+								Name: '',
 								URL: '',
 								Target: '_blank',
 								Time: 0,

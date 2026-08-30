@@ -213,6 +213,7 @@ export interface AylePlaylistItem {
 
 export interface AylePlaylist {
 	AutoAdvance?: boolean;
+	AutoAdvanceDelay?: number;
 	Loop?: boolean;
 	StartIndex?: number;
 	Items: AylePlaylistItem[];
@@ -230,6 +231,16 @@ export interface AylePlaylistItemErrorEvent {
 	Index: number;
 	Item: AylePlaylistItem;
 	Error: Error | MediaError | null;
+}
+
+export interface AylePlaylistAutoAdvanceEvent {
+	Index: number;
+	Item: AylePlaylistItem | null;
+	NextIndex: number;
+	NextItem: AylePlaylistItem;
+	Delay: number;
+	StartedAt?: number;
+	Reason?: string;
 }
 
 export interface AyleState {
@@ -520,6 +531,9 @@ export interface AyleEventMap {
 	playlistItemChange: AylePlaylistItemChangeEvent;
 	playlistIndexChange: number;
 	playlistItemError: AylePlaylistItemErrorEvent;
+	playlistAutoAdvanceStart: AylePlaylistAutoAdvanceEvent;
+	playlistAutoAdvanceCancel: AylePlaylistAutoAdvanceEvent;
+	playlistAutoAdvanceComplete: AylePlaylistAutoAdvanceEvent;
 	variantChange: AyleMediaVariant;
 	variantSwitched: AyleMediaVariant;
 	variantSwitchError: AyleVariantSwitchErrorEvent;
@@ -609,6 +623,9 @@ export interface AyleEventHandlers {
 	playlistItemChange?: (data: AyleEventMap['playlistItemChange'], instance: AyleInstance) => void;
 	playlistIndexChange?: (data: AyleEventMap['playlistIndexChange'], instance: AyleInstance) => void;
 	playlistItemError?: (data: AyleEventMap['playlistItemError'], instance: AyleInstance) => void;
+	playlistAutoAdvanceStart?: (data: AyleEventMap['playlistAutoAdvanceStart'], instance: AyleInstance) => void;
+	playlistAutoAdvanceCancel?: (data: AyleEventMap['playlistAutoAdvanceCancel'], instance: AyleInstance) => void;
+	playlistAutoAdvanceComplete?: (data: AyleEventMap['playlistAutoAdvanceComplete'], instance: AyleInstance) => void;
 	variantChange?: (data: AyleEventMap['variantChange'], instance: AyleInstance) => void;
 	variantSwitched?: (data: AyleEventMap['variantSwitched'], instance: AyleInstance) => void;
 	variantSwitchError?: (data: AyleEventMap['variantSwitchError'], instance: AyleInstance) => void;

@@ -36,6 +36,7 @@
 	<img class="ayle-audio-cover" alt="">
 	<div class="ayle-surface"></div>
 	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+		<span class="ayle-center-play-countdown" aria-hidden="true"></span>
 		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
 		<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
 	</button>
@@ -329,6 +330,7 @@ player.Load();</code></pre>
 	<img class="ayle-audio-cover" alt="">
 	<div class="ayle-surface"></div>
 	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+		<span class="ayle-center-play-countdown" aria-hidden="true"></span>
 		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
 		<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
 	</button>
@@ -369,9 +371,17 @@ player.Load();</code></pre>
 	</div>
 
 		<div class="ayle-controls">
+		<button class="ayle-icon-button ayle-previous" type="button" data-ayle-i18n-label="previous" aria-label="Previous" title="Previous">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-previous"></use></svg>
+		</button>
+
 		<button class="ayle-icon-button ayle-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
 			<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
 			<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+		</button>
+
+		<button class="ayle-icon-button ayle-next" type="button" data-ayle-i18n-label="next" aria-label="Next" title="Next">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-next"></use></svg>
 		</button>
 
 		<div class="ayle-timeline">
@@ -602,6 +612,7 @@ player.Load();</code></pre>
 	<img class="ayle-audio-cover" alt="">
 	<div class="ayle-surface"></div>
 	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+		<span class="ayle-center-play-countdown" aria-hidden="true"></span>
 		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
 		<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
 	</button>
@@ -642,9 +653,17 @@ player.Load();</code></pre>
 	</div>
 
 		<div class="ayle-controls">
+		<button class="ayle-icon-button ayle-previous" type="button" data-ayle-i18n-label="previous" aria-label="Previous" title="Previous">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-previous"></use></svg>
+		</button>
+
 		<button class="ayle-icon-button ayle-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
 			<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
 			<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+		</button>
+
+		<button class="ayle-icon-button ayle-next" type="button" data-ayle-i18n-label="next" aria-label="Next" title="Next">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-next"></use></svg>
 		</button>
 
 		<div class="ayle-timeline">
@@ -840,7 +859,6 @@ var player = new Ayle({
 		Type: 'mse'
 	},
 	MediaProvider: {
-		File: 'example.mkv',
 		MetadataURL: '../../server/metadata.php?file={file}',
 		TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
 		VideoURL: '',
@@ -891,6 +909,33 @@ var player = new Ayle({
 		AudioType: 'audio/mp4',
 		SubtitleType: 'text/vtt'
 	},
+	Playlist: {
+		AutoAdvance: true,
+		AutoAdvanceDelay: 5000,
+		Loop: false,
+		StartIndex: 0,
+		Items: [
+			{
+				ID: 'first',
+				MediaProvider: {
+					File: 'example.mkv'
+				}
+			},
+			{
+				ID: 'second',
+				Driver: {
+					Type: 'mse',
+					Options: {}
+				},
+				MediaProvider: {
+					File: 'example2.mkv'
+				},
+				Player: {
+					MediaMode: 'video'
+				}
+			}
+		]
+	},
 	Player: {
 		AutoSelectFirstSubtitleTrack: false,
 		AutoPlay: false,
@@ -918,6 +963,8 @@ var player = new Ayle({
 		LoadingDelay: 180,
 		ForceShowQualityList: true,
 		ForceShowChaptersList: false,
+		ForceShowPreviousButton: true,
+		ForceShowNextButton: true,
 		ShowCenterPlayButton: true,
 		AutoFocus: false,
 		MediaMode: 'video',
@@ -1038,6 +1085,30 @@ var player = new Ayle({
 							Title: 'Action',
 							Label: 'Action',
 							Name: 'example-action',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
+						},
+						{
+							Type: 'next',
+							Title: 'Next file',
+							Label: 'Next file',
+							Name: '',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
+						},
+						{
+							Type: 'previous',
+							Title: 'Previous file',
+							Label: 'Previous file',
+							Name: '',
 							URL: '',
 							Target: '_blank',
 							Time: 0,
@@ -1168,6 +1239,7 @@ player.Load(function (error, source, metadata) {
 	<img class="ayle-audio-cover" alt="">
 	<div class="ayle-surface"></div>
 	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+		<span class="ayle-center-play-countdown" aria-hidden="true"></span>
 		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
 		<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
 	</button>
@@ -1208,9 +1280,17 @@ player.Load(function (error, source, metadata) {
 	</div>
 
 		<div class="ayle-controls">
+		<button class="ayle-icon-button ayle-previous" type="button" data-ayle-i18n-label="previous" aria-label="Previous" title="Previous">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-previous"></use></svg>
+		</button>
+
 		<button class="ayle-icon-button ayle-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
 			<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
 			<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+		</button>
+
+		<button class="ayle-icon-button ayle-next" type="button" data-ayle-i18n-label="next" aria-label="Next" title="Next">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-next"></use></svg>
 		</button>
 
 		<div class="ayle-timeline">
@@ -1406,7 +1486,6 @@ var player = new Ayle({
 		Type: 'mse'
 	},
 	MediaProvider: {
-		File: 'example.mp3',
 		MetadataURL: '../../server/metadata.php?file={file}',
 		TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
 		VideoURL: '',
@@ -1457,6 +1536,33 @@ var player = new Ayle({
 		AudioType: 'audio/mp4',
 		SubtitleType: 'text/vtt'
 	},
+	Playlist: {
+		AutoAdvance: true,
+		AutoAdvanceDelay: 5000,
+		Loop: false,
+		StartIndex: 0,
+		Items: [
+			{
+				ID: 'first',
+				MediaProvider: {
+					File: 'example.mp3'
+				}
+			},
+			{
+				ID: 'second',
+				Driver: {
+					Type: 'mse',
+					Options: {}
+				},
+				MediaProvider: {
+					File: 'example2.mp3'
+				},
+				Player: {
+					MediaMode: 'audio'
+				}
+			}
+		]
+	},
 	Player: {
 		AutoSelectFirstSubtitleTrack: false,
 		AutoPlay: false,
@@ -1484,6 +1590,8 @@ var player = new Ayle({
 		LoadingDelay: 180,
 		ForceShowQualityList: false,
 		ForceShowChaptersList: false,
+		ForceShowPreviousButton: true,
+		ForceShowNextButton: true,
 		ShowCenterPlayButton: false,
 		AutoFocus: false,
 		MediaMode: 'audio',
@@ -1604,6 +1712,30 @@ var player = new Ayle({
 							Title: 'Action',
 							Label: 'Action',
 							Name: 'example-action',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
+						},
+						{
+							Type: 'next',
+							Title: 'Next file',
+							Label: 'Next file',
+							Name: '',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
+						},
+						{
+							Type: 'previous',
+							Title: 'Previous file',
+							Label: 'Previous file',
+							Name: '',
 							URL: '',
 							Target: '_blank',
 							Time: 0,
@@ -1893,7 +2025,6 @@ var player = new Ayle({
 		Type: 'mse'
 	},
 	MediaProvider: {
-		File: 'example.mkv',
 		MetadataURL: '../../server/metadata.php?file={file}',
 		TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
 		VideoURL: '',
@@ -1944,6 +2075,33 @@ var player = new Ayle({
 		AudioType: 'audio/mp4',
 		SubtitleType: 'text/vtt'
 	},
+	Playlist: {
+		AutoAdvance: true,
+		AutoAdvanceDelay: 5000,
+		Loop: false,
+		StartIndex: 0,
+		Items: [
+			{
+				ID: 'first',
+				MediaProvider: {
+					File: 'example.mkv'
+				}
+			},
+			{
+				ID: 'second',
+				Driver: {
+					Type: 'mse',
+					Options: {}
+				},
+				MediaProvider: {
+					File: 'example2.mkv'
+				},
+				Player: {
+					MediaMode: 'video'
+				}
+			}
+		]
+	},
 	Player: {
 		AutoSelectFirstSubtitleTrack: false,
 		AutoPlay: false,
@@ -1971,6 +2129,8 @@ var player = new Ayle({
 		LoadingDelay: 180,
 		ForceShowQualityList: true,
 		ForceShowChaptersList: false,
+		ForceShowPreviousButton: true,
+		ForceShowNextButton: true,
 		ShowCenterPlayButton: true,
 		AutoFocus: false,
 		MediaMode: 'video',
@@ -2097,6 +2257,30 @@ var player = new Ayle({
 							Source: null,
 							Callback: null,
 							Correct: false
+						},
+						{
+							Type: 'next',
+							Title: 'Next file',
+							Label: 'Next file',
+							Name: '',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
+						},
+						{
+							Type: 'previous',
+							Title: 'Previous file',
+							Label: 'Previous file',
+							Name: '',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
 						}
 					],
 					Dismissible: true,
@@ -2208,7 +2392,6 @@ var player = new Ayle({
 		Type: 'mse'
 	},
 	MediaProvider: {
-		File: 'example.mp3',
 		MetadataURL: '../../server/metadata.php?file={file}',
 		TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
 		VideoURL: '',
@@ -2259,6 +2442,33 @@ var player = new Ayle({
 		AudioType: 'audio/mp4',
 		SubtitleType: 'text/vtt'
 	},
+	Playlist: {
+		AutoAdvance: true,
+		AutoAdvanceDelay: 5000,
+		Loop: false,
+		StartIndex: 0,
+		Items: [
+			{
+				ID: 'first',
+				MediaProvider: {
+					File: 'example.mp3'
+				}
+			},
+			{
+				ID: 'second',
+				Driver: {
+					Type: 'mse',
+					Options: {}
+				},
+				MediaProvider: {
+					File: 'example2.mp3'
+				},
+				Player: {
+					MediaMode: 'audio'
+				}
+			}
+		]
+	},
 	Player: {
 		AutoSelectFirstSubtitleTrack: false,
 		AutoPlay: false,
@@ -2286,6 +2496,8 @@ var player = new Ayle({
 		LoadingDelay: 180,
 		ForceShowQualityList: false,
 		ForceShowChaptersList: false,
+		ForceShowPreviousButton: true,
+		ForceShowNextButton: true,
 		ShowCenterPlayButton: false,
 		AutoFocus: false,
 		MediaMode: 'audio',
@@ -2406,6 +2618,30 @@ var player = new Ayle({
 							Title: 'Action',
 							Label: 'Action',
 							Name: 'example-action',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
+						},
+						{
+							Type: 'next',
+							Title: 'Next file',
+							Label: 'Next file',
+							Name: '',
+							URL: '',
+							Target: '_blank',
+							Time: 0,
+							Source: null,
+							Callback: null,
+							Correct: false
+						},
+						{
+							Type: 'previous',
+							Title: 'Previous file',
+							Label: 'Previous file',
+							Name: '',
 							URL: '',
 							Target: '_blank',
 							Time: 0,

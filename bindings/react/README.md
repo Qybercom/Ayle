@@ -126,6 +126,7 @@ override `Driver`, `MediaProvider` and `Player`:
 {
 	Playlist: {
 		AutoAdvance: true,
+		AutoAdvanceDelay: 5000,
 		Loop: false,
 		StartIndex: 0,
 		Items: [
@@ -139,3 +140,7 @@ override `Driver`, `MediaProvider` and `Player`:
 Use `Player.Next()`, `Player.Previous()`, `Player.SetPlaylistIndex(index)` and
 `Player.SetPlaylistItemByID(id)` for navigation. Playlist lifecycle events are
 forwarded through the binding's generic event API.
+
+Hints can navigate playlist items with `Type: 'next'` and `Type: 'previous'`.
+The generic binding event API also forwards `playlistAutoAdvanceStart`,
+`playlistAutoAdvanceCancel`, and `playlistAutoAdvanceComplete`.

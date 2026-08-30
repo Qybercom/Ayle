@@ -4679,6 +4679,8 @@ function Ayle (config, internalOptions) {
 			LoadingDelay: options.LoadingDelay !== undefined ? Math.max(0, Number(options.LoadingDelay) || 0) : 180,
 			ForceShowQualityList: !!options.ForceShowQualityList,
 			ForceShowChaptersList: !!options.ForceShowChaptersList,
+			ForceShowPreviousButton: !!options.ForceShowPreviousButton,
+			ForceShowNextButton: !!options.ForceShowNextButton,
 			ShowCenterPlayButton: !!options.ShowCenterPlayButton,
 			AutoFocus: options.AutoFocus === true,
 			MediaMode: requestedMediaMode,
@@ -4816,6 +4818,7 @@ function Ayle (config, internalOptions) {
 		this._basePlayerOptions = AylePresetCloneValue(explicitOptions || {});
 		this.Playlist = {
 			AutoAdvance: true,
+			AutoAdvanceDelay: 0,
 			Loop: false,
 			StartIndex: 0,
 			Items: []
@@ -4823,6 +4826,8 @@ function Ayle (config, internalOptions) {
 		this.PlaylistIndex = -1;
 		this.PlaylistItem = null;
 		this._playlistTransition = null;
+		this._playlistAutoAdvanceTimer = null;
+		this._playlistAutoAdvanceContext = null;
 
 		this.Driver = driver;
 		this.Driver.SetEventTarget(this, 'driver:');
@@ -4895,6 +4900,8 @@ function Ayle (config, internalOptions) {
 
 			this.Playlist = {
 				AutoAdvance: playlistConfig.AutoAdvance !== false,
+				AutoAdvanceDelay: playlistConfig.AutoAdvanceDelay !== undefined ?
+					Math.max(0, Number(playlistConfig.AutoAdvanceDelay) || 0) : 0,
 				Loop: playlistConfig.Loop === true,
 				StartIndex: initialStartIndex,
 				Items: initialItems
@@ -4968,6 +4975,8 @@ function Ayle (config, internalOptions) {
 
 		return {
 			AutoAdvance: playlist.AutoAdvance !== false,
+			AutoAdvanceDelay: playlist.AutoAdvanceDelay !== undefined ?
+				Math.max(0, Number(playlist.AutoAdvanceDelay) || 0) : 0,
 			Loop: playlist.Loop === true,
 			StartIndex: startIndex,
 			Items: items
@@ -4980,10 +4989,10 @@ function Ayle (config, internalOptions) {
 
 		this.State.PlaylistIndex = this.PlaylistIndex;
 		this.State.PlaylistItem = this.PlaylistItem;
-		this.State.HasPrevious = count > 1 && (
+		this.State.HasPrevious = count > 0 && (
 			this.Playlist.Loop || this.PlaylistIndex > 0
 		);
-		this.State.HasNext = count > 1 && (
+		this.State.HasNext = count > 0 && (
 			this.Playlist.Loop || this.PlaylistIndex < count - 1
 		);
 
@@ -4991,6 +5000,7 @@ function Ayle (config, internalOptions) {
 	};
 
 	Ayle.prototype.SetPlaylist = function (playlist, initialize) {
+		this._cancelPlaylistAutoAdvance('playlist-change');
 		this.Playlist = this._normalizePlaylist(playlist);
 		this.PlaylistIndex = this.Playlist.Items.length ?
 			this.Playlist.StartIndex : -1;
@@ -5009,7 +5019,7 @@ function Ayle (config, internalOptions) {
 	Ayle.prototype.HasPrevious = function () {
 		return !!(
 			this.Playlist &&
-			this.Playlist.Items.length > 1 &&
+			this.Playlist.Items.length > 0 &&
 			(this.Playlist.Loop || this.PlaylistIndex > 0)
 		);
 	};
@@ -5017,7 +5027,7 @@ function Ayle (config, internalOptions) {
 	Ayle.prototype.HasNext = function () {
 		return !!(
 			this.Playlist &&
-			this.Playlist.Items.length > 1 &&
+			this.Playlist.Items.length > 0 &&
 			(
 				this.Playlist.Loop ||
 				this.PlaylistIndex < this.Playlist.Items.length - 1
@@ -5079,6 +5089,10 @@ function Ayle (config, internalOptions) {
 			!!options.AutoPlay : !!base.AutoPlay;
 		this.Options.AutoPlayMode = options.AutoPlayMode !== undefined ?
 			options.AutoPlayMode : (base.AutoPlayMode || 'audible');
+		this.Options.ForceShowQualityList = !!options.ForceShowQualityList;
+		this.Options.ForceShowChaptersList = !!options.ForceShowChaptersList;
+		this.Options.ForceShowPreviousButton = !!options.ForceShowPreviousButton;
+		this.Options.ForceShowNextButton = !!options.ForceShowNextButton;
 
 		var explicitUI = options.UI || {};
 		this._uiExplicit.Header = explicitUI.Header instanceof Array;
@@ -5188,7 +5202,97 @@ function Ayle (config, internalOptions) {
 		return this;
 	};
 
+	Ayle.prototype._cancelPlaylistAutoAdvance = function (reason) {
+		if (this._playlistAutoAdvanceTimer) {
+			clearTimeout(this._playlistAutoAdvanceTimer);
+			this._playlistAutoAdvanceTimer = null;
+		}
+
+		if (!this._playlistAutoAdvanceContext)
+			return this;
+
+		var context = this._playlistAutoAdvanceContext;
+		this._playlistAutoAdvanceContext = null;
+
+		this.Emit('playlistAutoAdvanceCancel', {
+			Index: context.Index,
+			Item: context.Item,
+			NextIndex: context.NextIndex,
+			NextItem: context.NextItem,
+			Delay: context.Delay,
+			Reason: reason || 'cancel'
+		});
+
+		return this;
+	};
+
+	Ayle.prototype._schedulePlaylistAutoAdvance = function () {
+		if (
+			!this.Playlist ||
+			!this.Playlist.AutoAdvance ||
+			!this.HasNext()
+		)
+			return false;
+
+		this._cancelPlaylistAutoAdvance('reschedule');
+
+		var count = this.Playlist.Items.length;
+		var nextIndex = this.PlaylistIndex + 1;
+
+		if (nextIndex >= count && this.Playlist.Loop)
+			nextIndex = 0;
+
+		if (nextIndex < 0 || nextIndex >= count)
+			return false;
+
+		var delay = Math.max(
+			0,
+			Number(this.Playlist.AutoAdvanceDelay) || 0
+		);
+		var context = {
+			Index: this.PlaylistIndex,
+			Item: this.PlaylistItem,
+			NextIndex: nextIndex,
+			NextItem: this.Playlist.Items[nextIndex],
+			Delay: delay,
+			StartedAt: Date.now()
+		};
+
+		if (!delay) {
+			this.Emit('playlistAutoAdvanceStart', context);
+			this.Emit('playlistAutoAdvanceComplete', context);
+			return this._activatePlaylistItem(
+				nextIndex,
+				'ended',
+				true
+			);
+		}
+
+		this._playlistAutoAdvanceContext = context;
+		this.Emit('playlistAutoAdvanceStart', context);
+
+		var self = this;
+		this._playlistAutoAdvanceTimer = setTimeout(function () {
+			if (self._playlistAutoAdvanceContext !== context)
+				return;
+
+			self._playlistAutoAdvanceTimer = null;
+			self._playlistAutoAdvanceContext = null;
+			self.Emit('playlistAutoAdvanceComplete', context);
+			self._activatePlaylistItem(
+				nextIndex,
+				'ended',
+				true
+			);
+		}, delay);
+
+		return true;
+	};
+
 	Ayle.prototype._activatePlaylistItem = function (index, reason, playAfterLoad, callback) {
+		if (reason !== 'ended')
+			this._cancelPlaylistAutoAdvance(reason || 'playlist');
+
 		var items = this.Playlist.Items;
 		var count = items.length;
 
@@ -5201,6 +5305,13 @@ function Ayle (config, internalOptions) {
 
 			index = index < 0 ? count - 1 : 0;
 		}
+
+		/*
+		 * Playlist navigation begins loading at the click/API boundary, before
+		 * changing Driver/MediaProvider or requesting metadata. The UI therefore
+		 * acknowledges Next/Previous immediately.
+		 */
+		this._beginMediaLoad();
 
 		var previousIndex = this.PlaylistIndex;
 		var previousItem = this.PlaylistItem;
@@ -5612,11 +5723,7 @@ function Ayle (config, internalOptions) {
 				self.Playlist.AutoAdvance &&
 				self.HasNext()
 			)
-				self._activatePlaylistItem(
-					self.PlaylistIndex + 1,
-					'ended',
-					true
-				);
+				self._schedulePlaylistAutoAdvance();
 		});
 
 		this.Driver.On('buffering', function (value) {
@@ -6032,6 +6139,20 @@ function Ayle (config, internalOptions) {
 		if (this.Driver === driver)
 			return this;
 
+		/*
+		 * Driver replacement must preserve runtime playback controls.
+		 * A freshly-created HTML5/MSE driver starts with volume=1, muted=false
+		 * and playbackRate=1.  Apply the current player state before attaching
+		 * the existing UI so SetUI() never writes those defaults into the media
+		 * element and emits a transient volumechange/ratechange.
+		 */
+		var volume = this.State ?
+			this.State.Volume : this.Options.Volume;
+		var muted = this.State ?
+			this.State.Muted : this.Options.Muted;
+		var playbackRate = this.State ?
+			this.State.PlaybackRate : 1;
+
 		if (this.Driver && typeof this.Driver.SetEventTarget === 'function')
 			this.Driver.SetEventTarget(null, '');
 
@@ -6040,6 +6161,24 @@ function Ayle (config, internalOptions) {
 
 		this.Driver = driver;
 		this.Driver.SetEventTarget(this, 'driver:');
+
+		if (typeof this.Driver.SetVolume === 'function')
+			this.Driver.SetVolume(volume);
+
+		if (typeof this.Driver.SetMuted === 'function')
+			this.Driver.SetMuted(muted);
+
+		if (typeof this.Driver.SetPlaybackRate === 'function')
+			this.Driver.SetPlaybackRate(playbackRate);
+
+		if (typeof this.Driver.SetDebug === 'function')
+			this.Driver.SetDebug(this.Options.Debug);
+
+		if (typeof this.Driver.SetDebugMP4 === 'function')
+			this.Driver.SetDebugMP4(this.Options.DebugMP4);
+
+		if (typeof this.Driver.SetNativeSubtitles === 'function')
+			this.Driver.SetNativeSubtitles(this.Options.NativeSubtitles);
 
 		if (this.UI && typeof this.Driver.SetUI === 'function')
 			this.Driver.SetUI(this.UI);
@@ -6094,29 +6233,55 @@ function Ayle (config, internalOptions) {
 		return this;
 	};
 
+	Ayle.prototype._beginMediaLoad = function () {
+		/*
+		 * Loading starts at the orchestration boundary, before MediaProvider has
+		 * resolved an AyleSource. This makes UI feedback immediate for initial
+		 * player initialization and playlist navigation instead of waiting for
+		 * metadata/provider work or Driver.Load().
+		 */
+		this.State.Ready = false;
+		this.State.Loading = true;
+		this.State.Buffering = false;
+		this.State.Seeking = false;
+		this.State.Error = null;
+		this.Emit('stateChange', this.State);
+		return this;
+	};
+
 	Ayle.prototype.LoadMedia = function (callback) {
+		if (!this._playlistTransition)
+			this._cancelPlaylistAutoAdvance('load');
+
 		if (!this.UI)
 			throw new Error('Ayle UI is not attached. Call AttachUI() before Load().');
 
 		if (
 			this.Playlist &&
 			this.Playlist.Items.length &&
-			!this.MediaProvider
-		)
+			!this._playlistTransition
+		) {
 			return this._activatePlaylistItem(
 				this.PlaylistIndex >= 0 ? this.PlaylistIndex : this.Playlist.StartIndex,
-				'initial',
+				this.State.Source ? 'reload' : 'initial',
 				false,
 				callback
 			);
+		}
 
 		if (!this.MediaProvider)
 			throw new Error('Ayle media provider is not configured');
+
+		if (!this._playlistTransition)
+			this._beginMediaLoad();
 
 		return this.MediaProvider.Load(callback);
 	};
 
 	Ayle.prototype.Load = function (source) {
+		if (source && typeof source !== 'function' && !this._playlistTransition)
+			this._cancelPlaylistAutoAdvance('load');
+
 		if (typeof source === 'function')
 			return this.LoadMedia(source);
 
@@ -6159,8 +6324,14 @@ function Ayle (config, internalOptions) {
 		this._restartPlayPending = false;
 		this._initialStartPending = this.Options.Start > 0;
 
-		this.Driver.SetVolume(this.Options.Volume);
-		this.Driver.SetMuted(this.Options.Muted);
+		/*
+		 * Loading another source (including Playlist Next/Previous) must keep
+		 * the user's current runtime audio state.  Options.Volume/Muted are
+		 * initialization defaults; after playback starts State.Volume/Muted are
+		 * authoritative.
+		 */
+		this.Driver.SetVolume(this.State.Volume);
+		this.Driver.SetMuted(this.State.Muted);
 		this.Driver.Load(source);
 
 		if (this.State.Variant)
@@ -6202,6 +6373,8 @@ function Ayle (config, internalOptions) {
 	};
 
 	Ayle.prototype.Play = function () {
+		this._cancelPlaylistAutoAdvance('play');
+
 		if (!this.HasPlayableSource()) {
 			this.State.Playing = false;
 			this.State.Loading = false;
@@ -6265,6 +6438,8 @@ function Ayle (config, internalOptions) {
 	};
 
 	Ayle.prototype.Seek = function (position) {
+		this._cancelPlaylistAutoAdvance('seek');
+
 		if (!this.HasPlayableSource())
 			return false;
 
@@ -6682,6 +6857,12 @@ function Ayle (config, internalOptions) {
 		}
 		else if (type === 'seek') {
 			result = this.Seek(Math.max(0, Number(action.Time) || 0));
+		}
+		else if (type === 'next' || type === 'playlist-next') {
+			result = this.Next();
+		}
+		else if (type === 'previous' || type === 'playlist-previous') {
+			result = this.Previous();
 		}
 		else if (type === 'media') {
 			if (action.Source)
@@ -7985,6 +8166,7 @@ function Ayle (config, internalOptions) {
 
 
 	Ayle.prototype.Destroy = function () {
+		this._cancelPlaylistAutoAdvance('destroy');
 		this.DetachUI();
 
 		if (this.MediaProvider) {
@@ -8048,6 +8230,8 @@ function Ayle (config, internalOptions) {
 		this.PreviousButton = element.querySelector('.ayle-previous');
 		this.NextButton = element.querySelector('.ayle-next');
 		this.CenterPlayButton = element.querySelector('.ayle-center-play');
+		this.CenterPlayCountdown = element.querySelector('.ayle-center-play-countdown');
+		this._playlistAutoAdvanceFrame = null;
 		this.Timeline = element.querySelector('.ayle-timeline');
 		this.TimelineRanges = null;
 		this._toolbarCustomElements = [];
@@ -9703,12 +9887,9 @@ function Ayle (config, internalOptions) {
 			return;
 
 		var visible = !!(
-			this.Player.HasPlayableSource() &&
-			(
-				this.Player.State.Loading ||
-				this.Player.State.Buffering ||
-				this.Player.State.Seeking
-			)
+			this.Player.State.Loading ||
+			this.Player.State.Buffering ||
+			this.Player.State.Seeking
 		);
 
 		if (!visible) {
@@ -9724,6 +9905,21 @@ function Ayle (config, internalOptions) {
 		/* Already visible: keep it visible without restarting the delay. */
 		if (this.Loading.classList.contains('is-visible'))
 			return;
+
+		/*
+		 * A not-yet-ready media load is initialization, not transient buffering.
+		 * Show feedback immediately so Next/Previous and the first Load() never
+		 * leave the UI looking idle while provider/metadata work is in progress.
+		 */
+		if (this.Player.State.Loading && !this.Player.State.Ready) {
+			if (this._loadingTimer) {
+				clearTimeout(this._loadingTimer);
+				this._loadingTimer = null;
+			}
+
+			this._setLoadingVisible(true);
+			return;
+		}
 
 		if (this._loadingTimer)
 			return;
@@ -9786,20 +9982,122 @@ function Ayle (config, internalOptions) {
 		this.UpdateSubtitleMenu();
 	};
 
+	AyleUI.prototype.StopPlaylistAutoAdvanceCountdown = function () {
+		if (this._playlistAutoAdvanceFrame !== null) {
+			if (global.cancelAnimationFrame)
+				global.cancelAnimationFrame(this._playlistAutoAdvanceFrame);
+			else
+				clearTimeout(this._playlistAutoAdvanceFrame);
+
+			this._playlistAutoAdvanceFrame = null;
+		}
+
+		if (this.CenterPlayButton)
+			this.CenterPlayButton.classList.remove('is-auto-advance-pending');
+
+		if (this.CenterPlayCountdown)
+			this.CenterPlayCountdown.style.setProperty(
+				'--ayle-auto-advance-angle',
+				'0deg'
+			);
+
+		return this;
+	};
+
+	AyleUI.prototype.StartPlaylistAutoAdvanceCountdown = function (context) {
+		this.StopPlaylistAutoAdvanceCountdown();
+
+		if (
+			!this.CenterPlayButton ||
+			!this.CenterPlayCountdown ||
+			!context ||
+			!(context.Delay > 0)
+		)
+			return this;
+
+		var delay = Number(context.Delay) || 0;
+		var startedAt = Number(context.StartedAt) || Date.now();
+		var self = this;
+
+		this.CenterPlayButton.classList.add('is-auto-advance-pending');
+
+		var render = function () {
+			var elapsed = Math.max(0, Date.now() - startedAt);
+			var progress = Math.max(0, Math.min(1, elapsed / delay));
+
+			self.CenterPlayCountdown.style.setProperty(
+				'--ayle-auto-advance-angle',
+				(progress * 360) + 'deg'
+			);
+
+			if (progress >= 1) {
+				self._playlistAutoAdvanceFrame = null;
+				return;
+			}
+
+			if (global.requestAnimationFrame)
+				self._playlistAutoAdvanceFrame =
+					global.requestAnimationFrame(render);
+			else
+				self._playlistAutoAdvanceFrame =
+					setTimeout(render, 16);
+		};
+
+		render();
+		return this;
+	};
+
 	AyleUI.prototype.UpdatePlaylistButtons = function () {
 		var count =
 			this.Player.Playlist && this.Player.Playlist.Items ?
 				this.Player.Playlist.Items.length : 0;
-		var visible = count > 1;
+		var previousConfigured = false;
+		var nextConfigured = false;
+		var i = 0;
+
+		while (i < this._toolbarRenderedItems.length) {
+			var rendered = this._toolbarRenderedItems[i];
+
+			if (rendered.Element === this.PreviousButton)
+				previousConfigured = true;
+			else if (rendered.Element === this.NextButton)
+				nextConfigured = true;
+
+			i++;
+		}
+
+		/*
+		 * Keep playlist transport geometry stable. Once a non-empty Playlist
+		 * exists, configured Previous/Next controls stay visible for every
+		 * item and availability is expressed only through disabled state.
+		 *
+		 * Outside playlist mode ForceShow* still has a purpose: it can expose
+		 * an otherwise unavailable configured control as disabled.
+		 * Toolbar.Items remains authoritative and ForceShow never injects a
+		 * missing control.
+		 */
+		var hasPlaylist = count > 0;
+		var previousVisible =
+			previousConfigured &&
+			(
+				hasPlaylist ||
+				this.Player.Options.ForceShowPreviousButton
+			);
+		var nextVisible =
+			nextConfigured &&
+			(
+				hasPlaylist ||
+				this.Player.Options.ForceShowNextButton
+			);
 
 		if (this.PreviousButton) {
-			this.PreviousButton.style.display = visible ? '' : 'none';
-			this.PreviousButton.disabled = visible && !this.Player.HasPrevious();
+			this.PreviousButton.style.display = previousVisible ? '' : 'none';
+			this.PreviousButton.disabled = !this.Player.HasPrevious();
 		}
 
 		if (this.NextButton) {
-			this.NextButton.style.display = visible ? '' : 'none';
-			this.NextButton.disabled = visible && !this.Player.HasNext();
+			this.NextButton.style.display = nextVisible ? '' : 'none';
+			this.NextButton.disabled = !this.Player.HasNext();
 		}
 
 		return this;
@@ -13577,6 +13875,19 @@ function Ayle (config, internalOptions) {
 			self.UpdateMediaSession();
 		});
 
+		this._onPlayer(player, 'playlistAutoAdvanceStart', function (context) {
+			self.StartPlaylistAutoAdvanceCountdown(context);
+			self.ShowControls();
+		});
+
+		this._onPlayer(player, 'playlistAutoAdvanceCancel', function () {
+			self.StopPlaylistAutoAdvanceCountdown();
+		});
+
+		this._onPlayer(player, 'playlistAutoAdvanceComplete', function () {
+			self.StopPlaylistAutoAdvanceCountdown();
+		});
+
 		this._onPlayer(player, 'audioVisualChange', function () {
 			self.ApplyMediaMode();
 		});
@@ -13828,6 +14139,7 @@ function Ayle (config, internalOptions) {
 
 
 	AyleUI.prototype.Destroy = function () {
+		this.StopPlaylistAutoAdvanceCountdown();
 		this.StopArtworkSlideshow('destroy');
 		this._unbindPlayerListeners();
 		this._unbindDOMListeners();

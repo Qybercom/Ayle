@@ -207,6 +207,7 @@ export interface AylePlaylistItem {
 
 export interface AylePlaylist {
 	AutoAdvance?: boolean;
+	AutoAdvanceDelay?: number;
 	Loop?: boolean;
 	StartIndex?: number;
 	Items: AylePlaylistItem[];
@@ -224,6 +225,16 @@ export interface AylePlaylistItemErrorEvent {
 	Index: number;
 	Item: AylePlaylistItem;
 	Error: Error | MediaError | null;
+}
+
+export interface AylePlaylistAutoAdvanceEvent {
+	Index: number;
+	Item: AylePlaylistItem | null;
+	NextIndex: number;
+	NextItem: AylePlaylistItem;
+	Delay: number;
+	StartedAt?: number;
+	Reason?: string;
 }
 
 export interface AyleState {
@@ -514,6 +525,9 @@ export interface AyleEventMap {
 	playlistItemChange: AylePlaylistItemChangeEvent;
 	playlistIndexChange: number;
 	playlistItemError: AylePlaylistItemErrorEvent;
+	playlistAutoAdvanceStart: AylePlaylistAutoAdvanceEvent;
+	playlistAutoAdvanceCancel: AylePlaylistAutoAdvanceEvent;
+	playlistAutoAdvanceComplete: AylePlaylistAutoAdvanceEvent;
 	variantChange: AyleMediaVariant;
 	variantSwitched: AyleMediaVariant;
 	variantSwitchError: AyleVariantSwitchErrorEvent;

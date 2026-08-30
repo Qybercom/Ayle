@@ -124,6 +124,45 @@
 	filter: drop-shadow(var(--ayle-center-icon-shadow));
 }
 
+
+.ayle-center-play-countdown {
+	--ayle-auto-advance-angle: 0deg;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 74px;
+	height: 74px;
+	border-radius: 50%;
+	transform: translate(-50%, -50%);
+	background: conic-gradient(
+		from -90deg,
+		rgba(255, 255, 255, .95) 0deg,
+		rgba(255, 255, 255, .95) var(--ayle-auto-advance-angle),
+		rgba(255, 255, 255, .2) var(--ayle-auto-advance-angle),
+		rgba(255, 255, 255, .2) 360deg
+	);
+	-webkit-mask: radial-gradient(
+		circle,
+		transparent 0 31px,
+		#000 32px 36px,
+		transparent 37px
+	);
+	mask: radial-gradient(
+		circle,
+		transparent 0 31px,
+		#000 32px 36px,
+		transparent 37px
+	);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity .15s ease;
+}
+
+.ayle-center-play.is-auto-advance-pending .ayle-center-play-countdown {
+	opacity: 1;
+}
+
+
 .ayle-center-play:active {
 	transform: translate(-50%, -50%) scale(.94);
 }
@@ -919,6 +958,20 @@
 .ayle-icon-button:active {
 	background: var(--ayle-button-active-bg);
 	transform: scale(.94);
+}
+
+.ayle-icon-button:disabled {
+	opacity: .45;
+	cursor: default;
+}
+
+.ayle-icon-button:disabled:hover,
+.ayle-icon-button:disabled:focus-visible,
+.ayle-icon-button:disabled:active {
+	background: var(--ayle-button-bg);
+	color: var(--ayle-icon-color);
+	transform: none;
+	outline: none;
 }
 
 .ayle-icon {
