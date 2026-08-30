@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Ayle — Embedded examples</title>
+	<link rel="stylesheet" href="./example-ui.css">
+	<script
+		src="../ayle-bootstrap.js"
+		data-ayle-loader>
+	</script>
+</head>
+<body>
+	<main class="example-shell">
+		<header class="example-hero">
+			<p class="example-eyebrow">Ayle / Embedded</p>
+			<h1>Four canonical declarative examples</h1>
+			<p>All four variants use the bootstrap/declarative API. The code shown under every preview is the exact configuration used to create that player.</p>
+		</header>
+		<div class="example-grid">
+
+		<section class="example-card">
+			<div class="example-card-header">
+				<div>
+					<h2>Minimal video</h2>
+					<p>Minimal UI + video media mode.</p>
+				</div>
+				<span class="example-badge">minimal-video</span>
+			</div>
+			<div class="example-preview" id="preview-minimal-video">
+				<div class="example-embedded-player">
+	<script
+		type="application/json"
+		data-ayle="embedded-minimal-video"
+		data-ayle-settings="localStorage">
+	{
+		"File": "example.mkv",
+		"Driver": {
+			"Type": "mse"
+		},
+		"Player": {
+			"AutoPlay": false,
+			"AutoFocus": true,
+			"MediaMode": "video",
+			"UIMode": "minimal",
+			"Volume": 0.8,
+			"Muted": false,
+			"Start": 0,
+			"MinimalUI": {
+				"Play": true,
+				"Timeline": true,
+				"Time": true,
+				"Volume": true,
+				"Settings": false,
+				"Chapters": false,
+				"Audio": false,
+				"Subtitles": false,
+				"Quality": false,
+				"PictureInPicture": false,
+				"Fullscreen": false,
+				"Header": false,
+				"Hints": false,
+				"Loading": true
+			}
+		},
+		"HTTP": {
+			"MetadataURL": "../../server/metadata.php?file={file}",
+			"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+			"Stream": {
+				"SkipInit": true
+			}
+		}
+	}
+	</script>
+				</div>
+			</div>
+			<div class="example-code-title">Declarative embed</div>
+			<pre class="example-code"><code>&lt;script
+	type="application/json"
+	data-ayle="embedded-minimal-video"
+	data-ayle-settings="localStorage"&gt;
+{
+	"File": "example.mkv",
+	"Driver": {
+		"Type": "mse"
+	},
+	"Player": {
+		"AutoPlay": false,
+		"AutoFocus": true,
+		"MediaMode": "video",
+		"UIMode": "minimal",
+		"Volume": 0.8,
+		"Muted": false,
+		"Start": 0,
+		"MinimalUI": {
+			"Play": true,
+			"Timeline": true,
+			"Time": true,
+			"Volume": true,
+			"Settings": false,
+			"Chapters": false,
+			"Audio": false,
+			"Subtitles": false,
+			"Quality": false,
+			"PictureInPicture": false,
+			"Fullscreen": false,
+			"Header": false,
+			"Hints": false,
+			"Loading": true
+		}
+	},
+	"HTTP": {
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
+		"Stream": {
+			"SkipInit": true
+		}
+	}
+}
+&lt;/script&gt;</code></pre>
+		</section>
+		<section class="example-card">
+			<div class="example-card-header">
+				<div>
+					<h2>Minimal audio</h2>
+					<p>Minimal UI + audio media mode.</p>
+				</div>
+				<span class="example-badge">minimal-audio</span>
+			</div>
+			<div class="example-preview" id="preview-minimal-audio">
+				<div class="example-embedded-player">
+	<script
+		type="application/json"
+		data-ayle="embedded-minimal-audio"
+		data-ayle-settings="localStorage">
+	{
+		"File": "example.mp3",
+		"Driver": {
+			"Type": "mse"
+		},
+		"Player": {
+			"AutoPlay": false,
+			"AutoFocus": true,
+			"MediaMode": "audio",
+			"UIMode": "minimal",
+			"Volume": 0.8,
+			"Muted": false,
+			"Start": 0,
+			"MinimalUI": {
+				"Play": true,
+				"Timeline": true,
+				"Time": true,
+				"Volume": true,
+				"Settings": false,
+				"Chapters": false,
+				"Audio": false,
+				"Subtitles": false,
+				"Quality": false,
+				"PictureInPicture": false,
+				"Fullscreen": false,
+				"Header": false,
+				"Hints": false,
+				"Loading": true,
+				"Info": {
+					"Enabled": true,
+					"Mode": "auto",
+					"Position": "auto",
+					"Artwork": true,
+					"Title": true,
+					"Artist": true,
+					"Album": true,
+					"Channel": true,
+					"Subtitles": true,
+					"AutoHideDelay": 3500
+				},
+				"SubtitlePopup": {
+					"Enabled": true,
+					"Persistent": false
+				}
+			},
+			"AudioVisual": {
+				"Enabled": true
+			}
+		},
+		"HTTP": {
+			"MetadataURL": "../../server/metadata.php?file={file}",
+			"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+			"Stream": {
+				"SkipInit": true
+			}
+		}
+	}
+	</script>
+				</div>
+			</div>
+			<div class="example-code-title">Declarative embed</div>
+			<pre class="example-code"><code>&lt;script
+	type="application/json"
+	data-ayle="embedded-minimal-audio"
+	data-ayle-settings="localStorage"&gt;
+{
+	"File": "example.mp3",
+	"Driver": {
+		"Type": "mse"
+	},
+	"Player": {
+		"AutoPlay": false,
+		"AutoFocus": true,
+		"MediaMode": "audio",
+		"UIMode": "minimal",
+		"Volume": 0.8,
+		"Muted": false,
+		"Start": 0,
+		"MinimalUI": {
+			"Play": true,
+			"Timeline": true,
+			"Time": true,
+			"Volume": true,
+			"Settings": false,
+			"Chapters": false,
+			"Audio": false,
+			"Subtitles": false,
+			"Quality": false,
+			"PictureInPicture": false,
+			"Fullscreen": false,
+			"Header": false,
+			"Hints": false,
+			"Loading": true,
+			"Info": {
+				"Enabled": true,
+				"Mode": "auto",
+				"Position": "auto",
+				"Artwork": true,
+				"Title": true,
+				"Artist": true,
+				"Album": true,
+				"Channel": true,
+				"Subtitles": true,
+				"AutoHideDelay": 3500
+			},
+			"SubtitlePopup": {
+				"Enabled": true,
+				"Persistent": false
+			}
+		},
+		"AudioVisual": {
+			"Enabled": true
+		}
+	},
+	"HTTP": {
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
+		"Stream": {
+			"SkipInit": true
+		}
+	}
+}
+&lt;/script&gt;</code></pre>
+		</section>
+		<section class="example-card">
+			<div class="example-card-header">
+				<div>
+					<h2>Full video</h2>
+					<p>Full player configuration and integration surface.</p>
+				</div>
+				<span class="example-badge">full-video</span>
+			</div>
+			<div class="example-preview" id="preview-full-video">
+				<div class="example-embedded-player">
+	<script
+		type="application/json"
+		data-ayle="embedded-full-video"
+		data-ayle-settings="localStorage">
+	{
+		"File": "example.mkv",
+		"Driver": {
+			"Type": "mse"
+		},
+		"Player": {
+			"AutoSelectFirstSubtitleTrack": false,
+			"AutoPlay": false,
+			"AutoPlayMode": "muted",
+			"Volume": 0.8,
+			"Muted": false,
+			"Start": 0,
+			"NativeSubtitles": false,
+			"SubtitleOffset": 0,
+			"AutoNativeSubtitlesInPictureInPicture": true,
+			"SubtitleStyle": {
+				"Color": "#fff",
+				"Background": "rgba(0,0,0,.72)",
+				"FontFamily": "Calibri, sans-serif",
+				"FontWeight": 400,
+				"FontSize": "16px",
+				"LineHeight": "16px",
+				"TextShadow": "0 1px 2px #000"
+			},
+			"LoadingDelay": 180,
+			"ForceShowQualityList": true,
+			"ShowCenterPlayButton": true,
+			"AutoFocus": true,
+			"MediaMode": "video",
+			"UIMode": "normal",
+			"KeyboardArrowSeekStep": 10,
+			"KeyboardAngleSeekStep": "frame",
+			"KeyboardFrameRateFallback": 30,
+			"Shortcuts": {
+				"PlayPause": true,
+				"SeekArrows": true,
+				"SeekAngle": true,
+				"Volume": true,
+				"Mute": true,
+				"Fullscreen": true,
+				"PictureInPicture": true
+			},
+			"SettingsOrder": [
+				"autoplay",
+				"audio",
+				"subtitles",
+				"nativeSubtitles",
+				"nativeSubtitlesInPiP",
+				"",
+				"shortcuts",
+				"debug",
+				"",
+				"integration"
+			],
+			"FontFamily": "Calibri, sans-serif",
+			"Debug": false,
+			"DebugMP4": false,
+			"Localization": "en-US",
+			"HintSafeArea": {
+				"Top": 16,
+				"Right": 16,
+				"Bottom": 16,
+				"Left": 16
+			},
+			"Toolbar": {
+				"Layout": "auto",
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"",
+					"volume",
+					"chapters",
+					"quality",
+					"settings",
+					"pip",
+					"fullscreen"
+				]
+			},
+			"Timeline": {
+				"Ranges": [
+					{
+						"ID": "intro",
+						"Start": 0,
+						"Duration": 15,
+						"Label": "Intro",
+						"ClassName": "example-range-intro"
+					}
+				]
+			},
+			"MediaSession": {
+				"Enabled": true,
+				"Metadata": {}
+			},
+			"Integration": {
+				"Channel": {
+					"Name": "Nature Explorer",
+					"Avatar": "../../img/channel-avatar.png",
+					"Profile": {
+						"Name": "@natureexplorer",
+						"URL": "#",
+						"Target": "_blank"
+					}
+				},
+				"Hints": [
+					{
+						"ID": "github",
+						"Type": "link",
+						"Position": "top-right-corner",
+						"Label": "Ayle on GitHub",
+						"URL": "https://github.com/Qybercom/Ayle",
+						"Target": "_blank"
+					},
+					{
+						"ID": "info",
+						"Type": "info",
+						"Position": "top-right",
+						"Start": 5,
+						"Duration": 8,
+						"Title": "Information",
+						"Text": "A normal timed hint.",
+						"Dismissible": true
+					}
+				],
+				"Settings": [
+					{
+						"ID": "integration-action",
+						"Title": "Integration action",
+						"Value": "Run",
+						"Event": "integration-action"
+					}
+				],
+				"Toolbar": [
+					{
+						"ID": "favorite",
+						"Type": "button",
+						"Before": "settings",
+						"Label": "★",
+						"Title": "Favorite",
+						"Menu": [
+							{
+								"Label": "Add to favorites",
+								"Event": "add"
+							},
+							{
+								"Label": "Save for later",
+								"Event": "later"
+							},
+							"",
+							{
+								"Label": "Manage favorites",
+								"Value": "↗",
+								"Event": "manage"
+							}
+						]
+					}
+				],
+				"TimelineRanges": [
+					{
+						"ID": "integration-range",
+						"Start": 45,
+						"End": 75,
+						"Label": "Integration range",
+						"ClassName": "example-range-integration"
+					}
+				]
+			}
+		},
+		"HTTP": {
+			"MetadataURL": "../../server/metadata.php?file={file}",
+			"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+			"Stream": {
+				"SkipInit": true
+			}
+		}
+	}
+	</script>
+				</div>
+			</div>
+			<div class="example-code-title">Declarative embed</div>
+			<pre class="example-code"><code>&lt;script
+	type="application/json"
+	data-ayle="embedded-full-video"
+	data-ayle-settings="localStorage"&gt;
+{
+	"File": "example.mkv",
+	"Driver": {
+		"Type": "mse"
+	},
+	"Player": {
+		"AutoSelectFirstSubtitleTrack": false,
+		"AutoPlay": false,
+		"AutoPlayMode": "muted",
+		"Volume": 0.8,
+		"Muted": false,
+		"Start": 0,
+		"NativeSubtitles": false,
+		"SubtitleOffset": 0,
+		"AutoNativeSubtitlesInPictureInPicture": true,
+		"SubtitleStyle": {
+			"Color": "#fff",
+			"Background": "rgba(0,0,0,.72)",
+			"FontFamily": "Calibri, sans-serif",
+			"FontWeight": 400,
+			"FontSize": "16px",
+			"LineHeight": "16px",
+			"TextShadow": "0 1px 2px #000"
+		},
+		"LoadingDelay": 180,
+		"ForceShowQualityList": true,
+		"ShowCenterPlayButton": true,
+		"AutoFocus": true,
+		"MediaMode": "video",
+		"UIMode": "normal",
+		"KeyboardArrowSeekStep": 10,
+		"KeyboardAngleSeekStep": "frame",
+		"KeyboardFrameRateFallback": 30,
+		"Shortcuts": {
+			"PlayPause": true,
+			"SeekArrows": true,
+			"SeekAngle": true,
+			"Volume": true,
+			"Mute": true,
+			"Fullscreen": true,
+			"PictureInPicture": true
+		},
+		"SettingsOrder": [
+			"autoplay",
+			"audio",
+			"subtitles",
+			"nativeSubtitles",
+			"nativeSubtitlesInPiP",
+			"",
+			"shortcuts",
+			"debug",
+			"",
+			"integration"
+		],
+		"FontFamily": "Calibri, sans-serif",
+		"Debug": false,
+		"DebugMP4": false,
+		"Localization": "en-US",
+		"HintSafeArea": {
+			"Top": 16,
+			"Right": 16,
+			"Bottom": 16,
+			"Left": 16
+		},
+		"Toolbar": {
+			"Layout": "auto",
+			"Items": [
+				"play",
+				"timeline",
+				"time",
+				"",
+				"volume",
+				"chapters",
+				"quality",
+				"settings",
+				"pip",
+				"fullscreen"
+			]
+		},
+		"Timeline": {
+			"Ranges": [
+				{
+					"ID": "intro",
+					"Start": 0,
+					"Duration": 15,
+					"Label": "Intro",
+					"ClassName": "example-range-intro"
+				}
+			]
+		},
+		"MediaSession": {
+			"Enabled": true,
+			"Metadata": {}
+		},
+		"Integration": {
+			"Channel": {
+				"Name": "Nature Explorer",
+				"Avatar": "../../img/channel-avatar.png",
+				"Profile": {
+					"Name": "@natureexplorer",
+					"URL": "#",
+					"Target": "_blank"
+				}
+			},
+			"Hints": [
+				{
+					"ID": "github",
+					"Type": "link",
+					"Position": "top-right-corner",
+					"Label": "Ayle on GitHub",
+					"URL": "https://github.com/Qybercom/Ayle",
+					"Target": "_blank"
+				},
+				{
+					"ID": "info",
+					"Type": "info",
+					"Position": "top-right",
+					"Start": 5,
+					"Duration": 8,
+					"Title": "Information",
+					"Text": "A normal timed hint.",
+					"Dismissible": true
+				}
+			],
+			"Settings": [
+				{
+					"ID": "integration-action",
+					"Title": "Integration action",
+					"Value": "Run",
+					"Event": "integration-action"
+				}
+			],
+			"Toolbar": [
+				{
+					"ID": "favorite",
+					"Type": "button",
+					"Before": "settings",
+					"Label": "★",
+					"Title": "Favorite",
+					"Menu": [
+						{
+							"Label": "Add to favorites",
+							"Event": "add"
+						},
+						{
+							"Label": "Save for later",
+							"Event": "later"
+						},
+						"",
+						{
+							"Label": "Manage favorites",
+							"Value": "↗",
+							"Event": "manage"
+						}
+					]
+				}
+			],
+			"TimelineRanges": [
+				{
+					"ID": "integration-range",
+					"Start": 45,
+					"End": 75,
+					"Label": "Integration range",
+					"ClassName": "example-range-integration"
+				}
+			]
+		}
+	},
+	"HTTP": {
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
+		"Stream": {
+			"SkipInit": true
+		}
+	}
+}
+&lt;/script&gt;</code></pre>
+		</section>
+		<section class="example-card">
+			<div class="example-card-header">
+				<div>
+					<h2>Full audio</h2>
+					<p>Full player UI in audio media mode.</p>
+				</div>
+				<span class="example-badge">full-audio</span>
+			</div>
+			<div class="example-preview" id="preview-full-audio">
+				<div class="example-embedded-player">
+	<script
+		type="application/json"
+		data-ayle="embedded-full-audio"
+		data-ayle-settings="localStorage">
+	{
+		"File": "example.mp3",
+		"Driver": {
+			"Type": "mse"
+		},
+		"Player": {
+			"AutoSelectFirstSubtitleTrack": false,
+			"AutoPlay": false,
+			"AutoPlayMode": "muted",
+			"Volume": 0.8,
+			"Muted": false,
+			"Start": 0,
+			"NativeSubtitles": false,
+			"SubtitleOffset": 0,
+			"AutoNativeSubtitlesInPictureInPicture": true,
+			"SubtitleStyle": {
+				"Color": "#fff",
+				"Background": "rgba(0,0,0,.72)",
+				"FontFamily": "Calibri, sans-serif",
+				"FontWeight": 400,
+				"FontSize": "16px",
+				"LineHeight": "16px",
+				"TextShadow": "0 1px 2px #000"
+			},
+			"LoadingDelay": 180,
+			"ForceShowQualityList": true,
+			"ShowCenterPlayButton": true,
+			"AutoFocus": true,
+			"MediaMode": "audio",
+			"UIMode": "normal",
+			"KeyboardArrowSeekStep": 10,
+			"KeyboardAngleSeekStep": "frame",
+			"KeyboardFrameRateFallback": 30,
+			"Shortcuts": {
+				"PlayPause": true,
+				"SeekArrows": true,
+				"SeekAngle": true,
+				"Volume": true,
+				"Mute": true,
+				"Fullscreen": true,
+				"PictureInPicture": true
+			},
+			"SettingsOrder": [
+				"autoplay",
+				"audio",
+				"subtitles",
+				"nativeSubtitles",
+				"nativeSubtitlesInPiP",
+				"",
+				"shortcuts",
+				"debug",
+				"",
+				"integration"
+			],
+			"FontFamily": "Calibri, sans-serif",
+			"Debug": false,
+			"DebugMP4": false,
+			"Localization": "en-US",
+			"HintSafeArea": {
+				"Top": 16,
+				"Right": 16,
+				"Bottom": 16,
+				"Left": 16
+			},
+			"Toolbar": {
+				"Layout": "auto",
+				"Items": [
+					"play",
+					"timeline",
+					"time",
+					"",
+					"volume",
+					"chapters",
+					"quality",
+					"settings",
+					"pip",
+					"fullscreen"
+				]
+			},
+			"Timeline": {
+				"Ranges": [
+					{
+						"ID": "intro",
+						"Start": 0,
+						"Duration": 15,
+						"Label": "Intro",
+						"ClassName": "example-range-intro"
+					}
+				]
+			},
+			"MediaSession": {
+				"Enabled": true,
+				"Metadata": {}
+			},
+			"Integration": {
+				"Channel": {
+					"Name": "Nature Explorer",
+					"Avatar": "../../img/channel-avatar.png",
+					"Profile": {
+						"Name": "@natureexplorer",
+						"URL": "#",
+						"Target": "_blank"
+					}
+				},
+				"Hints": [
+					{
+						"ID": "github",
+						"Type": "link",
+						"Position": "top-right-corner",
+						"Label": "Ayle on GitHub",
+						"URL": "https://github.com/Qybercom/Ayle",
+						"Target": "_blank"
+					},
+					{
+						"ID": "info",
+						"Type": "info",
+						"Position": "top-right",
+						"Start": 5,
+						"Duration": 8,
+						"Title": "Information",
+						"Text": "A normal timed hint.",
+						"Dismissible": true
+					}
+				],
+				"Settings": [
+					{
+						"ID": "integration-action",
+						"Title": "Integration action",
+						"Value": "Run",
+						"Event": "integration-action"
+					}
+				],
+				"Toolbar": [
+					{
+						"ID": "favorite",
+						"Type": "button",
+						"Before": "settings",
+						"Label": "★",
+						"Title": "Favorite",
+						"Menu": [
+							{
+								"Label": "Add to favorites",
+								"Event": "add"
+							},
+							{
+								"Label": "Save for later",
+								"Event": "later"
+							},
+							"",
+							{
+								"Label": "Manage favorites",
+								"Value": "↗",
+								"Event": "manage"
+							}
+						]
+					}
+				],
+				"TimelineRanges": [
+					{
+						"ID": "integration-range",
+						"Start": 45,
+						"End": 75,
+						"Label": "Integration range",
+						"ClassName": "example-range-integration"
+					}
+				]
+			},
+			"AudioVisual": {
+				"Enabled": true
+			},
+			"ArtworkSlideshow": {
+				"Enabled": true
+			}
+		},
+		"HTTP": {
+			"MetadataURL": "../../server/metadata.php?file={file}",
+			"TrackURL": "../../server/track.php?file={file}&type={kind}&track={track}&start={time}",
+			"Stream": {
+				"SkipInit": true
+			}
+		}
+	}
+	</script>
+				</div>
+			</div>
+			<div class="example-code-title">Declarative embed</div>
+			<pre class="example-code"><code>&lt;script
+	type="application/json"
+	data-ayle="embedded-full-audio"
+	data-ayle-settings="localStorage"&gt;
+{
+	"File": "example.mp3",
+	"Driver": {
+		"Type": "mse"
+	},
+	"Player": {
+		"AutoSelectFirstSubtitleTrack": false,
+		"AutoPlay": false,
+		"AutoPlayMode": "muted",
+		"Volume": 0.8,
+		"Muted": false,
+		"Start": 0,
+		"NativeSubtitles": false,
+		"SubtitleOffset": 0,
+		"AutoNativeSubtitlesInPictureInPicture": true,
+		"SubtitleStyle": {
+			"Color": "#fff",
+			"Background": "rgba(0,0,0,.72)",
+			"FontFamily": "Calibri, sans-serif",
+			"FontWeight": 400,
+			"FontSize": "16px",
+			"LineHeight": "16px",
+			"TextShadow": "0 1px 2px #000"
+		},
+		"LoadingDelay": 180,
+		"ForceShowQualityList": true,
+		"ShowCenterPlayButton": true,
+		"AutoFocus": true,
+		"MediaMode": "audio",
+		"UIMode": "normal",
+		"KeyboardArrowSeekStep": 10,
+		"KeyboardAngleSeekStep": "frame",
+		"KeyboardFrameRateFallback": 30,
+		"Shortcuts": {
+			"PlayPause": true,
+			"SeekArrows": true,
+			"SeekAngle": true,
+			"Volume": true,
+			"Mute": true,
+			"Fullscreen": true,
+			"PictureInPicture": true
+		},
+		"SettingsOrder": [
+			"autoplay",
+			"audio",
+			"subtitles",
+			"nativeSubtitles",
+			"nativeSubtitlesInPiP",
+			"",
+			"shortcuts",
+			"debug",
+			"",
+			"integration"
+		],
+		"FontFamily": "Calibri, sans-serif",
+		"Debug": false,
+		"DebugMP4": false,
+		"Localization": "en-US",
+		"HintSafeArea": {
+			"Top": 16,
+			"Right": 16,
+			"Bottom": 16,
+			"Left": 16
+		},
+		"Toolbar": {
+			"Layout": "auto",
+			"Items": [
+				"play",
+				"timeline",
+				"time",
+				"",
+				"volume",
+				"chapters",
+				"quality",
+				"settings",
+				"pip",
+				"fullscreen"
+			]
+		},
+		"Timeline": {
+			"Ranges": [
+				{
+					"ID": "intro",
+					"Start": 0,
+					"Duration": 15,
+					"Label": "Intro",
+					"ClassName": "example-range-intro"
+				}
+			]
+		},
+		"MediaSession": {
+			"Enabled": true,
+			"Metadata": {}
+		},
+		"Integration": {
+			"Channel": {
+				"Name": "Nature Explorer",
+				"Avatar": "../../img/channel-avatar.png",
+				"Profile": {
+					"Name": "@natureexplorer",
+					"URL": "#",
+					"Target": "_blank"
+				}
+			},
+			"Hints": [
+				{
+					"ID": "github",
+					"Type": "link",
+					"Position": "top-right-corner",
+					"Label": "Ayle on GitHub",
+					"URL": "https://github.com/Qybercom/Ayle",
+					"Target": "_blank"
+				},
+				{
+					"ID": "info",
+					"Type": "info",
+					"Position": "top-right",
+					"Start": 5,
+					"Duration": 8,
+					"Title": "Information",
+					"Text": "A normal timed hint.",
+					"Dismissible": true
+				}
+			],
+			"Settings": [
+				{
+					"ID": "integration-action",
+					"Title": "Integration action",
+					"Value": "Run",
+					"Event": "integration-action"
+				}
+			],
+			"Toolbar": [
+				{
+					"ID": "favorite",
+					"Type": "button",
+					"Before": "settings",
+					"Label": "★",
+					"Title": "Favorite",
+					"Menu": [
+						{
+							"Label": "Add to favorites",
+							"Event": "add"
+						},
+						{
+							"Label": "Save for later",
+							"Event": "later"
+						},
+						"",
+						{
+							"Label": "Manage favorites",
+							"Value": "↗",
+							"Event": "manage"
+						}
+					]
+				}
+			],
+			"TimelineRanges": [
+				{
+					"ID": "integration-range",
+					"Start": 45,
+					"End": 75,
+					"Label": "Integration range",
+					"ClassName": "example-range-integration"
+				}
+			]
+		},
+		"AudioVisual": {
+			"Enabled": true
+		},
+		"ArtworkSlideshow": {
+			"Enabled": true
+		}
+	},
+	"HTTP": {
+		"MetadataURL": "../../server/metadata.php?file={file}",
+		"TrackURL": "../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}",
+		"Stream": {
+			"SkipInit": true
+		}
+	}
+}
+&lt;/script&gt;</code></pre>
+		</section>
+		</div>
+	</main>
+
+
+</body>
+</html>

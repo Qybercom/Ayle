@@ -1,120 +1,14 @@
 # Ayle React example
 
-This is a small runnable Vite + React + TypeScript application that consumes
-the local repository packages:
+This is the canonical React example page for Ayle.
 
-```text
-@qybercom/ayle       -> file:../..
-@qybercom/ayle-react -> file:../../bindings/react
-```
+It contains four live variants on one page:
 
-## Backend
+- minimal-video
+- minimal-audio
+- full-video
+- full-audio
 
-The example expects the existing PHP example backend to be available as
-`/server/...`.
+Each card shows its TSX usage directly below the live player. The complete Player configuration objects are in `src/App.tsx`.
 
-With the repository layout used by the Ayle examples:
-
-```text
-<parent>/
-├── server/
-│   ├── metadata.php
-│   └── track.php
-└── <ayle-root>/
-    └── examples/
-        └── react/
-```
-
-start PHP with `<parent>` as the document root, for example:
-
-```bash
-cd <parent>
-php -S localhost:8000
-```
-
-Vite proxies `/server/*` to the backend configured in `.env`:
-
-```env
-AYLE_SERVER_TARGET=http://localhost:8000
-```
-
-Copy `.env.example` when creating a local configuration. `AYLE_SERVER_TARGET`
-is read only by `vite.config.ts`, so it intentionally does not use the
-client-side `VITE_` prefix.
-
-## Run
-
-From `examples/react/`:
-
-```bash
-npm install
-npm run dev
-```
-
-Production example build:
-
-```bash
-npm run build
-```
-
-The app demonstrates a video preset, audio preset, MSE HTTP configuration,
-browser localization auto-detection, Ayle event callbacks, settings persistence,
-and direct Player access through the forwarded React ref.
-
-## Local package resolution
-
-The example uses the repository versions of Ayle directly. Before Vite starts,
-`predev` runs:
-
-```bash
-npm --prefix ../.. run build
-```
-
-which creates the current core and React `dist/` outputs. `vite.config.ts` then
-aliases `@qybercom/ayle`, `@qybercom/ayle/bootstrap`,
-`@qybercom/ayle/ayle.css`, and `@qybercom/ayle-react` directly to those local
-build outputs.
-
-This avoids stale or incomplete `file:` package copies in
-`examples/react/node_modules`, which is especially useful on Windows.
-
-The Vite configuration uses Node built-in modules such as `node:path` and
-`node:url`; `@types/node` is included in the example dev dependencies so those
-imports are typed correctly by TypeScript.
-
-## Type resolution
-
-Vite aliases the Ayle core runtime files because the React binding imports them
-as peer dependencies. The React binding itself is intentionally **not** aliased
-to `bindings/react/dist/index.js`: doing that makes IDEs such as WebStorm follow
-the JavaScript file and lose the binding declarations, so callback parameters
-appear as `any`.
-
-The `file:` dependency remains in `package.json` because it accurately models how
-the package is consumed, but npm may install it as a copied directory rather than a
-live link. Rebuilding `../../bindings/react/dist` therefore does not necessarily
-refresh `examples/react/node_modules/@qybercom/ayle-react`.
-
-For repository development, Vite resolves the React binding runtime directly
-from `bindings/react/dist/index.js`, while TypeScript resolves
-`@qybercom/ayle-react` directly from `bindings/react/src/index.d.ts`.
-`tsconfig.app.json` also maps `react` to this example's installed
-`@types/react`, so the external declaration file retains full React contextual
-typing.
-
-You can verify the example typings with:
-
-```bash
-npm run typecheck
-```
-
-### Generated declaration freshness
-
-`bindings/react/dist/index.d.ts` is generated from
-`bindings/react/src/index.d.ts`. The `dist/` directory is intentionally not
-distributed in the repository archive, so replacing source files can leave an
-older local `dist/index.d.ts` from a previous build.
-
-For that reason `npm run typecheck` has a `pretypecheck` hook that runs the
-normal local Ayle build first. This guarantees that TypeScript reads the current
-React declarations rather than a stale generated file.
+Copy `.env.example` to `.env` if your local setup needs Vite proxy overrides, then run `npm run dev`.

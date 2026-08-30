@@ -109,7 +109,7 @@ textarea {
 	min-height: 220px;
 	padding: 20px;
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: center;
 	background:
 		linear-gradient(135deg, rgba(255, 255, 255, .025), transparent 42%),
@@ -117,8 +117,16 @@ textarea {
 }
 
 .example-preview > .ayle,
-.example-preview > [data-ayle] {
+.example-preview > [data-ayle],
+.example-embedded-player,
+.example-embedded-player > .ayle,
+.example-embedded-player > [data-ayle] {
 	width: 100%;
+}
+
+.example-embedded-player {
+	min-width: 0;
+	align-self: stretch;
 }
 
 .example-code-title {

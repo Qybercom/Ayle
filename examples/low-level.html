@@ -1,0 +1,2082 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Ayle — Low-level API examples</title>
+	<link rel="stylesheet" href="../ayle.css">
+	<link rel="stylesheet" href="./example-ui.css">
+	<script src="../ayle.js"></script>
+</head>
+<body>
+	<main class="example-shell">
+		<header class="example-hero">
+			<p class="example-eyebrow">Ayle / Low-level API</p>
+			<h1>Four canonical low-level examples</h1>
+			<p>Each card is runnable and shows the exact JavaScript used below it: minimal video, minimal audio, full video and full audio.</p>
+		</header>
+		<div class="example-grid">
+
+		<section class="example-card">
+			<div class="example-card-header">
+				<div>
+					<h2>Minimal video</h2>
+					<p>Minimal UI + video media mode.</p>
+				</div>
+				<span class="example-badge">minimal-video</span>
+			</div>
+			<div class="example-preview">
+				<div class="ayle" id="player-minimal-video" tabindex="0">
+	<video class="ayle-video" preload="metadata"></video>
+	<div class="ayle-surface"></div>
+	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
+		<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+	</button>
+	<div class="ayle-header">
+		<div class="ayle-channel">
+			<img class="ayle-channel-avatar" alt="">
+			<div class="ayle-channel-info">
+				<div class="ayle-channel-name"></div>
+				<a class="ayle-channel-profile" href="#"></a>
+			</div>
+		</div>
+		<div class="ayle-title">
+			<div class="ayle-title-media"></div>
+			<div class="ayle-title-chapter"></div>
+		</div>
+	</div>
+	<div class="ayle-hints" aria-live="polite"></div>
+	<div class="ayle-subtitle-overlay" aria-live="off"></div>
+
+	<div class="ayle-loading" aria-label="Loading">
+		<img class="ayle-loading-icon" src="../icons/loading.svg" alt="">
+	</div>
+
+		<div class="ayle-controls">
+		<button class="ayle-icon-button ayle-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+			<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
+			<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+		</button>
+
+		<div class="ayle-timeline">
+			<div class="ayle-buffered"></div>
+			<div class="ayle-progress"></div>
+			<div class="ayle-handle"></div>
+			<div class="ayle-preview"><div class="ayle-preview-time">0:00</div></div>
+		</div>
+
+		<div class="ayle-time"><span class="ayle-current">0:00</span><span>/</span><span class="ayle-duration">0:00</span></div>
+
+		<div class="ayle-volume-control">
+			<button class="ayle-icon-button ayle-mute" type="button" data-ayle-i18n-label="mute" aria-label="Mute" title="Mute">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-volume"></use></svg>
+			</button>
+			<input class="ayle-volume" type="range" min="0" max="100" value="100" aria-label="Volume">
+		</div>
+
+		<div class="ayle-popover-container ayle-chapters-control">
+			<button class="ayle-icon-button ayle-chapters-button" type="button" data-ayle-i18n-label="chapters" aria-label="Chapters" title="Chapters" aria-expanded="false">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-chapters"></use></svg>
+			</button>
+			<div class="ayle-popover ayle-chapters-popover" role="menu" aria-label="Chapters">
+				<div class="ayle-chapters-list"></div>
+			</div>
+		</div>
+
+		<div class="ayle-popover-container ayle-quality-control">
+			<button class="ayle-quality-button" type="button" data-ayle-i18n-label="videoQuality" aria-label="Video quality" title="Video quality" aria-expanded="false">
+				<span class="ayle-quality-button-name" data-ayle-i18n="quality">Quality</span>
+				<span class="ayle-quality-badge" aria-hidden="true"></span>
+			</button>
+			<div class="ayle-popover ayle-quality-popover" role="menu" aria-label="Video quality">
+				<div class="ayle-quality-list" role="radiogroup" aria-label="Video quality"></div>
+				<select class="ayle-quality ayle-quality-native" data-ayle-i18n-title="quality" title="Quality" aria-hidden="true" tabindex="-1"></select>
+			</div>
+		</div>
+
+		<div class="ayle-popover-container ayle-settings-control">
+			<button class="ayle-icon-button ayle-settings-button" type="button" data-ayle-i18n-label="settings" aria-label="Settings" title="Settings" aria-expanded="false">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-settings"></use></svg>
+			</button>
+			<div class="ayle-popover ayle-settings-popover">
+				<div class="ayle-settings-page ayle-settings-page-main is-active" data-settings-page="main">
+					<label class="ayle-settings-toggle ayle-playback-settings" data-ayle-settings-item="autoplay">
+						<span data-ayle-i18n="autoplay">Autoplay</span>
+						<input class="ayle-autoplay-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+
+					<button class="ayle-settings-submenu-item ayle-audio-submenu-button" data-ayle-settings-item="audio" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="audio">Audio</span>
+						<span class="ayle-settings-submenu-value ayle-audio-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-subtitles-submenu-button" data-ayle-settings-item="subtitles" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="subtitles">Subtitles</span>
+						<span class="ayle-settings-submenu-value ayle-subtitles-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-debug-submenu-button" data-ayle-settings-item="debug" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="debug">Debug</span>
+						<span class="ayle-settings-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-shortcuts-submenu-button" data-ayle-settings-item="shortcuts" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="shortcuts">Shortcuts</span>
+						<span class="ayle-settings-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<div class="ayle-integration-settings" data-ayle-settings-item="integration" style="display:none">
+						<div class="ayle-integration-settings-list"></div>
+					</div>
+
+					<label class="ayle-settings-toggle" data-ayle-settings-item="nativeSubtitles">
+						<span data-ayle-i18n="nativeSubtitles">Native subtitles</span>
+						<input class="ayle-native-subtitles-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+
+					<label class="ayle-settings-toggle" data-ayle-settings-item="nativeSubtitlesInPiP">
+						<span data-ayle-i18n="nativeSubtitlesInPiP">Native subtitles in PiP</span>
+						<input class="ayle-pip-native-subtitles-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="audio">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="audio">Audio</div>
+					</div>
+					<div class="ayle-settings-section ayle-audio-field">
+						<select class="ayle-audio ayle-settings-native-select" data-ayle-i18n-title="audioTrack" title="Audio track"></select>
+						<div class="ayle-settings-list ayle-audio-list"></div>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="subtitles">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="subtitles">Subtitles</div>
+					</div>
+					<div class="ayle-settings-section ayle-subtitles-field">
+						<select class="ayle-subtitles ayle-settings-native-select" data-ayle-i18n-title="subtitles" title="Subtitles"></select>
+						<div class="ayle-settings-list ayle-subtitle-list"></div>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="debug">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="debug">Debug</div>
+					</div>
+					<div class="ayle-settings-section ayle-debug-settings">
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="debugEnabled">Ayle debug</span>
+							<input class="ayle-debug-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="debugMP4">MP4 debug</span>
+							<input class="ayle-debug-mp4-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="shortcuts">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="shortcuts">Shortcuts</div>
+					</div>
+					<div class="ayle-settings-section ayle-shortcuts-settings">
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutPlayPause">Play / Pause</span>
+							<input class="ayle-shortcut-play-pause-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutSeekArrows">Seek with arrows</span>
+							<input class="ayle-shortcut-seek-arrows-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutSeekAngle">Seek with , / .</span>
+							<input class="ayle-shortcut-seek-angle-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutVolume">Volume with arrows</span>
+							<input class="ayle-shortcut-volume-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutMute">Mute</span>
+							<input class="ayle-shortcut-mute-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutFullscreen">Fullscreen</span>
+							<input class="ayle-shortcut-fullscreen-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutPictureInPicture">Picture in Picture</span>
+							<input class="ayle-shortcut-pip-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<button class="ayle-icon-button ayle-pip" type="button" data-ayle-i18n-label="pictureInPicture" aria-label="Picture in Picture" title="Picture in Picture" aria-pressed="false">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-pip"></use></svg>
+		</button>
+		<button class="ayle-icon-button ayle-fullscreen" type="button" data-ayle-i18n-label="enterFullscreen" aria-label="Enter fullscreen" title="Enter fullscreen" aria-pressed="false">
+			<svg class="ayle-icon ayle-icon-fullscreen-enter" aria-hidden="true"><use href="../ayle-icons.svg#icon-fullscreen-enter"></use></svg>
+			<svg class="ayle-icon ayle-icon-fullscreen-exit" aria-hidden="true"><use href="../ayle-icons.svg#icon-fullscreen-exit"></use></svg>
+		</button>
+	</div>
+</div>
+			</div>
+			<div class="example-code-title">JavaScript</div>
+			<pre class="example-code"><code>var root = document.getElementById('player-minimal-video');
+var video = root.querySelector('.ayle-video');
+var driver = new AyleMSEMediaDriver(video);
+var player = new Ayle(driver, {
+	AutoPlay: false,
+	AutoFocus: true,
+	MediaMode: 'video',
+	UIMode: 'minimal',
+	Volume: 0.8,
+	Muted: false,
+	Start: 0,
+	MinimalUI: {
+		Play: true,
+		Timeline: true,
+		Time: true,
+		Volume: true,
+		Settings: false,
+		Chapters: false,
+		Audio: false,
+		Subtitles: false,
+		Quality: false,
+		PictureInPicture: false,
+		Fullscreen: false,
+		Header: false,
+		Hints: false,
+		Loading: true
+	}
+});
+var ui = new AyleUI(root, player);
+
+player.On('ready', function () {
+	console.log('player-minimal-video ready');
+});
+
+player.On('error', function (error) {
+	console.error('player-minimal-video error:', error);
+});
+
+var http = new AyleHTTP(player, {
+	File: 'example.mkv',
+	MetadataURL: '../../server/metadata.php?file={file}',
+	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
+	Stream: {
+		SkipInit: true
+	}
+});
+
+http.Load(function (error, source, metadata) {
+	if (error)
+		console.error(error);
+	else
+		console.log(source, metadata);
+});</code></pre>
+		</section>
+		<section class="example-card">
+			<div class="example-card-header">
+				<div>
+					<h2>Minimal audio</h2>
+					<p>Minimal UI + audio media mode.</p>
+				</div>
+				<span class="example-badge">minimal-audio</span>
+			</div>
+			<div class="example-preview">
+				<div class="ayle" id="player-minimal-audio" tabindex="0">
+	<video class="ayle-video" preload="metadata"></video>
+	<div class="ayle-surface"></div>
+	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
+		<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+	</button>
+	<div class="ayle-header">
+		<div class="ayle-channel">
+			<img class="ayle-channel-avatar" alt="">
+			<div class="ayle-channel-info">
+				<div class="ayle-channel-name"></div>
+				<a class="ayle-channel-profile" href="#"></a>
+			</div>
+		</div>
+		<div class="ayle-title">
+			<div class="ayle-title-media"></div>
+			<div class="ayle-title-chapter"></div>
+		</div>
+	</div>
+	<div class="ayle-hints" aria-live="polite"></div>
+	<div class="ayle-subtitle-overlay" aria-live="off"></div>
+
+	<div class="ayle-loading" aria-label="Loading">
+		<img class="ayle-loading-icon" src="../icons/loading.svg" alt="">
+	</div>
+
+		<div class="ayle-controls">
+		<button class="ayle-icon-button ayle-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+			<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
+			<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+		</button>
+
+		<div class="ayle-timeline">
+			<div class="ayle-buffered"></div>
+			<div class="ayle-progress"></div>
+			<div class="ayle-handle"></div>
+			<div class="ayle-preview"><div class="ayle-preview-time">0:00</div></div>
+		</div>
+
+		<div class="ayle-time"><span class="ayle-current">0:00</span><span>/</span><span class="ayle-duration">0:00</span></div>
+
+		<div class="ayle-volume-control">
+			<button class="ayle-icon-button ayle-mute" type="button" data-ayle-i18n-label="mute" aria-label="Mute" title="Mute">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-volume"></use></svg>
+			</button>
+			<input class="ayle-volume" type="range" min="0" max="100" value="100" aria-label="Volume">
+		</div>
+
+		<div class="ayle-popover-container ayle-chapters-control">
+			<button class="ayle-icon-button ayle-chapters-button" type="button" data-ayle-i18n-label="chapters" aria-label="Chapters" title="Chapters" aria-expanded="false">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-chapters"></use></svg>
+			</button>
+			<div class="ayle-popover ayle-chapters-popover" role="menu" aria-label="Chapters">
+				<div class="ayle-chapters-list"></div>
+			</div>
+		</div>
+
+		<div class="ayle-popover-container ayle-quality-control">
+			<button class="ayle-quality-button" type="button" data-ayle-i18n-label="videoQuality" aria-label="Video quality" title="Video quality" aria-expanded="false">
+				<span class="ayle-quality-button-name" data-ayle-i18n="quality">Quality</span>
+				<span class="ayle-quality-badge" aria-hidden="true"></span>
+			</button>
+			<div class="ayle-popover ayle-quality-popover" role="menu" aria-label="Video quality">
+				<div class="ayle-quality-list" role="radiogroup" aria-label="Video quality"></div>
+				<select class="ayle-quality ayle-quality-native" data-ayle-i18n-title="quality" title="Quality" aria-hidden="true" tabindex="-1"></select>
+			</div>
+		</div>
+
+		<div class="ayle-popover-container ayle-settings-control">
+			<button class="ayle-icon-button ayle-settings-button" type="button" data-ayle-i18n-label="settings" aria-label="Settings" title="Settings" aria-expanded="false">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-settings"></use></svg>
+			</button>
+			<div class="ayle-popover ayle-settings-popover">
+				<div class="ayle-settings-page ayle-settings-page-main is-active" data-settings-page="main">
+					<label class="ayle-settings-toggle ayle-playback-settings" data-ayle-settings-item="autoplay">
+						<span data-ayle-i18n="autoplay">Autoplay</span>
+						<input class="ayle-autoplay-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+
+					<button class="ayle-settings-submenu-item ayle-audio-submenu-button" data-ayle-settings-item="audio" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="audio">Audio</span>
+						<span class="ayle-settings-submenu-value ayle-audio-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-subtitles-submenu-button" data-ayle-settings-item="subtitles" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="subtitles">Subtitles</span>
+						<span class="ayle-settings-submenu-value ayle-subtitles-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-debug-submenu-button" data-ayle-settings-item="debug" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="debug">Debug</span>
+						<span class="ayle-settings-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-shortcuts-submenu-button" data-ayle-settings-item="shortcuts" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="shortcuts">Shortcuts</span>
+						<span class="ayle-settings-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<div class="ayle-integration-settings" data-ayle-settings-item="integration" style="display:none">
+						<div class="ayle-integration-settings-list"></div>
+					</div>
+
+					<label class="ayle-settings-toggle" data-ayle-settings-item="nativeSubtitles">
+						<span data-ayle-i18n="nativeSubtitles">Native subtitles</span>
+						<input class="ayle-native-subtitles-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+
+					<label class="ayle-settings-toggle" data-ayle-settings-item="nativeSubtitlesInPiP">
+						<span data-ayle-i18n="nativeSubtitlesInPiP">Native subtitles in PiP</span>
+						<input class="ayle-pip-native-subtitles-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="audio">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="audio">Audio</div>
+					</div>
+					<div class="ayle-settings-section ayle-audio-field">
+						<select class="ayle-audio ayle-settings-native-select" data-ayle-i18n-title="audioTrack" title="Audio track"></select>
+						<div class="ayle-settings-list ayle-audio-list"></div>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="subtitles">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="subtitles">Subtitles</div>
+					</div>
+					<div class="ayle-settings-section ayle-subtitles-field">
+						<select class="ayle-subtitles ayle-settings-native-select" data-ayle-i18n-title="subtitles" title="Subtitles"></select>
+						<div class="ayle-settings-list ayle-subtitle-list"></div>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="debug">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="debug">Debug</div>
+					</div>
+					<div class="ayle-settings-section ayle-debug-settings">
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="debugEnabled">Ayle debug</span>
+							<input class="ayle-debug-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="debugMP4">MP4 debug</span>
+							<input class="ayle-debug-mp4-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="shortcuts">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="shortcuts">Shortcuts</div>
+					</div>
+					<div class="ayle-settings-section ayle-shortcuts-settings">
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutPlayPause">Play / Pause</span>
+							<input class="ayle-shortcut-play-pause-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutSeekArrows">Seek with arrows</span>
+							<input class="ayle-shortcut-seek-arrows-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutSeekAngle">Seek with , / .</span>
+							<input class="ayle-shortcut-seek-angle-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutVolume">Volume with arrows</span>
+							<input class="ayle-shortcut-volume-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutMute">Mute</span>
+							<input class="ayle-shortcut-mute-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutFullscreen">Fullscreen</span>
+							<input class="ayle-shortcut-fullscreen-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutPictureInPicture">Picture in Picture</span>
+							<input class="ayle-shortcut-pip-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<button class="ayle-icon-button ayle-pip" type="button" data-ayle-i18n-label="pictureInPicture" aria-label="Picture in Picture" title="Picture in Picture" aria-pressed="false">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-pip"></use></svg>
+		</button>
+		<button class="ayle-icon-button ayle-fullscreen" type="button" data-ayle-i18n-label="enterFullscreen" aria-label="Enter fullscreen" title="Enter fullscreen" aria-pressed="false">
+			<svg class="ayle-icon ayle-icon-fullscreen-enter" aria-hidden="true"><use href="../ayle-icons.svg#icon-fullscreen-enter"></use></svg>
+			<svg class="ayle-icon ayle-icon-fullscreen-exit" aria-hidden="true"><use href="../ayle-icons.svg#icon-fullscreen-exit"></use></svg>
+		</button>
+	</div>
+</div>
+			</div>
+			<div class="example-code-title">JavaScript</div>
+			<pre class="example-code"><code>var root = document.getElementById('player-minimal-audio');
+var video = root.querySelector('.ayle-video');
+var driver = new AyleMSEMediaDriver(video);
+var player = new Ayle(driver, {
+	AutoPlay: false,
+	AutoFocus: true,
+	MediaMode: 'audio',
+	UIMode: 'minimal',
+	Volume: 0.8,
+	Muted: false,
+	Start: 0,
+	MinimalUI: {
+		Play: true,
+		Timeline: true,
+		Time: true,
+		Volume: true,
+		Settings: false,
+		Chapters: false,
+		Audio: false,
+		Subtitles: false,
+		Quality: false,
+		PictureInPicture: false,
+		Fullscreen: false,
+		Header: false,
+		Hints: false,
+		Loading: true,
+		Info: {
+			Enabled: true,
+			Mode: 'auto',
+			Position: 'auto',
+			Artwork: true,
+			Title: true,
+			Artist: true,
+			Album: true,
+			Channel: true,
+			Subtitles: true,
+			AutoHideDelay: 3500
+		},
+		SubtitlePopup: {
+			Enabled: true,
+			Persistent: false
+		}
+	},
+	AudioVisual: {
+		Enabled: true
+	}
+});
+var ui = new AyleUI(root, player);
+
+player.On('ready', function () {
+	console.log('player-minimal-audio ready');
+});
+
+player.On('error', function (error) {
+	console.error('player-minimal-audio error:', error);
+});
+
+var http = new AyleHTTP(player, {
+	File: 'example.mp3',
+	MetadataURL: '../../server/metadata.php?file={file}',
+	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
+	Stream: {
+		SkipInit: true
+	}
+});
+
+http.Load(function (error, source, metadata) {
+	if (error)
+		console.error(error);
+	else
+		console.log(source, metadata);
+});</code></pre>
+		</section>
+		<section class="example-card">
+			<div class="example-card-header">
+				<div>
+					<h2>Full video</h2>
+					<p>Full player configuration and integration surface.</p>
+				</div>
+				<span class="example-badge">full-video</span>
+			</div>
+			<div class="example-preview">
+				<div class="ayle" id="player-full-video" tabindex="0">
+	<video class="ayle-video" preload="metadata"></video>
+	<div class="ayle-surface"></div>
+	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
+		<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+	</button>
+	<div class="ayle-header">
+		<div class="ayle-channel">
+			<img class="ayle-channel-avatar" alt="">
+			<div class="ayle-channel-info">
+				<div class="ayle-channel-name"></div>
+				<a class="ayle-channel-profile" href="#"></a>
+			</div>
+		</div>
+		<div class="ayle-title">
+			<div class="ayle-title-media"></div>
+			<div class="ayle-title-chapter"></div>
+		</div>
+	</div>
+	<div class="ayle-hints" aria-live="polite"></div>
+	<div class="ayle-subtitle-overlay" aria-live="off"></div>
+
+	<div class="ayle-loading" aria-label="Loading">
+		<img class="ayle-loading-icon" src="../icons/loading.svg" alt="">
+	</div>
+
+		<div class="ayle-controls">
+		<button class="ayle-icon-button ayle-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+			<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
+			<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+		</button>
+
+		<div class="ayle-timeline">
+			<div class="ayle-buffered"></div>
+			<div class="ayle-progress"></div>
+			<div class="ayle-handle"></div>
+			<div class="ayle-preview"><div class="ayle-preview-time">0:00</div></div>
+		</div>
+
+		<div class="ayle-time"><span class="ayle-current">0:00</span><span>/</span><span class="ayle-duration">0:00</span></div>
+
+		<div class="ayle-volume-control">
+			<button class="ayle-icon-button ayle-mute" type="button" data-ayle-i18n-label="mute" aria-label="Mute" title="Mute">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-volume"></use></svg>
+			</button>
+			<input class="ayle-volume" type="range" min="0" max="100" value="100" aria-label="Volume">
+		</div>
+
+		<div class="ayle-popover-container ayle-chapters-control">
+			<button class="ayle-icon-button ayle-chapters-button" type="button" data-ayle-i18n-label="chapters" aria-label="Chapters" title="Chapters" aria-expanded="false">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-chapters"></use></svg>
+			</button>
+			<div class="ayle-popover ayle-chapters-popover" role="menu" aria-label="Chapters">
+				<div class="ayle-chapters-list"></div>
+			</div>
+		</div>
+
+		<div class="ayle-popover-container ayle-quality-control">
+			<button class="ayle-quality-button" type="button" data-ayle-i18n-label="videoQuality" aria-label="Video quality" title="Video quality" aria-expanded="false">
+				<span class="ayle-quality-button-name" data-ayle-i18n="quality">Quality</span>
+				<span class="ayle-quality-badge" aria-hidden="true"></span>
+			</button>
+			<div class="ayle-popover ayle-quality-popover" role="menu" aria-label="Video quality">
+				<div class="ayle-quality-list" role="radiogroup" aria-label="Video quality"></div>
+				<select class="ayle-quality ayle-quality-native" data-ayle-i18n-title="quality" title="Quality" aria-hidden="true" tabindex="-1"></select>
+			</div>
+		</div>
+
+		<div class="ayle-popover-container ayle-settings-control">
+			<button class="ayle-icon-button ayle-settings-button" type="button" data-ayle-i18n-label="settings" aria-label="Settings" title="Settings" aria-expanded="false">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-settings"></use></svg>
+			</button>
+			<div class="ayle-popover ayle-settings-popover">
+				<div class="ayle-settings-page ayle-settings-page-main is-active" data-settings-page="main">
+					<label class="ayle-settings-toggle ayle-playback-settings" data-ayle-settings-item="autoplay">
+						<span data-ayle-i18n="autoplay">Autoplay</span>
+						<input class="ayle-autoplay-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+
+					<button class="ayle-settings-submenu-item ayle-audio-submenu-button" data-ayle-settings-item="audio" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="audio">Audio</span>
+						<span class="ayle-settings-submenu-value ayle-audio-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-subtitles-submenu-button" data-ayle-settings-item="subtitles" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="subtitles">Subtitles</span>
+						<span class="ayle-settings-submenu-value ayle-subtitles-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-debug-submenu-button" data-ayle-settings-item="debug" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="debug">Debug</span>
+						<span class="ayle-settings-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-shortcuts-submenu-button" data-ayle-settings-item="shortcuts" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="shortcuts">Shortcuts</span>
+						<span class="ayle-settings-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<div class="ayle-integration-settings" data-ayle-settings-item="integration" style="display:none">
+						<div class="ayle-integration-settings-list"></div>
+					</div>
+
+					<label class="ayle-settings-toggle" data-ayle-settings-item="nativeSubtitles">
+						<span data-ayle-i18n="nativeSubtitles">Native subtitles</span>
+						<input class="ayle-native-subtitles-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+
+					<label class="ayle-settings-toggle" data-ayle-settings-item="nativeSubtitlesInPiP">
+						<span data-ayle-i18n="nativeSubtitlesInPiP">Native subtitles in PiP</span>
+						<input class="ayle-pip-native-subtitles-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="audio">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="audio">Audio</div>
+					</div>
+					<div class="ayle-settings-section ayle-audio-field">
+						<select class="ayle-audio ayle-settings-native-select" data-ayle-i18n-title="audioTrack" title="Audio track"></select>
+						<div class="ayle-settings-list ayle-audio-list"></div>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="subtitles">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="subtitles">Subtitles</div>
+					</div>
+					<div class="ayle-settings-section ayle-subtitles-field">
+						<select class="ayle-subtitles ayle-settings-native-select" data-ayle-i18n-title="subtitles" title="Subtitles"></select>
+						<div class="ayle-settings-list ayle-subtitle-list"></div>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="debug">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="debug">Debug</div>
+					</div>
+					<div class="ayle-settings-section ayle-debug-settings">
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="debugEnabled">Ayle debug</span>
+							<input class="ayle-debug-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="debugMP4">MP4 debug</span>
+							<input class="ayle-debug-mp4-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="shortcuts">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="shortcuts">Shortcuts</div>
+					</div>
+					<div class="ayle-settings-section ayle-shortcuts-settings">
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutPlayPause">Play / Pause</span>
+							<input class="ayle-shortcut-play-pause-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutSeekArrows">Seek with arrows</span>
+							<input class="ayle-shortcut-seek-arrows-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutSeekAngle">Seek with , / .</span>
+							<input class="ayle-shortcut-seek-angle-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutVolume">Volume with arrows</span>
+							<input class="ayle-shortcut-volume-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutMute">Mute</span>
+							<input class="ayle-shortcut-mute-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutFullscreen">Fullscreen</span>
+							<input class="ayle-shortcut-fullscreen-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutPictureInPicture">Picture in Picture</span>
+							<input class="ayle-shortcut-pip-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<button class="ayle-icon-button ayle-pip" type="button" data-ayle-i18n-label="pictureInPicture" aria-label="Picture in Picture" title="Picture in Picture" aria-pressed="false">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-pip"></use></svg>
+		</button>
+		<button class="ayle-icon-button ayle-fullscreen" type="button" data-ayle-i18n-label="enterFullscreen" aria-label="Enter fullscreen" title="Enter fullscreen" aria-pressed="false">
+			<svg class="ayle-icon ayle-icon-fullscreen-enter" aria-hidden="true"><use href="../ayle-icons.svg#icon-fullscreen-enter"></use></svg>
+			<svg class="ayle-icon ayle-icon-fullscreen-exit" aria-hidden="true"><use href="../ayle-icons.svg#icon-fullscreen-exit"></use></svg>
+		</button>
+	</div>
+</div>
+			</div>
+			<div class="example-code-title">JavaScript</div>
+			<pre class="example-code"><code>var root = document.getElementById('player-full-video');
+var video = root.querySelector('.ayle-video');
+var driver = new AyleMSEMediaDriver(video);
+var player = new Ayle(driver, {
+	AutoSelectFirstSubtitleTrack: false,
+	AutoPlay: false,
+	AutoPlayMode: 'muted',
+	Volume: 0.8,
+	Muted: false,
+	Start: 0,
+	NativeSubtitles: false,
+	SubtitleOffset: 0,
+	AutoNativeSubtitlesInPictureInPicture: true,
+	SubtitleStyle: {
+		Color: '#fff',
+		Background: 'rgba(0,0,0,.72)',
+		FontFamily: 'Calibri, sans-serif',
+		FontWeight: 400,
+		FontSize: '16px',
+		LineHeight: '16px',
+		TextShadow: '0 1px 2px #000'
+	},
+	LoadingDelay: 180,
+	ForceShowQualityList: true,
+	ShowCenterPlayButton: true,
+	AutoFocus: true,
+	MediaMode: 'video',
+	UIMode: 'normal',
+	KeyboardArrowSeekStep: 10,
+	KeyboardAngleSeekStep: 'frame',
+	KeyboardFrameRateFallback: 30,
+	Shortcuts: {
+		PlayPause: true,
+		SeekArrows: true,
+		SeekAngle: true,
+		Volume: true,
+		Mute: true,
+		Fullscreen: true,
+		PictureInPicture: true
+	},
+	SettingsOrder: [
+		'autoplay',
+		'audio',
+		'subtitles',
+		'nativeSubtitles',
+		'nativeSubtitlesInPiP',
+		'',
+		'shortcuts',
+		'debug',
+		'',
+		'integration'
+	],
+	FontFamily: 'Calibri, sans-serif',
+	Debug: false,
+	DebugMP4: false,
+	Localization: 'en-US',
+	HintSafeArea: {
+		Top: 16,
+		Right: 16,
+		Bottom: 16,
+		Left: 16
+	},
+	Toolbar: {
+		Layout: 'auto',
+		Items: [
+			'play',
+			'timeline',
+			'time',
+			'',
+			'volume',
+			'chapters',
+			'quality',
+			'settings',
+			'pip',
+			'fullscreen'
+		]
+	},
+	Timeline: {
+		Ranges: [
+			{
+				ID: 'intro',
+				Start: 0,
+				Duration: 15,
+				Label: 'Intro',
+				ClassName: 'example-range-intro'
+			}
+		]
+	},
+	MediaSession: {
+		Enabled: true,
+		Metadata: {}
+	},
+	Integration: {
+		Channel: {
+			Name: 'Nature Explorer',
+			Avatar: '../../img/channel-avatar.png',
+			Profile: {
+				Name: '@natureexplorer',
+				URL: '#',
+				Target: '_blank'
+			}
+		},
+		Hints: [
+			{
+				ID: 'github',
+				Type: 'link',
+				Position: 'top-right-corner',
+				Label: 'Ayle on GitHub',
+				URL: 'https://github.com/Qybercom/Ayle',
+				Target: '_blank'
+			},
+			{
+				ID: 'info',
+				Type: 'info',
+				Position: 'top-right',
+				Start: 5,
+				Duration: 8,
+				Title: 'Information',
+				Text: 'A normal timed hint.',
+				Dismissible: true
+			},
+			{
+				ID: 'quiz',
+				Type: 'quiz',
+				Position: 'center',
+				Start: 20,
+				Duration: 15,
+				Title: 'Quick quiz',
+				Text: 'Hints can also be interactive.',
+				PauseOnShow: true,
+				ResumeOnAction: true,
+				HideOnAction: true,
+				Repeatable: true,
+				Actions: [
+					{
+						Title: 'Correct',
+						Type: 'callback',
+						Name: 'quiz-answer',
+						Correct: true
+					},
+					{
+						Title: 'Wrong',
+						Type: 'callback',
+						Name: 'quiz-answer',
+						Correct: false
+					}
+				]
+			}
+		],
+		Settings: [
+			{
+				ID: 'integration-action',
+				Title: 'Integration action',
+				Value: 'Run',
+				Event: 'integration-action'
+			}
+		],
+		Toolbar: [
+			{
+				ID: 'favorite',
+				Type: 'button',
+				Before: 'settings',
+				Label: '★',
+				Title: 'Favorite',
+				Menu: [
+					{
+						Label: 'Add to favorites',
+						Event: 'add'
+					},
+					{
+						Label: 'Save for later',
+						Event: 'later'
+					},
+					'',
+					{
+						Label: 'Manage favorites',
+						Value: '↗',
+						Event: 'manage'
+					}
+				]
+			}
+		],
+		TimelineRanges: [
+			{
+				ID: 'integration-range',
+				Start: 45,
+				End: 75,
+				Label: 'Integration range',
+				ClassName: 'example-range-integration'
+			}
+		]
+	}
+});
+var ui = new AyleUI(root, player);
+
+player.On('ready', function () {
+	console.log('player-full-video ready');
+});
+
+player.On('error', function (error) {
+	console.error('player-full-video error:', error);
+});
+
+var http = new AyleHTTP(player, {
+	File: 'example.mkv',
+	MetadataURL: '../../server/metadata.php?file={file}',
+	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
+	Stream: {
+		SkipInit: true
+	}
+});
+
+http.Load(function (error, source, metadata) {
+	if (error)
+		console.error(error);
+	else
+		console.log(source, metadata);
+});</code></pre>
+		</section>
+		<section class="example-card">
+			<div class="example-card-header">
+				<div>
+					<h2>Full audio</h2>
+					<p>Full player UI in audio media mode.</p>
+				</div>
+				<span class="example-badge">full-audio</span>
+			</div>
+			<div class="example-preview">
+				<div class="ayle" id="player-full-audio" tabindex="0">
+	<video class="ayle-video" preload="metadata"></video>
+	<div class="ayle-surface"></div>
+	<button class="ayle-icon-button ayle-center-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+		<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
+		<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+	</button>
+	<div class="ayle-header">
+		<div class="ayle-channel">
+			<img class="ayle-channel-avatar" alt="">
+			<div class="ayle-channel-info">
+				<div class="ayle-channel-name"></div>
+				<a class="ayle-channel-profile" href="#"></a>
+			</div>
+		</div>
+		<div class="ayle-title">
+			<div class="ayle-title-media"></div>
+			<div class="ayle-title-chapter"></div>
+		</div>
+	</div>
+	<div class="ayle-hints" aria-live="polite"></div>
+	<div class="ayle-subtitle-overlay" aria-live="off"></div>
+
+	<div class="ayle-loading" aria-label="Loading">
+		<img class="ayle-loading-icon" src="../icons/loading.svg" alt="">
+	</div>
+
+		<div class="ayle-controls">
+		<button class="ayle-icon-button ayle-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
+			<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
+			<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+		</button>
+
+		<div class="ayle-timeline">
+			<div class="ayle-buffered"></div>
+			<div class="ayle-progress"></div>
+			<div class="ayle-handle"></div>
+			<div class="ayle-preview"><div class="ayle-preview-time">0:00</div></div>
+		</div>
+
+		<div class="ayle-time"><span class="ayle-current">0:00</span><span>/</span><span class="ayle-duration">0:00</span></div>
+
+		<div class="ayle-volume-control">
+			<button class="ayle-icon-button ayle-mute" type="button" data-ayle-i18n-label="mute" aria-label="Mute" title="Mute">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-volume"></use></svg>
+			</button>
+			<input class="ayle-volume" type="range" min="0" max="100" value="100" aria-label="Volume">
+		</div>
+
+		<div class="ayle-popover-container ayle-chapters-control">
+			<button class="ayle-icon-button ayle-chapters-button" type="button" data-ayle-i18n-label="chapters" aria-label="Chapters" title="Chapters" aria-expanded="false">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-chapters"></use></svg>
+			</button>
+			<div class="ayle-popover ayle-chapters-popover" role="menu" aria-label="Chapters">
+				<div class="ayle-chapters-list"></div>
+			</div>
+		</div>
+
+		<div class="ayle-popover-container ayle-quality-control">
+			<button class="ayle-quality-button" type="button" data-ayle-i18n-label="videoQuality" aria-label="Video quality" title="Video quality" aria-expanded="false">
+				<span class="ayle-quality-button-name" data-ayle-i18n="quality">Quality</span>
+				<span class="ayle-quality-badge" aria-hidden="true"></span>
+			</button>
+			<div class="ayle-popover ayle-quality-popover" role="menu" aria-label="Video quality">
+				<div class="ayle-quality-list" role="radiogroup" aria-label="Video quality"></div>
+				<select class="ayle-quality ayle-quality-native" data-ayle-i18n-title="quality" title="Quality" aria-hidden="true" tabindex="-1"></select>
+			</div>
+		</div>
+
+		<div class="ayle-popover-container ayle-settings-control">
+			<button class="ayle-icon-button ayle-settings-button" type="button" data-ayle-i18n-label="settings" aria-label="Settings" title="Settings" aria-expanded="false">
+				<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-settings"></use></svg>
+			</button>
+			<div class="ayle-popover ayle-settings-popover">
+				<div class="ayle-settings-page ayle-settings-page-main is-active" data-settings-page="main">
+					<label class="ayle-settings-toggle ayle-playback-settings" data-ayle-settings-item="autoplay">
+						<span data-ayle-i18n="autoplay">Autoplay</span>
+						<input class="ayle-autoplay-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+
+					<button class="ayle-settings-submenu-item ayle-audio-submenu-button" data-ayle-settings-item="audio" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="audio">Audio</span>
+						<span class="ayle-settings-submenu-value ayle-audio-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-subtitles-submenu-button" data-ayle-settings-item="subtitles" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="subtitles">Subtitles</span>
+						<span class="ayle-settings-submenu-value ayle-subtitles-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-debug-submenu-button" data-ayle-settings-item="debug" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="debug">Debug</span>
+						<span class="ayle-settings-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<button class="ayle-settings-submenu-item ayle-shortcuts-submenu-button" data-ayle-settings-item="shortcuts" type="button">
+						<span class="ayle-settings-submenu-label" data-ayle-i18n="shortcuts">Shortcuts</span>
+						<span class="ayle-settings-submenu-value"></span>
+						<span class="ayle-settings-submenu-arrow" aria-hidden="true">›</span>
+					</button>
+
+					<div class="ayle-integration-settings" data-ayle-settings-item="integration" style="display:none">
+						<div class="ayle-integration-settings-list"></div>
+					</div>
+
+					<label class="ayle-settings-toggle" data-ayle-settings-item="nativeSubtitles">
+						<span data-ayle-i18n="nativeSubtitles">Native subtitles</span>
+						<input class="ayle-native-subtitles-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+
+					<label class="ayle-settings-toggle" data-ayle-settings-item="nativeSubtitlesInPiP">
+						<span data-ayle-i18n="nativeSubtitlesInPiP">Native subtitles in PiP</span>
+						<input class="ayle-pip-native-subtitles-toggle" type="checkbox">
+						<span class="ayle-toggle-switch" aria-hidden="true"></span>
+					</label>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="audio">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="audio">Audio</div>
+					</div>
+					<div class="ayle-settings-section ayle-audio-field">
+						<select class="ayle-audio ayle-settings-native-select" data-ayle-i18n-title="audioTrack" title="Audio track"></select>
+						<div class="ayle-settings-list ayle-audio-list"></div>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="subtitles">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="subtitles">Subtitles</div>
+					</div>
+					<div class="ayle-settings-section ayle-subtitles-field">
+						<select class="ayle-subtitles ayle-settings-native-select" data-ayle-i18n-title="subtitles" title="Subtitles"></select>
+						<div class="ayle-settings-list ayle-subtitle-list"></div>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="debug">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="debug">Debug</div>
+					</div>
+					<div class="ayle-settings-section ayle-debug-settings">
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="debugEnabled">Ayle debug</span>
+							<input class="ayle-debug-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="debugMP4">MP4 debug</span>
+							<input class="ayle-debug-mp4-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+					</div>
+				</div>
+
+				<div class="ayle-settings-page" data-settings-page="shortcuts">
+					<div class="ayle-settings-submenu-header">
+						<button class="ayle-settings-back" type="button" data-ayle-i18n-label="back" aria-label="Back" title="Back">‹</button>
+						<div class="ayle-settings-submenu-title" data-ayle-i18n="shortcuts">Shortcuts</div>
+					</div>
+					<div class="ayle-settings-section ayle-shortcuts-settings">
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutPlayPause">Play / Pause</span>
+							<input class="ayle-shortcut-play-pause-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutSeekArrows">Seek with arrows</span>
+							<input class="ayle-shortcut-seek-arrows-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutSeekAngle">Seek with , / .</span>
+							<input class="ayle-shortcut-seek-angle-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutVolume">Volume with arrows</span>
+							<input class="ayle-shortcut-volume-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutMute">Mute</span>
+							<input class="ayle-shortcut-mute-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutFullscreen">Fullscreen</span>
+							<input class="ayle-shortcut-fullscreen-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+						<label class="ayle-settings-toggle">
+							<span data-ayle-i18n="shortcutPictureInPicture">Picture in Picture</span>
+							<input class="ayle-shortcut-pip-toggle" type="checkbox">
+							<span class="ayle-toggle-switch" aria-hidden="true"></span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<button class="ayle-icon-button ayle-pip" type="button" data-ayle-i18n-label="pictureInPicture" aria-label="Picture in Picture" title="Picture in Picture" aria-pressed="false">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-pip"></use></svg>
+		</button>
+		<button class="ayle-icon-button ayle-fullscreen" type="button" data-ayle-i18n-label="enterFullscreen" aria-label="Enter fullscreen" title="Enter fullscreen" aria-pressed="false">
+			<svg class="ayle-icon ayle-icon-fullscreen-enter" aria-hidden="true"><use href="../ayle-icons.svg#icon-fullscreen-enter"></use></svg>
+			<svg class="ayle-icon ayle-icon-fullscreen-exit" aria-hidden="true"><use href="../ayle-icons.svg#icon-fullscreen-exit"></use></svg>
+		</button>
+	</div>
+</div>
+			</div>
+			<div class="example-code-title">JavaScript</div>
+			<pre class="example-code"><code>var root = document.getElementById('player-full-audio');
+var video = root.querySelector('.ayle-video');
+var driver = new AyleMSEMediaDriver(video);
+var player = new Ayle(driver, {
+	AutoSelectFirstSubtitleTrack: false,
+	AutoPlay: false,
+	AutoPlayMode: 'muted',
+	Volume: 0.8,
+	Muted: false,
+	Start: 0,
+	NativeSubtitles: false,
+	SubtitleOffset: 0,
+	AutoNativeSubtitlesInPictureInPicture: true,
+	SubtitleStyle: {
+		Color: '#fff',
+		Background: 'rgba(0,0,0,.72)',
+		FontFamily: 'Calibri, sans-serif',
+		FontWeight: 400,
+		FontSize: '16px',
+		LineHeight: '16px',
+		TextShadow: '0 1px 2px #000'
+	},
+	LoadingDelay: 180,
+	ForceShowQualityList: true,
+	ShowCenterPlayButton: true,
+	AutoFocus: true,
+	MediaMode: 'audio',
+	UIMode: 'normal',
+	AudioVisual: {
+		Enabled: true
+	},
+	ArtworkSlideshow: {
+		Enabled: true
+	},
+	KeyboardArrowSeekStep: 10,
+	KeyboardAngleSeekStep: 'frame',
+	KeyboardFrameRateFallback: 30,
+	Shortcuts: {
+		PlayPause: true,
+		SeekArrows: true,
+		SeekAngle: true,
+		Volume: true,
+		Mute: true,
+		Fullscreen: true,
+		PictureInPicture: true
+	},
+	SettingsOrder: [
+		'autoplay',
+		'audio',
+		'subtitles',
+		'nativeSubtitles',
+		'nativeSubtitlesInPiP',
+		'',
+		'shortcuts',
+		'debug',
+		'',
+		'integration'
+	],
+	FontFamily: 'Calibri, sans-serif',
+	Debug: false,
+	DebugMP4: false,
+	Localization: 'en-US',
+	HintSafeArea: {
+		Top: 16,
+		Right: 16,
+		Bottom: 16,
+		Left: 16
+	},
+	Toolbar: {
+		Layout: 'auto',
+		Items: [
+			'play',
+			'timeline',
+			'time',
+			'',
+			'volume',
+			'chapters',
+			'quality',
+			'settings',
+			'pip',
+			'fullscreen'
+		]
+	},
+	Timeline: {
+		Ranges: [
+			{
+				ID: 'intro',
+				Start: 0,
+				Duration: 15,
+				Label: 'Intro',
+				ClassName: 'example-range-intro'
+			}
+		]
+	},
+	MediaSession: {
+		Enabled: true,
+		Metadata: {}
+	},
+	Integration: {
+		Channel: {
+			Name: 'Nature Explorer',
+			Avatar: '../../img/channel-avatar.png',
+			Profile: {
+				Name: '@natureexplorer',
+				URL: '#',
+				Target: '_blank'
+			}
+		},
+		Hints: [
+			{
+				ID: 'github',
+				Type: 'link',
+				Position: 'top-right-corner',
+				Label: 'Ayle on GitHub',
+				URL: 'https://github.com/Qybercom/Ayle',
+				Target: '_blank'
+			},
+			{
+				ID: 'info',
+				Type: 'info',
+				Position: 'top-right',
+				Start: 5,
+				Duration: 8,
+				Title: 'Information',
+				Text: 'A normal timed hint.',
+				Dismissible: true
+			},
+			{
+				ID: 'quiz',
+				Type: 'quiz',
+				Position: 'center',
+				Start: 20,
+				Duration: 15,
+				Title: 'Quick quiz',
+				Text: 'Hints can also be interactive.',
+				PauseOnShow: true,
+				ResumeOnAction: true,
+				HideOnAction: true,
+				Repeatable: true,
+				Actions: [
+					{
+						Title: 'Correct',
+						Type: 'callback',
+						Name: 'quiz-answer',
+						Correct: true
+					},
+					{
+						Title: 'Wrong',
+						Type: 'callback',
+						Name: 'quiz-answer',
+						Correct: false
+					}
+				]
+			}
+		],
+		Settings: [
+			{
+				ID: 'integration-action',
+				Title: 'Integration action',
+				Value: 'Run',
+				Event: 'integration-action'
+			}
+		],
+		Toolbar: [
+			{
+				ID: 'favorite',
+				Type: 'button',
+				Before: 'settings',
+				Label: '★',
+				Title: 'Favorite',
+				Menu: [
+					{
+						Label: 'Add to favorites',
+						Event: 'add'
+					},
+					{
+						Label: 'Save for later',
+						Event: 'later'
+					},
+					'',
+					{
+						Label: 'Manage favorites',
+						Value: '↗',
+						Event: 'manage'
+					}
+				]
+			}
+		],
+		TimelineRanges: [
+			{
+				ID: 'integration-range',
+				Start: 45,
+				End: 75,
+				Label: 'Integration range',
+				ClassName: 'example-range-integration'
+			}
+		]
+	}
+});
+var ui = new AyleUI(root, player);
+
+player.On('ready', function () {
+	console.log('player-full-audio ready');
+});
+
+player.On('error', function (error) {
+	console.error('player-full-audio error:', error);
+});
+
+var http = new AyleHTTP(player, {
+	File: 'example.mp3',
+	MetadataURL: '../../server/metadata.php?file={file}',
+	TrackURL: '../../server/track.php?file={file}&amp;type={kind}&amp;track={track}&amp;start={time}',
+	Stream: {
+		SkipInit: true
+	}
+});
+
+http.Load(function (error, source, metadata) {
+	if (error)
+		console.error(error);
+	else
+		console.log(source, metadata);
+});</code></pre>
+		</section>
+		</div>
+		<div class="example-note">
+			The full variants intentionally exercise the broad configuration surface: shortcuts, subtitles, toolbar layout, custom toolbar menu, timeline ranges, Media Session, hints and integrations.
+		</div>
+	</main>
+<script>
+var root = document.getElementById('player-minimal-video');
+var video = root.querySelector('.ayle-video');
+var driver = new AyleMSEMediaDriver(video);
+var player = new Ayle(driver, {
+	AutoPlay: false,
+	AutoFocus: true,
+	MediaMode: 'video',
+	UIMode: 'minimal',
+	Volume: 0.8,
+	Muted: false,
+	Start: 0,
+	MinimalUI: {
+		Play: true,
+		Timeline: true,
+		Time: true,
+		Volume: true,
+		Settings: false,
+		Chapters: false,
+		Audio: false,
+		Subtitles: false,
+		Quality: false,
+		PictureInPicture: false,
+		Fullscreen: false,
+		Header: false,
+		Hints: false,
+		Loading: true
+	}
+});
+var ui = new AyleUI(root, player);
+
+player.On('ready', function () {
+	console.log('player-minimal-video ready');
+});
+
+player.On('error', function (error) {
+	console.error('player-minimal-video error:', error);
+});
+
+var http = new AyleHTTP(player, {
+	File: 'example.mkv',
+	MetadataURL: '../../server/metadata.php?file={file}',
+	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
+	Stream: {
+		SkipInit: true
+	}
+});
+
+http.Load(function (error, source, metadata) {
+	if (error)
+		console.error(error);
+	else
+		console.log(source, metadata);
+});
+var root = document.getElementById('player-minimal-audio');
+var video = root.querySelector('.ayle-video');
+var driver = new AyleMSEMediaDriver(video);
+var player = new Ayle(driver, {
+	AutoPlay: false,
+	AutoFocus: true,
+	MediaMode: 'audio',
+	UIMode: 'minimal',
+	Volume: 0.8,
+	Muted: false,
+	Start: 0,
+	MinimalUI: {
+		Play: true,
+		Timeline: true,
+		Time: true,
+		Volume: true,
+		Settings: false,
+		Chapters: false,
+		Audio: false,
+		Subtitles: false,
+		Quality: false,
+		PictureInPicture: false,
+		Fullscreen: false,
+		Header: false,
+		Hints: false,
+		Loading: true,
+		Info: {
+			Enabled: true,
+			Mode: 'auto',
+			Position: 'auto',
+			Artwork: true,
+			Title: true,
+			Artist: true,
+			Album: true,
+			Channel: true,
+			Subtitles: true,
+			AutoHideDelay: 3500
+		},
+		SubtitlePopup: {
+			Enabled: true,
+			Persistent: false
+		}
+	},
+	AudioVisual: {
+		Enabled: true
+	}
+});
+var ui = new AyleUI(root, player);
+
+player.On('ready', function () {
+	console.log('player-minimal-audio ready');
+});
+
+player.On('error', function (error) {
+	console.error('player-minimal-audio error:', error);
+});
+
+var http = new AyleHTTP(player, {
+	File: 'example.mp3',
+	MetadataURL: '../../server/metadata.php?file={file}',
+	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
+	Stream: {
+		SkipInit: true
+	}
+});
+
+http.Load(function (error, source, metadata) {
+	if (error)
+		console.error(error);
+	else
+		console.log(source, metadata);
+});
+var root = document.getElementById('player-full-video');
+var video = root.querySelector('.ayle-video');
+var driver = new AyleMSEMediaDriver(video);
+var player = new Ayle(driver, {
+	AutoSelectFirstSubtitleTrack: false,
+	AutoPlay: false,
+	AutoPlayMode: 'muted',
+	Volume: 0.8,
+	Muted: false,
+	Start: 0,
+	NativeSubtitles: false,
+	SubtitleOffset: 0,
+	AutoNativeSubtitlesInPictureInPicture: true,
+	SubtitleStyle: {
+		Color: '#fff',
+		Background: 'rgba(0,0,0,.72)',
+		FontFamily: 'Calibri, sans-serif',
+		FontWeight: 400,
+		FontSize: '16px',
+		LineHeight: '16px',
+		TextShadow: '0 1px 2px #000'
+	},
+	LoadingDelay: 180,
+	ForceShowQualityList: true,
+	ShowCenterPlayButton: true,
+	AutoFocus: true,
+	MediaMode: 'video',
+	UIMode: 'normal',
+	KeyboardArrowSeekStep: 10,
+	KeyboardAngleSeekStep: 'frame',
+	KeyboardFrameRateFallback: 30,
+	Shortcuts: {
+		PlayPause: true,
+		SeekArrows: true,
+		SeekAngle: true,
+		Volume: true,
+		Mute: true,
+		Fullscreen: true,
+		PictureInPicture: true
+	},
+	SettingsOrder: [
+		'autoplay',
+		'audio',
+		'subtitles',
+		'nativeSubtitles',
+		'nativeSubtitlesInPiP',
+		'',
+		'shortcuts',
+		'debug',
+		'',
+		'integration'
+	],
+	FontFamily: 'Calibri, sans-serif',
+	Debug: false,
+	DebugMP4: false,
+	Localization: 'en-US',
+	HintSafeArea: {
+		Top: 16,
+		Right: 16,
+		Bottom: 16,
+		Left: 16
+	},
+	Toolbar: {
+		Layout: 'auto',
+		Items: [
+			'play',
+			'timeline',
+			'time',
+			'',
+			'volume',
+			'chapters',
+			'quality',
+			'settings',
+			'pip',
+			'fullscreen'
+		]
+	},
+	Timeline: {
+		Ranges: [
+			{
+				ID: 'intro',
+				Start: 0,
+				Duration: 15,
+				Label: 'Intro',
+				ClassName: 'example-range-intro'
+			}
+		]
+	},
+	MediaSession: {
+		Enabled: true,
+		Metadata: {}
+	},
+	Integration: {
+		Channel: {
+			Name: 'Nature Explorer',
+			Avatar: '../../img/channel-avatar.png',
+			Profile: {
+				Name: '@natureexplorer',
+				URL: '#',
+				Target: '_blank'
+			}
+		},
+		Hints: [
+			{
+				ID: 'github',
+				Type: 'link',
+				Position: 'top-right-corner',
+				Label: 'Ayle on GitHub',
+				URL: 'https://github.com/Qybercom/Ayle',
+				Target: '_blank'
+			},
+			{
+				ID: 'info',
+				Type: 'info',
+				Position: 'top-right',
+				Start: 5,
+				Duration: 8,
+				Title: 'Information',
+				Text: 'A normal timed hint.',
+				Dismissible: true
+			},
+			{
+				ID: 'quiz',
+				Type: 'quiz',
+				Position: 'center',
+				Start: 20,
+				Duration: 15,
+				Title: 'Quick quiz',
+				Text: 'Hints can also be interactive.',
+				PauseOnShow: true,
+				ResumeOnAction: true,
+				HideOnAction: true,
+				Repeatable: true,
+				Actions: [
+					{
+						Title: 'Correct',
+						Type: 'callback',
+						Name: 'quiz-answer',
+						Correct: true
+					},
+					{
+						Title: 'Wrong',
+						Type: 'callback',
+						Name: 'quiz-answer',
+						Correct: false
+					}
+				]
+			}
+		],
+		Settings: [
+			{
+				ID: 'integration-action',
+				Title: 'Integration action',
+				Value: 'Run',
+				Event: 'integration-action'
+			}
+		],
+		Toolbar: [
+			{
+				ID: 'favorite',
+				Type: 'button',
+				Before: 'settings',
+				Label: '★',
+				Title: 'Favorite',
+				Menu: [
+					{
+						Label: 'Add to favorites',
+						Event: 'add'
+					},
+					{
+						Label: 'Save for later',
+						Event: 'later'
+					},
+					'',
+					{
+						Label: 'Manage favorites',
+						Value: '↗',
+						Event: 'manage'
+					}
+				]
+			}
+		],
+		TimelineRanges: [
+			{
+				ID: 'integration-range',
+				Start: 45,
+				End: 75,
+				Label: 'Integration range',
+				ClassName: 'example-range-integration'
+			}
+		]
+	}
+});
+var ui = new AyleUI(root, player);
+
+player.On('ready', function () {
+	console.log('player-full-video ready');
+});
+
+player.On('error', function (error) {
+	console.error('player-full-video error:', error);
+});
+
+var http = new AyleHTTP(player, {
+	File: 'example.mkv',
+	MetadataURL: '../../server/metadata.php?file={file}',
+	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
+	Stream: {
+		SkipInit: true
+	}
+});
+
+http.Load(function (error, source, metadata) {
+	if (error)
+		console.error(error);
+	else
+		console.log(source, metadata);
+});
+var root = document.getElementById('player-full-audio');
+var video = root.querySelector('.ayle-video');
+var driver = new AyleMSEMediaDriver(video);
+var player = new Ayle(driver, {
+	AutoSelectFirstSubtitleTrack: false,
+	AutoPlay: false,
+	AutoPlayMode: 'muted',
+	Volume: 0.8,
+	Muted: false,
+	Start: 0,
+	NativeSubtitles: false,
+	SubtitleOffset: 0,
+	AutoNativeSubtitlesInPictureInPicture: true,
+	SubtitleStyle: {
+		Color: '#fff',
+		Background: 'rgba(0,0,0,.72)',
+		FontFamily: 'Calibri, sans-serif',
+		FontWeight: 400,
+		FontSize: '16px',
+		LineHeight: '16px',
+		TextShadow: '0 1px 2px #000'
+	},
+	LoadingDelay: 180,
+	ForceShowQualityList: true,
+	ShowCenterPlayButton: true,
+	AutoFocus: true,
+	MediaMode: 'audio',
+	UIMode: 'normal',
+	AudioVisual: {
+		Enabled: true
+	},
+	ArtworkSlideshow: {
+		Enabled: true
+	},
+	KeyboardArrowSeekStep: 10,
+	KeyboardAngleSeekStep: 'frame',
+	KeyboardFrameRateFallback: 30,
+	Shortcuts: {
+		PlayPause: true,
+		SeekArrows: true,
+		SeekAngle: true,
+		Volume: true,
+		Mute: true,
+		Fullscreen: true,
+		PictureInPicture: true
+	},
+	SettingsOrder: [
+		'autoplay',
+		'audio',
+		'subtitles',
+		'nativeSubtitles',
+		'nativeSubtitlesInPiP',
+		'',
+		'shortcuts',
+		'debug',
+		'',
+		'integration'
+	],
+	FontFamily: 'Calibri, sans-serif',
+	Debug: false,
+	DebugMP4: false,
+	Localization: 'en-US',
+	HintSafeArea: {
+		Top: 16,
+		Right: 16,
+		Bottom: 16,
+		Left: 16
+	},
+	Toolbar: {
+		Layout: 'auto',
+		Items: [
+			'play',
+			'timeline',
+			'time',
+			'',
+			'volume',
+			'chapters',
+			'quality',
+			'settings',
+			'pip',
+			'fullscreen'
+		]
+	},
+	Timeline: {
+		Ranges: [
+			{
+				ID: 'intro',
+				Start: 0,
+				Duration: 15,
+				Label: 'Intro',
+				ClassName: 'example-range-intro'
+			}
+		]
+	},
+	MediaSession: {
+		Enabled: true,
+		Metadata: {}
+	},
+	Integration: {
+		Channel: {
+			Name: 'Nature Explorer',
+			Avatar: '../../img/channel-avatar.png',
+			Profile: {
+				Name: '@natureexplorer',
+				URL: '#',
+				Target: '_blank'
+			}
+		},
+		Hints: [
+			{
+				ID: 'github',
+				Type: 'link',
+				Position: 'top-right-corner',
+				Label: 'Ayle on GitHub',
+				URL: 'https://github.com/Qybercom/Ayle',
+				Target: '_blank'
+			},
+			{
+				ID: 'info',
+				Type: 'info',
+				Position: 'top-right',
+				Start: 5,
+				Duration: 8,
+				Title: 'Information',
+				Text: 'A normal timed hint.',
+				Dismissible: true
+			},
+			{
+				ID: 'quiz',
+				Type: 'quiz',
+				Position: 'center',
+				Start: 20,
+				Duration: 15,
+				Title: 'Quick quiz',
+				Text: 'Hints can also be interactive.',
+				PauseOnShow: true,
+				ResumeOnAction: true,
+				HideOnAction: true,
+				Repeatable: true,
+				Actions: [
+					{
+						Title: 'Correct',
+						Type: 'callback',
+						Name: 'quiz-answer',
+						Correct: true
+					},
+					{
+						Title: 'Wrong',
+						Type: 'callback',
+						Name: 'quiz-answer',
+						Correct: false
+					}
+				]
+			}
+		],
+		Settings: [
+			{
+				ID: 'integration-action',
+				Title: 'Integration action',
+				Value: 'Run',
+				Event: 'integration-action'
+			}
+		],
+		Toolbar: [
+			{
+				ID: 'favorite',
+				Type: 'button',
+				Before: 'settings',
+				Label: '★',
+				Title: 'Favorite',
+				Menu: [
+					{
+						Label: 'Add to favorites',
+						Event: 'add'
+					},
+					{
+						Label: 'Save for later',
+						Event: 'later'
+					},
+					'',
+					{
+						Label: 'Manage favorites',
+						Value: '↗',
+						Event: 'manage'
+					}
+				]
+			}
+		],
+		TimelineRanges: [
+			{
+				ID: 'integration-range',
+				Start: 45,
+				End: 75,
+				Label: 'Integration range',
+				ClassName: 'example-range-integration'
+			}
+		]
+	}
+});
+var ui = new AyleUI(root, player);
+
+player.On('ready', function () {
+	console.log('player-full-audio ready');
+});
+
+player.On('error', function (error) {
+	console.error('player-full-audio error:', error);
+});
+
+var http = new AyleHTTP(player, {
+	File: 'example.mp3',
+	MetadataURL: '../../server/metadata.php?file={file}',
+	TrackURL: '../../server/track.php?file={file}&type={kind}&track={track}&start={time}',
+	Stream: {
+		SkipInit: true
+	}
+});
+
+http.Load(function (error, source, metadata) {
+	if (error)
+		console.error(error);
+	else
+		console.log(source, metadata);
+});
+</script>
+</body>
+</html>

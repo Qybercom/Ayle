@@ -49,12 +49,13 @@
 		"check:core": "node scripts/check.mjs",
 		"check:react": "node scripts/check-react.mjs",
 		"check:angular": "node scripts/check-angular.mjs",
-		"check": "npm run check:core && npm run check:react && npm run check:angular && npm run check:bindings-parity",
+		"check": "npm run check:core && npm run check:react && npm run check:angular && npm run check:bindings-parity && npm run check:examples",
 		"pack:check": "npm pack --dry-run && npm pack --dry-run ./bindings/react/dist && npm pack --dry-run ./bindings/angular/dist",
 		"prepack": "npm run build:core && npm run check:core",
 		"release:preflight": "node scripts/release-preflight.mjs",
 		"release:prepare": "npm run build && npm run check && npm run pack:check",
-		"check:bindings-parity": "node scripts/check-bindings-parity.mjs"
+		"check:bindings-parity": "node scripts/check-bindings-parity.mjs",
+		"check:examples": "node scripts/check-examples.mjs"
 	},
 	"publishConfig": {
 		"access": "public"

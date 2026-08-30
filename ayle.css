@@ -1018,6 +1018,16 @@
 	}
 
 	.ayle-chapters-popover { min-width: 0; }
+
+	.ayle-toolbar-custom-menu.is-anchor-left {
+		left: 0;
+		right: auto;
+	}
+
+	.ayle-toolbar-custom-menu.is-anchor-right {
+		left: auto;
+		right: 0;
+	}
 }
 
 
@@ -2790,9 +2800,12 @@
  * ---------------------------------------------------------------------- */
 
 .ayle-controls-narrow .ayle-popover {
-	overflow-x: auto;
 	overflow-y: auto;
 	overscroll-behavior: contain;
+}
+
+.ayle-controls-narrow .ayle-popover:not(.ayle-toolbar-custom-menu) {
+	overflow-x: auto;
 }
 
 .ayle-controls-narrow .ayle-chapters-popover {
@@ -3013,21 +3026,49 @@
 }
 
 .ayle-toolbar-custom-control {
+	width: max-content;
+	max-width: 100%;
 	margin: 0;
+	flex: 0 0 auto;
+	justify-self: start;
+}
+
+.ayle-toolbar-custom-menu.is-anchor-left {
+	left: 0;
+	right: auto;
+}
+
+.ayle-toolbar-custom-menu.is-anchor-right {
+	left: auto;
+	right: 0;
 }
 
 .ayle-toolbar-custom-menu {
 	min-width: 250px;
 	padding: 6px;
+	box-sizing: border-box;
+	grid-template-columns: minmax(0, 1fr);
 	max-height: min(55vh, 420px);
-	overflow-x: hidden;
+	overflow-x: auto;
 	overflow-y: auto;
 }
 
+.ayle-toolbar-custom-menu.is-open {
+	display: grid;
+}
+
 .ayle-toolbar-custom-menu-item {
+	width: 100%;
 	min-width: 0;
+	max-width: 100%;
 	box-sizing: border-box;
 	grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.ayle-toolbar-custom-menu .ayle-settings-order-separator {
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
 }
 
 .ayle-toolbar-custom-menu-separator {

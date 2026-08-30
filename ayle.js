@@ -7813,6 +7813,17 @@ function Ayle (driver, options) {
 		var open = !pair.Popover.classList.contains('is-open');
 		this._closePopovers(pair.Popover);
 
+		if (open) {
+			var buttonRect = pair.Button.getBoundingClientRect();
+			var playerRect = this.Element.getBoundingClientRect();
+			var buttonCenter = buttonRect.left + buttonRect.width / 2;
+			var playerCenter = playerRect.left + playerRect.width / 2;
+			var anchorLeft = buttonCenter <= playerCenter;
+
+			pair.Popover.classList.toggle('is-anchor-left', anchorLeft);
+			pair.Popover.classList.toggle('is-anchor-right', !anchorLeft);
+		}
+
 		pair.Popover.classList.toggle('is-open', open);
 		pair.Button.setAttribute('aria-expanded', open ? 'true' : 'false');
 

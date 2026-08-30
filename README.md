@@ -20,6 +20,19 @@ creates the bootstrap instance and initializes declarative instances.
 There are no site-specific backend URLs or implicit driver defaults inside the
 library.
 
+## Canonical examples
+
+The repository intentionally keeps four example entry points, each presented as a UI-kit style page with four live variants and the corresponding source code next to the preview:
+
+| Example | Variants |
+| --- | --- |
+| `examples/low-level.html` | minimal-video, minimal-audio, full-video, full-audio |
+| `examples/embedded.html` | minimal-video, minimal-audio, full-video, full-audio |
+| `examples/angular/` | minimal-video, minimal-audio, full-video, full-audio |
+| `examples/react/` | minimal-video, minimal-audio, full-video, full-audio |
+
+The minimal variants demonstrate the smallest practical configuration for each media mode. The full variants are the study/reference examples and intentionally exercise the current broad feature surface: initialization state, subtitles, keyboard shortcuts, toolbar layouts, custom toolbar menus, timeline ranges, Media Session, hints, integration settings, channel metadata, localization and audio-specific visual behavior.
+
 ## Quick start
 
 ```html
