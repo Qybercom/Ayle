@@ -2292,10 +2292,6 @@
 	border-radius: 8px;
 }
 
-.ayle-ui-headerless.ayle-has-track-compact .ayle-controls {
-	opacity: 1 !important;
-}
-
 .ayle-ui-headerless.ayle-has-track-compact.ayle-audio-no-visual.controls-hidden {
 	cursor: default;
 }

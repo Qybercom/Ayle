@@ -260,7 +260,7 @@ export class AppComponent {
 			MediaMode: mediaMode,
 			Preset: '',
 			UI: {
-				Header: [],
+				Header: mediaMode === 'video' ? ['channel:card', 'track'] : [],
 				Track: mediaMode === 'audio' ?
 					['artwork', 'title', 'artist', 'album'] :
 					['title', 'chapter'],

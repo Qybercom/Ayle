@@ -196,6 +196,34 @@ const bootstrap = await fs.readFile(path.join(root, 'ayle-bootstrap.js'), 'utf8'
 const css = await fs.readFile(path.join(root, 'ayle.css'), 'utf8');
 
 if (
+	css.indexOf('.ayle.controls-hidden .ayle-controls {\n\topacity: 0;') === -1 ||
+	css.indexOf('.ayle-ui-headerless.ayle-has-track-compact .ayle-controls {\n\topacity: 1 !important;') !== -1
+)
+	throw new Error('Headerless compact UI must not override automatic toolbar hiding');
+
+const lowLevelFullVideoStart = lowLevel.indexOf('<h2>Full video</h2>');
+const lowLevelFullAudioStart = lowLevel.indexOf('<h2>Full audio</h2>');
+const lowLevelFullVideo = lowLevel.slice(lowLevelFullVideoStart, lowLevelFullAudioStart);
+
+if ((lowLevelFullVideo.match(/Header: \['channel:card', 'track'\]/g) || []).length !== 1)
+	throw new Error('Low-level displayed full-video config must explicitly enable Channel + Track header');
+
+const lowLevelRuntimeFullVideoStart = lowLevel.indexOf("var root = document.getElementById('player-full-video');", lowLevelFullAudioStart);
+const lowLevelRuntimeFullAudioStart = lowLevel.indexOf("var root = document.getElementById('player-full-audio');", lowLevelRuntimeFullVideoStart);
+const lowLevelRuntimeFullVideo = lowLevel.slice(lowLevelRuntimeFullVideoStart, lowLevelRuntimeFullAudioStart);
+
+if (lowLevelRuntimeFullVideo.indexOf("Header: ['channel:card', 'track']") === -1)
+	throw new Error('Low-level runtime full-video config must explicitly enable Channel + Track header');
+
+const embeddedFullVideoStart = embedded.indexOf('<h2>Full video</h2>');
+const embeddedFullAudioStart = embedded.indexOf('<h2>Full audio</h2>');
+const embeddedFullVideo = embedded.slice(embeddedFullVideoStart, embeddedFullAudioStart);
+
+if ((embeddedFullVideo.match(/"Header": \[\s*"channel:card",\s*"track"\s*\]/g) || []).length !== 2)
+	throw new Error('Embedded runtime/display full-video configs must explicitly enable Channel + Track header');
+
+
+if (
 	(lowLevel.match(/Event: 'favoriteAction'/g) || []).length < 4 ||
 	(lowLevel.match(/player\.On\('favoriteAction'/g) || []).length < 4
 )
@@ -602,6 +630,13 @@ if (
 
 const reactSource = configurationSources[3];
 const angularSource = configurationSources[2];
+
+if (
+	reactSource.indexOf("Header: mediaMode === 'video' ? ['channel:card', 'track'] : []") === -1 ||
+	angularSource.indexOf("Header: mediaMode === 'video' ? ['channel:card', 'track'] : []") === -1
+)
+	throw new Error('React/Angular full-video configs must explicitly enable Channel + Track header');
+
 
 const angularTemplate = await fs.readFile(
 	path.join(examples, 'angular/src/app/app.component.html'),
