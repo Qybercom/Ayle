@@ -20,7 +20,7 @@ export const AYLE_EVENTS = [
 	'nativeSubtitlesChange', 'autoNativeSubtitlesInPictureInPictureChange',
 	'pictureInPictureChange', 'loadStart', 'metadata', 'durationChange',
 	'rateChange', 'volumeChange', 'stateChange', 'mediaModeChange',
-	'minimalUIChange', 'uiModeChange', 'audioVisualChange',
+	'uiChange', 'uiModeChange', 'audioVisualChange',
 	'artworkSlideshowChange', 'artworkSlideshowStart', 'artworkSlideshowStop',
 	'localizationChange', 'fontFamilyChange', 'settingsChange',
 	'settingsOrderChange', 'settingsAction', 'integrationSettingsAction',

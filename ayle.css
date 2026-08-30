@@ -230,6 +230,14 @@
 	text-decoration: underline;
 }
 
+.ayle-channel-contact .ayle-channel-avatar {
+	border-radius: 50%;
+}
+
+.ayle-channel-contact.is-visible:after {
+	display: none;
+}
+
 .ayle-title {
 	display: flex;
 	min-width: 0;
@@ -2281,7 +2289,7 @@
  * Minimal UI - Now Playing popup
  * ---------------------------------------------------------------------- */
 
-.ayle-minimal-info {
+.ayle-overlay-track-compact {
 	position: absolute;
 	left: 8px;
 	top: auto;
@@ -2310,7 +2318,7 @@
 		visibility 0s linear .22s;
 }
 
-.ayle-minimal-info.ayle-minimal-info-bottom {
+.ayle-overlay-track-compact.ayle-overlay-track-compact-bottom {
 	top: 100%;
 	bottom: auto;
 	border-top: 0;
@@ -2318,7 +2326,7 @@
 	transform: translateY(-6px);
 }
 
-.ayle-minimal-info.ayle-minimal-info-top {
+.ayle-overlay-track-compact.ayle-overlay-track-compact-top {
 	top: auto;
 	bottom: 100%;
 	border-bottom: 0;
@@ -2326,7 +2334,7 @@
 	transform: translateY(6px);
 }
 
-.ayle-ui-minimal.ayle-audio-no-visual .ayle-minimal-info.is-enabled.is-visible {
+.ayle-ui-minimal.ayle-audio-no-visual .ayle-overlay-track-compact.is-enabled.is-visible {
 	visibility: visible;
 	opacity: 1;
 	transform: translateY(0);
@@ -2337,7 +2345,7 @@
 		visibility 0s linear 0s;
 }
 
-.ayle-minimal-info-artwork {
+.ayle-overlay-track-compact-artwork {
 	display: none;
 	width: 56px;
 	height: 56px;
@@ -2347,7 +2355,7 @@
 	background: #000;
 }
 
-.ayle-minimal-info-body {
+.ayle-overlay-track-compact-body {
 	display: flex;
 	min-width: 0;
 	flex: 1 1 auto;
@@ -2355,7 +2363,7 @@
 	gap: 3px;
 }
 
-.ayle-minimal-info-title {
+.ayle-overlay-track-compact-title {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -2364,7 +2372,7 @@
 	line-height: 1.2;
 }
 
-.ayle-minimal-info-meta {
+.ayle-overlay-track-compact-meta {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -2373,7 +2381,7 @@
 	line-height: 1.2;
 }
 
-.ayle-minimal-info-channel {
+.ayle-overlay-track-compact-channel {
 	display: none;
 	align-items: center;
 	gap: 5px;
@@ -2381,7 +2389,7 @@
 	margin-top: 2px;
 }
 
-.ayle-minimal-info-channel-avatar {
+.ayle-overlay-track-compact-channel-avatar {
 	display: none;
 	width: 20px;
 	height: 20px;
@@ -2390,7 +2398,7 @@
 	object-fit: cover;
 }
 
-.ayle-minimal-info-channel-text {
+.ayle-overlay-track-compact-channel-text {
 	min-width: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -2401,7 +2409,7 @@
 	text-decoration: none;
 }
 
-.ayle-minimal-info-channel-text[href]:hover {
+.ayle-overlay-track-compact-channel-text[href]:hover {
 	color: #fff;
 	text-decoration: underline;
 }
@@ -2412,9 +2420,9 @@
 }
 
 
-.ayle:not(.ayle-ui-minimal) .ayle-minimal-info,
-.ayle-ui-minimal:not(.ayle-audio-no-visual) .ayle-minimal-info,
-.ayle-minimal-info:not(.is-enabled) {
+.ayle:not(.ayle-ui-minimal) .ayle-overlay-track-compact,
+.ayle-ui-minimal:not(.ayle-audio-no-visual) .ayle-overlay-track-compact,
+.ayle-overlay-track-compact:not(.is-enabled) {
 	visibility: hidden;
 	opacity: 0;
 	pointer-events: none;
@@ -2470,13 +2478,13 @@
  * Minimal popup interaction
  * ---------------------------------------------------------------------- */
 
-.ayle-minimal-info,
-.ayle-minimal-info * {
+.ayle-overlay-track-compact,
+.ayle-overlay-track-compact * {
 	-webkit-user-select: text;
 	user-select: text;
 }
 
-.ayle-minimal-info img {
+.ayle-overlay-track-compact img {
 	-webkit-user-select: none;
 	user-select: none;
 }
@@ -2519,7 +2527,7 @@
 
 
 /* Timed text inside the minimal Now Playing popup. */
-.ayle-minimal-info-subtitle {
+.ayle-overlay-track-compact-subtitle {
 	display: none;
 	margin-top: 5px;
 	padding-top: 6px;
@@ -2533,7 +2541,7 @@
 	-webkit-user-select: text;
 }
 
-.ayle-minimal-info.has-subtitle {
+.ayle-overlay-track-compact.has-subtitle {
 	min-height: 82px;
 }
 
@@ -2542,11 +2550,11 @@
  * Dedicated minimal subtitle strip
  * ---------------------------------------------------------------------- */
 
-.ayle-minimal-info-subtitle {
+.ayle-overlay-track-compact-subtitle {
 	display: none !important;
 }
 
-.ayle-minimal-subtitle-popup {
+.ayle-overlay-audio-subtitles {
 	position: absolute;
 	left: 50%;
 	z-index: 19;
@@ -2570,27 +2578,27 @@
 	transition: opacity .18s ease, visibility 0s linear .18s;
 }
 
-.ayle-minimal-subtitle-popup.is-visible {
+.ayle-overlay-audio-subtitles.is-visible {
 	visibility: visible;
 	opacity: 1;
 	transition: opacity .18s ease, visibility 0s linear 0s;
 }
 
-.ayle-minimal-subtitle-popup-top {
+.ayle-overlay-audio-subtitles-top {
 	top: auto;
 	bottom: 100%;
 	border-bottom: 0;
 	border-radius: 8px 8px 0 0;
 }
 
-.ayle-minimal-subtitle-popup-bottom {
+.ayle-overlay-audio-subtitles-bottom {
 	top: 100%;
 	bottom: auto;
 	border-top: 0;
 	border-radius: 0 0 8px 8px;
 }
 
-.ayle-minimal-subtitle-popup-text {
+.ayle-overlay-audio-subtitles-text {
 	width: 100%;
 	min-height: 18px;
 	white-space: pre-line;
@@ -2600,11 +2608,11 @@
 
 /* The Now Playing popup stacks outside the subtitle strip when both share
  * the same side. */
-.ayle-minimal-info.ayle-minimal-info-top {
+.ayle-overlay-track-compact.ayle-overlay-track-compact-top {
 	bottom: calc(100% + var(--ayle-minimal-subtitle-stack));
 }
 
-.ayle-minimal-info.ayle-minimal-info-bottom {
+.ayle-overlay-track-compact.ayle-overlay-track-compact-bottom {
 	top: calc(100% + var(--ayle-minimal-subtitle-stack));
 }
 
@@ -2613,7 +2621,7 @@
  * Minimal subtitle popup v3: transient, content-sized, overlapping
  * ---------------------------------------------------------------------- */
 
-.ayle-minimal-subtitle-popup {
+.ayle-overlay-audio-subtitles {
 	left: 50%;
 	width: max-content;
 	max-width: min(520px, calc(100% - 24px));
@@ -2623,30 +2631,30 @@
 	z-index: 18;
 }
 
-.ayle-minimal-subtitle-popup-text {
+.ayle-overlay-audio-subtitles-text {
 	width: auto;
 	min-height: 0;
 }
 
-.ayle-minimal-info {
+.ayle-overlay-track-compact {
 	z-index: 22;
 }
 
 /* Both popups attach directly to the player. They may overlap intentionally. */
-.ayle-minimal-info.ayle-minimal-info-top {
+.ayle-overlay-track-compact.ayle-overlay-track-compact-top {
 	bottom: 100% !important;
 }
 
-.ayle-minimal-info.ayle-minimal-info-bottom {
+.ayle-overlay-track-compact.ayle-overlay-track-compact-bottom {
 	top: 100% !important;
 }
 
-.ayle-minimal-subtitle-popup.ayle-minimal-subtitle-popup-top {
+.ayle-overlay-audio-subtitles.ayle-overlay-audio-subtitles-top {
 	bottom: 100%;
 	top: auto;
 }
 
-.ayle-minimal-subtitle-popup.ayle-minimal-subtitle-popup-bottom {
+.ayle-overlay-audio-subtitles.ayle-overlay-audio-subtitles-bottom {
 	top: 100%;
 	bottom: auto;
 }
@@ -2678,11 +2686,11 @@
 	z-index: 21;
 }
 
-.ayle-ui-minimal .ayle-minimal-subtitle-popup {
+.ayle-ui-minimal .ayle-overlay-audio-subtitles {
 	z-index: 18;
 }
 
-.ayle-ui-minimal .ayle-minimal-info {
+.ayle-ui-minimal .ayle-overlay-track-compact {
 	z-index: 22;
 }
 
@@ -2890,11 +2898,11 @@
 	z-index: 40;
 }
 
-.ayle-ui-minimal.ayle-media-audio .ayle-minimal-info {
+.ayle-ui-minimal.ayle-media-audio .ayle-overlay-track-compact {
 	z-index: 22;
 }
 
-.ayle-ui-minimal.ayle-media-audio .ayle-minimal-subtitle-popup {
+.ayle-ui-minimal.ayle-media-audio .ayle-overlay-audio-subtitles {
 	z-index: 18;
 }
 

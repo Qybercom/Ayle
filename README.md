@@ -180,7 +180,7 @@ A normal declarative config is an object with these top-level fields:
 | `AutoFocus` | boolean / `false` | Focus the player automatically when the user interacts with its controls/surface. |
 | `MediaMode` | `auto`, `video`, `audio` / `auto` | Select media mode. `auto` resolves from the loaded source. |
 | `UIMode` | `normal`, `minimal` / `normal` | Select the full or minimal UI layout. |
-| `MinimalUI` | object | Visibility/behavior settings for minimal mode. |
+| `UI` | object | Declarative UI composition: header, track, channel, overlay, and toolbar. |
 | `AudioVisual` | object | Controls the visual area used by audio mode. |
 | `ArtworkSlideshow` | object | Controls the pre-playback artwork slideshow. |
 | `KeyboardArrowSeekStep` | number / `10` | Seek step in seconds for left/right arrow shortcuts. |
@@ -195,49 +195,110 @@ A normal declarative config is an object with these top-level fields:
 | `HintSafeArea` | number or object / `16` each side | Additional safe-area padding used when positioning hints around the visible header/controls. |
 | `Integration` | object | Channel, hints, custom Settings entries, and arbitrary application data. |
 
-### `Player.MinimalUI`
+### `Player.UI`
+
+`UI` is the single declarative composition model for Ayle's built-in interface. Element composition is expressed with simple string lists; layout variants know how to render the configured content.
+
+```js
+UI: {
+	Header: [
+		'channel:card',
+		'track'
+	],
+	Track: [
+		'title',
+		'chapter'
+	],
+	Channel: [
+		'name',
+		'profile'
+	],
+	Toolbar: {
+		Layout: 'inline',
+		Items: [
+			'play',
+			'timeline',
+			'time',
+			'volume',
+			'chapters',
+			'quality',
+			'settings',
+			'pip',
+			'fullscreen'
+		]
+	}
+}
+```
 
 | Option | Type / default | Description |
 | --- | --- | --- |
-| `Play` | boolean / `true` | Show Play/Pause in minimal mode. |
-| `Timeline` | boolean / `true` | Show the timeline. |
-| `Time` | boolean / `true` | Show current time/duration. |
-| `Volume` | boolean / `true` | Show mute/volume controls. |
-| `Settings` | boolean / `false` | Show Settings. |
-| `Chapters` | boolean / `false` | Show Chapters. |
-| `Audio` | boolean / `false` | Expose audio-track controls. |
-| `Subtitles` | boolean / `false` | Expose subtitle controls. |
-| `Quality` | boolean / `false` | Expose quality/variant controls. |
-| `PictureInPicture` | boolean / `false` | Show Picture-in-Picture control. |
-| `Fullscreen` | boolean / `false` | Show Fullscreen control. |
-| `Header` | boolean / `false` | Show the normal header in minimal mode. |
-| `Hints` | boolean / `false` | Allow hints in minimal mode. |
-| `Loading` | boolean / `true` | Allow the loading indicator in minimal mode. |
-| `Info` | object | Minimal metadata/info popup behavior. |
-| `SubtitlePopup` | object | Dedicated subtitle popup behavior for minimal/audio mode. |
+| `Header` | string[] / `['channel:card', 'track']` | Ordered header blocks. Built-ins: `channel:card`, `channel:contact`, `track`. An empty list removes the header. |
+| `Track` | string[] / `['title', 'chapter']` | Ordered/allowed track metadata elements. Built-ins: `title`, `chapter`. |
+| `Channel` | string[] / `['name', 'profile']` | Elements rendered by the selected channel layout. The channel avatar is owned by the channel layout itself; built-ins for the configurable information block are `name` and `profile`. |
+| `Overlay` | string[] / `[]` | Ordered overlay layouts. Built-ins: `track:compact` and `subtitles`. |
+| `Toolbar` | object | Declarative toolbar layout and items. |
 
-### `Player.MinimalUI.Info`
+`channel:card` and `channel:contact` are presentation variants of the same channel data. Both consume the same `UI.Channel` list. `channel:contact` renders the channel avatar plus the configured right-side channel block, while `channel:card` keeps the standard card presentation. This keeps channel content configuration independent from its visual layout.
 
-| Option | Type / default | Description |
-| --- | --- | --- |
-| `Enabled` | boolean / `true` | Enable the minimal info popup. |
-| `Mode` | `auto`, `always`, `hover`, `hidden` / `auto` | Controls when the info popup is shown. |
-| `Position` | `auto`, `top`, `bottom` / `auto` | Preferred placement relative to the player. |
-| `Artwork` | boolean / `true` | Show cover artwork. |
-| `Title` | boolean / `true` | Show source title. |
-| `Artist` | boolean / `true` | Show source artist. |
-| `Album` | boolean / `true` | Show source album. |
-| `Channel` | boolean / `true` | Allow channel information. Channel display is suppressed in audio media mode by the current UI. |
-| `Subtitles` | boolean / `true` | Enable subtitle-related minimal-info behavior and provide the default for `SubtitlePopup.Enabled`. |
-| `AutoHideDelay` | number / `3500` | Automatic hide delay in milliseconds. |
+For example, the same channel content can be reused with another header layout without changing `Channel`:
 
-### `Player.MinimalUI.SubtitlePopup`
+```js
+UI: {
+	Header: ['channel:contact', 'track'],
+	Track: ['title', 'chapter'],
+	Channel: ['name', 'profile'],
+	Overlay: [],
+	Toolbar: {
+		Items: ['play', 'timeline', 'time', 'volume']
+	}
+}
+```
 
-| Option | Type / default | Description |
-| --- | --- | --- |
-| `Enabled` | boolean / inherits `Info.Subtitles` | Enable the dedicated minimal subtitle popup. |
-| `Persistent` | boolean / `false` | Keep the popup visible instead of treating it as transient UI. |
-| `Position` | `auto`, `top`, `bottom` / `auto` | Popup placement. `auto` selects the side with usable viewport space. |
+A minimal composition no longer needs a parallel `MinimalUI` visibility object. It is expressed directly:
+
+```js
+UI: {
+	Header: [],
+	Track: ['title', 'chapter'],
+	Channel: ['name', 'profile'],
+	Overlay: ['track:compact'],
+	Toolbar: {
+		Items: ['play', 'timeline', 'time', 'volume']
+	}
+}
+```
+
+The composition can be updated at runtime with `player.SetUI({...})`; Ayle emits `uiChange` after the new UI configuration is applied.
+
+### `Player.UI.Overlay`
+
+`Overlay` is a declarative list of overlay layout tokens. It follows the same composition model as `Header`, `Track`, `Channel`, and `Toolbar`: presence enables a layout and an empty list disables overlays.
+
+Built-ins:
+
+| Token | Description |
+| --- | --- |
+| `track:compact` | Compact overlay presentation of the current track. It consumes the same `UI.Track` list; currently `title` and `chapter` are supported. |
+| `subtitles` | Dedicated subtitle overlay for audio mode. |
+
+For example:
+
+```js
+UI: {
+	Header: [],
+	Track: ['title', 'chapter'],
+	Channel: ['name', 'profile'],
+	Overlay: [
+		'track:compact',
+		'subtitles'
+	],
+	Toolbar: {
+		Items: ['play', 'timeline', 'time', 'volume']
+	}
+}
+```
+
+`track:compact` is a presentation of `UI.Track`, not a separate metadata configuration. Changing the track list therefore affects both the regular `track` header layout and the compact overlay.
 
 ### `Player.AudioVisual`
 
@@ -631,9 +692,9 @@ Public attributes are intended for embedding/configuration. Runtime/internal att
 | `data-ayle-settings-item` | generated Settings item | Stable Settings-order key such as `autoplay`, `audio`, or `debug`. |
 | `data-ayle-control` | generated control | Internal control identifier used by responsive/control-layout logic. |
 | `data-ayle-hint-type` | hint element | Normalized hint renderer/type. |
-| `data-ayle-minimal-info-position` | minimal info UI | Resolved `top`/`bottom` placement. |
-| `data-ayle-minimal-subtitle-position` | minimal subtitle UI | Resolved subtitle popup placement. |
-| `data-ayle-minimal-subtitle-state` | minimal subtitle UI | Current minimal subtitle popup state. |
+| `data-ayle-overlay-track-compact-position` | minimal info UI | Resolved `top`/`bottom` placement. |
+| `data-ayle-overlay-audio-subtitles-position` | minimal subtitle UI | Resolved subtitle popup placement. |
+| `data-ayle-overlay-audio-subtitles-state` | minimal subtitle UI | Current minimal subtitle popup state. |
 | `data-ayle-play-unavailable` | player element | Transient/UI state describing an unavailable Play attempt. |
 | `data-ayle-popover-position` | popover | Resolved popover placement. |
 | `data-ayle-source-state` | player element | High-level source state such as `ready`, `error`, `loading`, or `empty`. |
@@ -793,7 +854,7 @@ A handler bound through `data-ayle-on` receives a wrapper object containing `Typ
 | `audioVisualChange` | The audio player visual-area configuration changed. | `AudioVisual` options |
 | `fontFamilyChange` | The configured UI font family changed. | font-family string |
 | `mediaModeChange` | The media mode changed, for example video/audio. | mode string |
-| `minimalUIChange` | Minimal UI configuration changed. | `MinimalUI` options |
+| `uiChange` | Declarative UI configuration changed. | `UI` options |
 | `uiModeChange` | The UI mode changed. | mode string |
 
 ### Localization
@@ -1020,8 +1081,10 @@ root and is reached with ordinary relative URLs:
     ├── ayle-icons.svg
     ├── icons/
     └── examples/
-        ├── embed-presets-combined.html
-        └── ...
+        ├── low-level.html
+        ├── embedded.html
+        ├── angular/
+        └── react/
 ```
 
 No rewrite rules, aliases, or front controllers are required. A declarative
@@ -1417,18 +1480,20 @@ Current playback time uses the same leading-field width as the duration, so the 
 The main toolbar is declarative. Its default order is:
 
 ```js
-Toolbar: {
-	Items: [
-		'play',
-		'timeline',
-		'time',
-		'volume',
-		'chapters',
-		'quality',
-		'settings',
-		'pip',
-		'fullscreen'
-	]
+UI: {
+	Toolbar: {
+		Items: [
+			'play',
+			'timeline',
+			'time',
+			'volume',
+			'chapters',
+			'quality',
+			'settings',
+			'pip',
+			'fullscreen'
+		]
+	}
 }
 ```
 
@@ -1489,22 +1554,24 @@ An empty string is a menu separator. Menu items support `Label`, `Title`, `Value
 
 ### Toolbar layouts
 
-`Toolbar.Layout` controls the geometry of the full toolbar without changing which controls exist:
+`UI.Toolbar.Layout` controls the geometry of the full toolbar without changing which controls exist:
 
 ```js
-Toolbar: {
-	Layout: 'inline',
-	Items: [
-		'play',
-		'timeline',
-		'time',
-		'volume',
-		'chapters',
-		'quality',
-		'settings',
-		'pip',
-		'fullscreen'
-	]
+UI: {
+	Toolbar: {
+		Layout: 'inline',
+		Items: [
+			'play',
+			'timeline',
+			'time',
+			'volume',
+			'chapters',
+			'quality',
+			'settings',
+			'pip',
+			'fullscreen'
+		]
+	}
 }
 ```
 
@@ -1512,23 +1579,25 @@ Supported layouts are `inline`, `timeline-top`, and `auto`.
 
 `inline` preserves the original Ayle layout. `timeline-top` uses a deterministic two-row grid: the timeline occupies the complete first row, while every other declarative toolbar item stays in sequence on the second row. `auto` uses `inline` above 1100px, `timeline-top` from 761px through 1100px, and the existing narrow layout at 760px and below. The default remains `inline`, so existing players keep their current appearance.
 
-An empty string in `Toolbar.Items` is a flexible spacer, following the same separator convention used by Settings:
+An empty string in `UI.Toolbar.Items` is a flexible spacer, following the same separator convention used by Settings:
 
 ```js
-Toolbar: {
-	Layout: 'timeline-top',
-	Items: [
-		'play',
-		'timeline',
-		'time',
-		'',
-		'volume',
-		'chapters',
-		'quality',
-		'settings',
-		'pip',
-		'fullscreen'
-	]
+UI: {
+	Toolbar: {
+		Layout: 'timeline-top',
+		Items: [
+			'play',
+			'timeline',
+			'time',
+			'',
+			'volume',
+			'chapters',
+			'quality',
+			'settings',
+			'pip',
+			'fullscreen'
+		]
+	}
 }
 ```
 

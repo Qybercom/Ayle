@@ -19,45 +19,24 @@ const MINIMAL_VIDEO = {
 	AutoFocus: true,
 	MediaMode: 'video',
 	UIMode: 'minimal',
-	MinimalUI: {
-		Play: true,
-		Timeline: true,
-		Time: true,
-		Volume: true,
-		Settings: false,
-		Chapters: false,
-		Audio: false,
-		Subtitles: false,
-		Quality: false,
-		PictureInPicture: false,
-		Fullscreen: false,
-		Header: false,
-		Hints: false,
-		Loading: true
+	UI: {
+		Header: [],
+		Track: ['title', 'chapter'],
+		Channel: ['name', 'profile'],
+		Overlay: ['track:compact'],
+		Toolbar: {
+			Layout: 'inline',
+			Items: ['play', 'timeline', 'time', 'volume']
+		}
 	}
 };
 
 const MINIMAL_AUDIO = {
 	...MINIMAL_VIDEO,
 	MediaMode: 'audio',
-	MinimalUI: {
-		...MINIMAL_VIDEO.MinimalUI,
-		Info: {
-			Enabled: true,
-			Mode: 'auto',
-			Position: 'auto',
-			Artwork: true,
-			Title: true,
-			Artist: true,
-			Album: true,
-			Channel: true,
-			Subtitles: true,
-			AutoHideDelay: 3500
-		},
-		SubtitlePopup: {
-			Enabled: true,
-			Persistent: false
-		}
+	UI: {
+		...MINIMAL_VIDEO.UI,
+		Overlay: ['track:compact', 'subtitles']
 	},
 	AudioVisual: {
 		Enabled: true
@@ -124,20 +103,25 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 			Bottom: 16,
 			Left: 16
 		},
-		Toolbar: {
-			Layout: 'auto',
-			Items: [
-				'play',
-				'timeline',
-				'time',
-				'',
-				'volume',
-				'chapters',
-				'quality',
-				'settings',
-				'pip',
-				'fullscreen'
-			]
+		UI: {
+			Header: ['channel:card', 'track'],
+			Track: ['title', 'chapter'],
+			Channel: ['name', 'profile'],
+			Toolbar: {
+				Layout: 'auto',
+				Items: [
+					'play',
+					'timeline',
+					'time',
+					'',
+					'volume',
+					'chapters',
+					'quality',
+					'settings',
+					'pip',
+					'fullscreen'
+				]
+			}
 		},
 		Timeline: {
 			Ranges: [

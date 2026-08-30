@@ -130,6 +130,21 @@ export interface AyleToolbarButton {
 	[key: string]: any;
 }
 
+export interface AyleToolbarConfig {
+	Layout?: 'inline' | 'timeline-top' | 'auto';
+	Items?: Array<string | AyleToolbarButton>;
+	[key: string]: any;
+}
+
+export interface AyleUIConfig {
+	Header?: string[];
+	Track?: string[];
+	Channel?: string[];
+	Overlay?: string[];
+	Toolbar?: AyleToolbarConfig;
+	[key: string]: any;
+}
+
 export interface AyleTimelineRange {
 	ID?: string;
 	Start: number;
@@ -454,7 +469,7 @@ export interface AyleEventMap {
 	volumeChange: AyleVolumeChangeEvent;
 	stateChange: AyleState;
 	mediaModeChange: string;
-	minimalUIChange: Record<string, any>;
+	uiChange: Record<string, any>;
 	uiModeChange: string;
 	audioVisualChange: Record<string, any>;
 	artworkSlideshowChange: AyleArtworkSlideshowChangeEvent;

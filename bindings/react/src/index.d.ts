@@ -136,6 +136,21 @@ export interface AyleToolbarButton {
 	[key: string]: any;
 }
 
+export interface AyleToolbarConfig {
+	Layout?: 'inline' | 'timeline-top' | 'auto';
+	Items?: Array<string | AyleToolbarButton>;
+	[key: string]: any;
+}
+
+export interface AyleUIConfig {
+	Header?: string[];
+	Track?: string[];
+	Channel?: string[];
+	Overlay?: string[];
+	Toolbar?: AyleToolbarConfig;
+	[key: string]: any;
+}
+
 export interface AyleTimelineRange {
 	ID?: string;
 	Start: number;
@@ -460,7 +475,7 @@ export interface AyleEventMap {
 	volumeChange: AyleVolumeChangeEvent;
 	stateChange: AyleState;
 	mediaModeChange: string;
-	minimalUIChange: Record<string, any>;
+	uiChange: Record<string, any>;
 	uiModeChange: string;
 	audioVisualChange: Record<string, any>;
 	artworkSlideshowChange: AyleArtworkSlideshowChangeEvent;
@@ -543,7 +558,7 @@ export interface AyleEventHandlers {
 	volumeChange?: (data: AyleEventMap['volumeChange'], instance: AyleInstance) => void;
 	stateChange?: (data: AyleEventMap['stateChange'], instance: AyleInstance) => void;
 	mediaModeChange?: (data: AyleEventMap['mediaModeChange'], instance: AyleInstance) => void;
-	minimalUIChange?: (data: AyleEventMap['minimalUIChange'], instance: AyleInstance) => void;
+	uiChange?: (data: AyleEventMap['uiChange'], instance: AyleInstance) => void;
 	uiModeChange?: (data: AyleEventMap['uiModeChange'], instance: AyleInstance) => void;
 	audioVisualChange?: (data: AyleEventMap['audioVisualChange'], instance: AyleInstance) => void;
 	artworkSlideshowChange?: (data: AyleEventMap['artworkSlideshowChange'], instance: AyleInstance) => void;

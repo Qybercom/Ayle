@@ -73,6 +73,33 @@ if (embedded.indexOf('embedded-config-source') !== -1)
 const core = await fs.readFile(path.join(root, 'ayle.js'), 'utf8');
 const css = await fs.readFile(path.join(root, 'ayle.css'), 'utf8');
 
+const configurationSources = [
+	await fs.readFile(path.join(examples, 'low-level.html'), 'utf8'),
+	await fs.readFile(path.join(examples, 'embedded.html'), 'utf8'),
+	await fs.readFile(path.join(examples, 'angular/src/app/app.component.ts'), 'utf8'),
+	await fs.readFile(path.join(examples, 'react/src/App.tsx'), 'utf8')
+];
+
+i = 0;
+while (i < configurationSources.length) {
+	if (configurationSources[i].indexOf('MinimalUI') !== -1)
+		throw new Error('Canonical examples must use the declarative UI configuration');
+
+	if (configurationSources[i].indexOf('UI') === -1)
+		throw new Error('Canonical example is missing UI composition');
+
+	i++;
+}
+
+if (core.indexOf("headerItem === 'channel:contact'") === -1)
+	throw new Error('Core UI composition is missing channel:contact');
+
+if (core.indexOf("ui.Header.slice(0)") === -1 || core.indexOf("ui.Channel.slice(0)") === -1)
+	throw new Error('Core UI composition lists are missing');
+
+if (css.indexOf('.ayle-channel-contact .ayle-channel-avatar') === -1)
+	throw new Error('channel:contact CSS is missing');
+
 if (core.indexOf("is-anchor-left") === -1 || core.indexOf("is-anchor-right") === -1)
 	throw new Error('Custom toolbar menu must select an anchor side from the button position');
 
@@ -99,5 +126,31 @@ if (
 	customMenuCore.indexOf('is-horizontal-scroll') !== -1
 )
 	throw new Error('Obsolete custom menu overflow measurement workaround is still present');
+
+const overlayCore = await fs.readFile(path.join(root, 'ayle.js'), 'utf8');
+const overlayREADME = await fs.readFile(path.join(root, 'README.md'), 'utf8');
+const overlayBootstrap = await fs.readFile(path.join(root, 'ayle-bootstrap.js'), 'utf8');
+
+if (
+	overlayCore.indexOf("Overlay: ui.Overlay instanceof Array") === -1 ||
+	overlayCore.indexOf("_hasOverlayItem('track:compact')") === -1 ||
+	overlayCore.indexOf("_hasOverlayItem('subtitles')") === -1
+)
+	throw new Error('Declarative UI.Overlay support is incomplete');
+
+if (
+	overlayREADME.indexOf('`track:compact`') === -1 ||
+	overlayREADME.indexOf('`subtitles`') === -1 ||
+	overlayBootstrap.indexOf("Overlay: ['track:compact', 'subtitles']") === -1
+)
+	throw new Error('Overlay documentation/bootstrap preset is incomplete');
+
+if (
+	overlayCore.indexOf('MinimalInfo') !== -1 ||
+	overlayCore.indexOf('MinimalSubtitlePopup') !== -1 ||
+	overlayREADME.indexOf('MinimalInfo') !== -1 ||
+	overlayREADME.indexOf('MinimalSubtitlePopup') !== -1
+)
+	throw new Error('Legacy MinimalInfo configuration remains after Overlay migration');
 
 console.log('Ayle canonical examples validation passed: 4 APIs × 4 variants.');

@@ -4075,9 +4075,8 @@ function Ayle (driver, options) {
 		options = options || {};
 		var integration = options.Integration || {};
 		var shortcuts = options.Shortcuts || {};
-		var minimalUI = options.MinimalUI || {};
-		var minimalInfo = minimalUI.Info || {};
-		var minimalSubtitlePopup = minimalUI.SubtitlePopup || {};
+		var ui = options.UI || {};
+		var toolbar = ui.Toolbar || options.Toolbar || {};
 		var audioVisual = options.AudioVisual || {};
 		var artworkSlideshow = options.ArtworkSlideshow || {};
 		var hintSafeArea = options.HintSafeArea;
@@ -4109,40 +4108,20 @@ function Ayle (driver, options) {
 			AutoFocus: options.AutoFocus === true,
 			MediaMode: options.MediaMode || 'auto',
 			UIMode: options.UIMode || 'normal',
-			MinimalUI: {
-				Play: minimalUI.Play !== false,
-				Timeline: minimalUI.Timeline !== false,
-				Time: minimalUI.Time !== false,
-				Volume: minimalUI.Volume !== false,
-				Settings: !!minimalUI.Settings,
-				Chapters: !!minimalUI.Chapters,
-				Audio: !!minimalUI.Audio,
-				Subtitles: !!minimalUI.Subtitles,
-				Quality: !!minimalUI.Quality,
-				PictureInPicture: !!minimalUI.PictureInPicture,
-				Fullscreen: !!minimalUI.Fullscreen,
-				Header: !!minimalUI.Header,
-				Hints: !!minimalUI.Hints,
-				Loading: minimalUI.Loading !== false,
-				Info: {
-					Enabled: minimalInfo.Enabled !== false,
-					Mode: minimalInfo.Mode || 'auto',
-					Position: minimalInfo.Position || 'auto',
-					Artwork: minimalInfo.Artwork !== false,
-					Title: minimalInfo.Title !== false,
-					Artist: minimalInfo.Artist !== false,
-					Album: minimalInfo.Album !== false,
-					Channel: minimalInfo.Channel !== false,
-					Subtitles: minimalInfo.Subtitles !== false,
-					AutoHideDelay: minimalInfo.AutoHideDelay !== undefined ?
-						Math.max(0, Number(minimalInfo.AutoHideDelay) || 0) : 3500
-				},
-				SubtitlePopup: {
-					Enabled: minimalSubtitlePopup.Enabled !== undefined ?
-						!!minimalSubtitlePopup.Enabled :
-						(minimalInfo.Subtitles !== false),
-					Persistent: minimalSubtitlePopup.Persistent === true,
-					Position: minimalSubtitlePopup.Position || 'auto'
+			UI: {
+				Header: ui.Header instanceof Array ?
+					ui.Header.slice(0) : ['channel:card', 'track'],
+				Track: ui.Track instanceof Array ?
+					ui.Track.slice(0) : ['title', 'chapter'],
+				Channel: ui.Channel instanceof Array ?
+					ui.Channel.slice(0) : ['name', 'profile'],
+				Overlay: ui.Overlay instanceof Array ?
+					ui.Overlay.slice(0) : [],
+				Toolbar: {
+					Layout: toolbar.Layout ? String(toolbar.Layout).toLowerCase() : 'inline',
+					Items: toolbar.Items instanceof Array ?
+						toolbar.Items.slice(0) :
+						['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'settings', 'pip', 'fullscreen']
 				}
 			},
 			AudioVisual: {
@@ -4177,13 +4156,6 @@ function Ayle (driver, options) {
 				Subtitles: shortcuts.Subtitles !== false,
 				Fullscreen: shortcuts.Fullscreen !== false,
 				PictureInPicture: shortcuts.PictureInPicture !== false
-			},
-			Toolbar: {
-				Layout: options.Toolbar && options.Toolbar.Layout ?
-					String(options.Toolbar.Layout).toLowerCase() : 'inline',
-				Items: options.Toolbar && options.Toolbar.Items instanceof Array ?
-					options.Toolbar.Items.slice(0) :
-					['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'settings', 'pip', 'fullscreen']
 			},
 			Timeline: {
 				Ranges: options.Timeline && options.Timeline.Ranges instanceof Array ?
@@ -4250,33 +4222,11 @@ function Ayle (driver, options) {
 			this.Options.UIMode = 'normal';
 
 		if (
-			this.Options.Toolbar.Layout !== 'inline' &&
-			this.Options.Toolbar.Layout !== 'timeline-top' &&
-			this.Options.Toolbar.Layout !== 'auto'
+			this.Options.UI.Toolbar.Layout !== 'inline' &&
+			this.Options.UI.Toolbar.Layout !== 'timeline-top' &&
+			this.Options.UI.Toolbar.Layout !== 'auto'
 		)
-			this.Options.Toolbar.Layout = 'inline';
-
-		if (
-			this.Options.MinimalUI.SubtitlePopup.Position !== 'auto' &&
-			this.Options.MinimalUI.SubtitlePopup.Position !== 'top' &&
-			this.Options.MinimalUI.SubtitlePopup.Position !== 'bottom'
-		)
-			this.Options.MinimalUI.SubtitlePopup.Position = 'auto';
-
-		if (
-			this.Options.MinimalUI.Info.Position !== 'auto' &&
-			this.Options.MinimalUI.Info.Position !== 'top' &&
-			this.Options.MinimalUI.Info.Position !== 'bottom'
-		)
-			this.Options.MinimalUI.Info.Position = 'auto';
-
-		if (
-			this.Options.MinimalUI.Info.Mode !== 'auto' &&
-			this.Options.MinimalUI.Info.Mode !== 'always' &&
-			this.Options.MinimalUI.Info.Mode !== 'hover' &&
-			this.Options.MinimalUI.Info.Mode !== 'hidden'
-		)
-			this.Options.MinimalUI.Info.Mode = 'auto';
+			this.Options.UI.Toolbar.Layout = 'inline';
 
 		if (
 			this.Options.AudioVisual.Type !== 'auto' &&
@@ -5649,94 +5599,39 @@ function Ayle (driver, options) {
 		return this;
 	};
 
-	Ayle.prototype.SetMinimalUI = function (options) {
+	Ayle.prototype.SetUI = function (options) {
 		options = options || {};
+		var ui = this.Options.UI;
 
-		for (var name in this.Options.MinimalUI) {
+		if (options.Header instanceof Array)
+			ui.Header = options.Header.slice(0);
+
+		if (options.Track instanceof Array)
+			ui.Track = options.Track.slice(0);
+
+		if (options.Channel instanceof Array)
+			ui.Channel = options.Channel.slice(0);
+
+		if (options.Overlay instanceof Array)
+			ui.Overlay = options.Overlay.slice(0);
+
+		if (options.Toolbar) {
+			if (options.Toolbar.Layout !== undefined)
+				ui.Toolbar.Layout = String(options.Toolbar.Layout).toLowerCase();
+
+			if (options.Toolbar.Items instanceof Array)
+				ui.Toolbar.Items = options.Toolbar.Items.slice(0);
+
 			if (
-				!Object.prototype.hasOwnProperty.call(this.Options.MinimalUI, name) ||
-				options[name] === undefined
+				ui.Toolbar.Layout !== 'inline' &&
+				ui.Toolbar.Layout !== 'timeline-top' &&
+				ui.Toolbar.Layout !== 'auto'
 			)
-				continue;
-
-			if (name === 'Info') {
-				var info = options.Info || {};
-				var current = this.Options.MinimalUI.Info || {};
-
-				if (info.Enabled !== undefined)
-					current.Enabled = !!info.Enabled;
-
-				if (info.Mode !== undefined)
-					current.Mode = info.Mode;
-
-				if (info.Position !== undefined)
-					current.Position = info.Position;
-
-				if (info.Artwork !== undefined)
-					current.Artwork = !!info.Artwork;
-
-				if (info.Title !== undefined)
-					current.Title = !!info.Title;
-
-				if (info.Artist !== undefined)
-					current.Artist = !!info.Artist;
-
-				if (info.Album !== undefined)
-					current.Album = !!info.Album;
-
-				if (info.Channel !== undefined)
-					current.Channel = !!info.Channel;
-
-				if (info.Subtitles !== undefined)
-					current.Subtitles = !!info.Subtitles;
-
-				if (info.AutoHideDelay !== undefined)
-					current.AutoHideDelay = Math.max(0, Number(info.AutoHideDelay) || 0);
-
-				if (
-					current.Mode !== 'auto' &&
-					current.Mode !== 'always' &&
-					current.Mode !== 'hover' &&
-					current.Mode !== 'hidden'
-				)
-					current.Mode = 'auto';
-
-				if (
-					current.Position !== 'auto' &&
-					current.Position !== 'top' &&
-					current.Position !== 'bottom'
-				)
-					current.Position = 'auto';
-
-				this.Options.MinimalUI.Info = current;
-			}
-			else if (name === 'SubtitlePopup') {
-				var subtitlePopup = options.SubtitlePopup || {};
-				var currentSubtitlePopup = this.Options.MinimalUI.SubtitlePopup || {};
-
-				if (subtitlePopup.Enabled !== undefined)
-					currentSubtitlePopup.Enabled = !!subtitlePopup.Enabled;
-
-				if (subtitlePopup.Persistent !== undefined)
-					currentSubtitlePopup.Persistent = !!subtitlePopup.Persistent;
-
-				if (subtitlePopup.Position !== undefined)
-					currentSubtitlePopup.Position = subtitlePopup.Position;
-
-				if (
-					currentSubtitlePopup.Position !== 'auto' &&
-					currentSubtitlePopup.Position !== 'top' &&
-					currentSubtitlePopup.Position !== 'bottom'
-				)
-					currentSubtitlePopup.Position = 'auto';
-
-				this.Options.MinimalUI.SubtitlePopup = currentSubtitlePopup;
-			}
-			else
-				this.Options.MinimalUI[name] = !!options[name];
+				ui.Toolbar.Layout = 'inline';
 		}
 
-		this.Emit('minimalUIChange', this.Options.MinimalUI);
+
+		this.Emit('uiChange', ui);
 		return this;
 	};
 
@@ -6653,20 +6548,20 @@ function Ayle (driver, options) {
 		this._artworkSlideshowIndex = 0;
 		this._artworkSlideshowFront = 0;
 		this._artworkSlideshowPlayed = false;
-		this.MinimalInfo = element.querySelector('.ayle-minimal-info');
-		this.MinimalInfoArtwork = element.querySelector('.ayle-minimal-info-artwork');
-		this.MinimalInfoTitle = element.querySelector('.ayle-minimal-info-title');
-		this.MinimalInfoMeta = element.querySelector('.ayle-minimal-info-meta');
-		this.MinimalInfoChannel = element.querySelector('.ayle-minimal-info-channel');
-		this.MinimalInfoChannelAvatar = element.querySelector('.ayle-minimal-info-channel-avatar');
-		this.MinimalInfoChannelText = element.querySelector('.ayle-minimal-info-channel-text');
-		this.MinimalInfoSubtitle = element.querySelector('.ayle-minimal-info-subtitle');
-		this.MinimalSubtitlePopup = element.querySelector('.ayle-minimal-subtitle-popup');
-		this.MinimalSubtitlePopupText = element.querySelector('.ayle-minimal-subtitle-popup-text');
-		this._minimalInfoSubtitleText = '';
-		this._minimalInfoTimer = null;
-		this._minimalInfoHideTimer = null;
-		this._minimalInfoHover = false;
+		this.TrackCompactOverlay = element.querySelector('.ayle-overlay-track-compact');
+		this.TrackCompactOverlayArtwork = element.querySelector('.ayle-overlay-track-compact-artwork');
+		this.TrackCompactOverlayTitle = element.querySelector('.ayle-overlay-track-compact-title');
+		this.TrackCompactOverlayMeta = element.querySelector('.ayle-overlay-track-compact-meta');
+		this.TrackCompactOverlayChannel = element.querySelector('.ayle-overlay-track-compact-channel');
+		this.TrackCompactOverlayChannelAvatar = element.querySelector('.ayle-overlay-track-compact-channel-avatar');
+		this.TrackCompactOverlayChannelText = element.querySelector('.ayle-overlay-track-compact-channel-text');
+		this.TrackCompactOverlaySubtitle = element.querySelector('.ayle-overlay-track-compact-subtitle');
+		this.AudioSubtitleOverlay = element.querySelector('.ayle-overlay-audio-subtitles');
+		this.AudioSubtitleOverlayText = element.querySelector('.ayle-overlay-audio-subtitles-text');
+		this._trackCompactOverlaySubtitleText = '';
+		this._trackCompactOverlayTimer = null;
+		this._trackCompactOverlayHideTimer = null;
+		this._trackCompactOverlayHover = false;
 		this.PlayButton = element.querySelector('.ayle-play');
 		this.CenterPlayButton = element.querySelector('.ayle-center-play');
 		this.Timeline = element.querySelector('.ayle-timeline');
@@ -6744,6 +6639,7 @@ function Ayle (driver, options) {
 		this.Title = element.querySelector('.ayle-title');
 		this.Channel = element.querySelector('.ayle-channel');
 		this.ChannelAvatar = element.querySelector('.ayle-channel-avatar');
+		this.ChannelInfo = element.querySelector('.ayle-channel-info');
 		this.ChannelName = element.querySelector('.ayle-channel-name');
 		this.ChannelProfile = element.querySelector('.ayle-channel-profile');
 		this.Hints = element.querySelector('.ayle-hints');
@@ -6804,46 +6700,35 @@ function Ayle (driver, options) {
 		this.ApplyUIMode();
 		this.ApplyToolbar();
 		this.UpdateControlLayoutMode();
-		this.UpdateMinimalInfo(false);
+		this.UpdateTrackCompactOverlay(false);
 
-		if (this.MinimalInfo) {
+		if (this.TrackCompactOverlay) {
 			var infoSelf = this;
 
 			element.addEventListener('mouseenter', function () {
-				infoSelf._minimalInfoHover = true;
+				infoSelf._trackCompactOverlayHover = true;
 
-				var info = infoSelf.Player.Options.MinimalUI.Info || {};
-				if (
-					infoSelf.Player.Options.UIMode === 'minimal' &&
-					info.Enabled !== false &&
-					(info.Mode === 'auto' || info.Mode === 'hover')
-				)
-					infoSelf.ShowMinimalInfo(false);
+				if (infoSelf._hasOverlayItem('track:compact'))
+					infoSelf.ShowTrackCompactOverlay(false);
 			});
 
 			element.addEventListener('mouseleave', function (event) {
 				if (
 					event.relatedTarget &&
-					infoSelf.MinimalInfo &&
-					infoSelf.MinimalInfo.contains(event.relatedTarget)
+					infoSelf.TrackCompactOverlay &&
+					infoSelf.TrackCompactOverlay.contains(event.relatedTarget)
 				)
 					return;
 
-				infoSelf._minimalInfoHover = false;
+				infoSelf._trackCompactOverlayHover = false;
 
-				var info = infoSelf.Player.Options.MinimalUI.Info || {};
-				if (info.Mode === 'auto' || info.Mode === 'hover')
-					infoSelf.ScheduleMinimalInfoHide();
+				if (infoSelf._hasOverlayItem('track:compact'))
+					infoSelf.ScheduleTrackCompactOverlayHide();
 			});
 
 			element.addEventListener('focusin', function () {
-				var info = infoSelf.Player.Options.MinimalUI.Info || {};
-				if (
-					infoSelf.Player.Options.UIMode === 'minimal' &&
-					info.Enabled !== false &&
-					(info.Mode === 'auto' || info.Mode === 'hover')
-				)
-					infoSelf.ShowMinimalInfo(false);
+				if (infoSelf._hasOverlayItem('track:compact'))
+					infoSelf.ShowTrackCompactOverlay(false);
 			});
 
 			element.addEventListener('focusout', function (event) {
@@ -6851,78 +6736,75 @@ function Ayle (driver, options) {
 					event.relatedTarget &&
 					(
 						element.contains(event.relatedTarget) ||
-						(infoSelf.MinimalInfo && infoSelf.MinimalInfo.contains(event.relatedTarget))
+						(infoSelf.TrackCompactOverlay && infoSelf.TrackCompactOverlay.contains(event.relatedTarget))
 					)
 				)
 					return;
 
-				var info = infoSelf.Player.Options.MinimalUI.Info || {};
-				if (info.Mode === 'auto' || info.Mode === 'hover')
-					infoSelf.ScheduleMinimalInfoHide();
+				if (infoSelf._hasOverlayItem('track:compact'))
+					infoSelf.ScheduleTrackCompactOverlayHide();
 			});
 
-			this.MinimalInfo.addEventListener('mouseenter', function () {
-				infoSelf._minimalInfoHover = true;
+			this.TrackCompactOverlay.addEventListener('mouseenter', function () {
+				infoSelf._trackCompactOverlayHover = true;
 
-				if (infoSelf._minimalInfoHideTimer) {
-					clearTimeout(infoSelf._minimalInfoHideTimer);
-					infoSelf._minimalInfoHideTimer = null;
+				if (infoSelf._trackCompactOverlayHideTimer) {
+					clearTimeout(infoSelf._trackCompactOverlayHideTimer);
+					infoSelf._trackCompactOverlayHideTimer = null;
 				}
 
-				infoSelf.ShowMinimalInfo(false);
+				infoSelf.ShowTrackCompactOverlay(false);
 			});
 
-			this.MinimalInfo.addEventListener('mouseleave', function (event) {
+			this.TrackCompactOverlay.addEventListener('mouseleave', function (event) {
 				if (event.relatedTarget && element.contains(event.relatedTarget))
 					return;
 
-				infoSelf._minimalInfoHover = false;
+				infoSelf._trackCompactOverlayHover = false;
 
-				var info = infoSelf.Player.Options.MinimalUI.Info || {};
-				if (info.Mode === 'auto' || info.Mode === 'hover')
-					infoSelf.ScheduleMinimalInfoHide();
+				if (infoSelf._hasOverlayItem('track:compact'))
+					infoSelf.ScheduleTrackCompactOverlayHide();
 			});
 
-			this.MinimalInfo.addEventListener('focusin', function () {
-				infoSelf._minimalInfoHover = true;
+			this.TrackCompactOverlay.addEventListener('focusin', function () {
+				infoSelf._trackCompactOverlayHover = true;
 
-				if (infoSelf._minimalInfoHideTimer) {
-					clearTimeout(infoSelf._minimalInfoHideTimer);
-					infoSelf._minimalInfoHideTimer = null;
+				if (infoSelf._trackCompactOverlayHideTimer) {
+					clearTimeout(infoSelf._trackCompactOverlayHideTimer);
+					infoSelf._trackCompactOverlayHideTimer = null;
 				}
 
-				infoSelf.ShowMinimalInfo(false);
+				infoSelf.ShowTrackCompactOverlay(false);
 			});
 
-			this.MinimalInfo.addEventListener('focusout', function (event) {
+			this.TrackCompactOverlay.addEventListener('focusout', function (event) {
 				if (
 					event.relatedTarget &&
 					(
-						infoSelf.MinimalInfo.contains(event.relatedTarget) ||
+						infoSelf.TrackCompactOverlay.contains(event.relatedTarget) ||
 						element.contains(event.relatedTarget)
 					)
 				)
 					return;
 
-				infoSelf._minimalInfoHover = false;
+				infoSelf._trackCompactOverlayHover = false;
 
-				var info = infoSelf.Player.Options.MinimalUI.Info || {};
-				if (info.Mode === 'auto' || info.Mode === 'hover')
-					infoSelf.ScheduleMinimalInfoHide();
+				if (infoSelf._hasOverlayItem('track:compact'))
+					infoSelf.ScheduleTrackCompactOverlayHide();
 			});
 
-			this._minimalInfoPositionHandler = function () {
+			this._trackCompactOverlayPositionHandler = function () {
 				if (
-					infoSelf.MinimalInfo &&
-					infoSelf.MinimalInfo.classList.contains('is-enabled')
+					infoSelf.TrackCompactOverlay &&
+					infoSelf.TrackCompactOverlay.classList.contains('is-enabled')
 				)
-					infoSelf.UpdateMinimalInfoPosition();
+					infoSelf.UpdateTrackCompactOverlayPosition();
 
-				infoSelf.UpdateMinimalSubtitlePopupPosition();
+				infoSelf.UpdateAudioSubtitleOverlayPosition();
 			};
 
-			window.addEventListener('resize', this._minimalInfoPositionHandler);
-			window.addEventListener('scroll', this._minimalInfoPositionHandler, true);
+			window.addEventListener('resize', this._trackCompactOverlayPositionHandler);
+			window.addEventListener('scroll', this._trackCompactOverlayPositionHandler, true);
 		}
 
 		this._bindSafeArea();
@@ -6934,22 +6816,6 @@ function Ayle (driver, options) {
 			this.AutoFocus();
 	}
 
-
-	AyleUI.prototype._minimalVisible = function (name, fallback) {
-		var options = this.Player.Options.MinimalUI || {};
-
-		if (options[name] === undefined)
-			return !!fallback;
-
-		return !!options[name];
-	};
-
-	AyleUI.prototype._setVisible = function (element, visible) {
-		if (!element)
-			return;
-
-		element.classList.toggle('ayle-minimal-hidden', !visible);
-	};
 
 
 	AyleUI.prototype.StopArtworkSlideshow = function (reason) {
@@ -7134,12 +7000,7 @@ function Ayle (driver, options) {
 			visual.Subtitles !== false &&
 			this.Player.State.SubtitleTrack
 		);
-		var minimalSubtitlePopup = this.Player.Options.MinimalUI ?
-			(this.Player.Options.MinimalUI.SubtitlePopup || {}) : {};
-		var subtitlesInMinimalInfo = !!(
-			this.Player.Options.UIMode === 'minimal' &&
-			minimalSubtitlePopup.Enabled !== false
-		);
+		var subtitlesInTrackCompactOverlay = this._hasOverlayItem('subtitles');
 		var visualType = visual.Type || 'auto';
 
 		this.Element.classList.toggle('ayle-media-audio', mode === 'audio');
@@ -7168,7 +7029,7 @@ function Ayle (driver, options) {
 				visualType = 'cover';
 			else if (hints.length)
 				visualType = 'hints';
-			else if (hasActiveSubtitles && !subtitlesInMinimalInfo)
+			else if (hasActiveSubtitles && !subtitlesInTrackCompactOverlay)
 				visualType = 'subtitles';
 			else
 				visualType = 'none';
@@ -7186,7 +7047,7 @@ function Ayle (driver, options) {
 			(
 				visualType !== 'none' &&
 				hasActiveSubtitles &&
-				!subtitlesInMinimalInfo
+				!subtitlesInTrackCompactOverlay
 			);
 
 		this.Element.classList.toggle('ayle-audio-no-visual', !hasVisual);
@@ -7213,199 +7074,125 @@ function Ayle (driver, options) {
 	};
 
 
-	AyleUI.prototype.UpdateMinimalInfo = function (showOnUpdate) {
-		if (!this.MinimalInfo)
+	AyleUI.prototype._hasOverlayItem = function (name) {
+		var items = this.Player.Options.UI && this.Player.Options.UI.Overlay instanceof Array ?
+			this.Player.Options.UI.Overlay : [];
+
+		return items.indexOf(name) !== -1;
+	};
+
+	AyleUI.prototype.UpdateTrackCompactOverlay = function (showOnUpdate) {
+		if (!this.TrackCompactOverlay)
 			return;
 
-		var options = this.Player.Options.MinimalUI.Info || {};
 		var source = this.Player.State.Source || {};
-		var channel = this.Player.Options.Integration ?
-			this.Player.Options.Integration.Channel : null;
-
-		var artwork = source.Cover || '';
+		var trackItems = this.Player.Options.UI && this.Player.Options.UI.Track instanceof Array ?
+			this.Player.Options.UI.Track : [];
+		var titleEnabled = trackItems.indexOf('title') !== -1;
+		var chapterEnabled = trackItems.indexOf('chapter') !== -1;
 		var title = source.Title || '';
-		var artist = source.Artist || '';
-		var album = source.Album || '';
+		var chapter = this.Player.State.Chapter || null;
+		var chapterTitle = chapter ? (chapter.Title || chapter.Name || chapter.Label || '') : '';
 
-		if (this.MinimalInfoArtwork) {
-			if (options.Artwork !== false && artwork) {
-				this.MinimalInfoArtwork.src = artwork;
-				this.MinimalInfoArtwork.style.display = 'block';
-			}
-			else {
-				this.MinimalInfoArtwork.removeAttribute('src');
-				this.MinimalInfoArtwork.style.display = 'none';
-			}
+		if (this.TrackCompactOverlayArtwork) {
+			this.TrackCompactOverlayArtwork.removeAttribute('src');
+			this.TrackCompactOverlayArtwork.style.display = 'none';
 		}
 
-		if (this.MinimalInfoTitle) {
-			this.MinimalInfoTitle.textContent =
-				options.Title !== false ? title : '';
-			this.MinimalInfoTitle.style.display =
-				options.Title !== false && title ? '' : 'none';
+		if (this.TrackCompactOverlayTitle) {
+			this.TrackCompactOverlayTitle.textContent = titleEnabled ? title : '';
+			this.TrackCompactOverlayTitle.style.display =
+				titleEnabled && title ? '' : 'none';
 		}
 
-		if (this.MinimalInfoMeta) {
-			var meta = [];
-
-			if (options.Artist !== false && artist)
-				meta.push(artist);
-
-			if (options.Album !== false && album)
-				meta.push(album);
-
-			this.MinimalInfoMeta.textContent = meta.join(' · ');
-			this.MinimalInfoMeta.style.display = meta.length ? '' : 'none';
+		if (this.TrackCompactOverlayMeta) {
+			this.TrackCompactOverlayMeta.textContent = chapterEnabled ? chapterTitle : '';
+			this.TrackCompactOverlayMeta.style.display =
+				chapterEnabled && chapterTitle ? '' : 'none';
 		}
 
-		if (this.MinimalInfoChannel) {
-			var showChannel = !!(
-				this.Player.State.MediaMode !== 'audio' &&
-				options.Channel !== false &&
-				channel &&
-				(channel.Name || channel.Avatar || (channel.Profile && channel.Profile.Name))
-			);
-
-			this.MinimalInfoChannel.style.display = showChannel ? 'flex' : 'none';
-
-			if (showChannel) {
-				if (this.MinimalInfoChannelAvatar) {
-					if (channel.Avatar) {
-						this.MinimalInfoChannelAvatar.src = channel.Avatar;
-						this.MinimalInfoChannelAvatar.style.display = 'block';
-					}
-					else {
-						this.MinimalInfoChannelAvatar.removeAttribute('src');
-						this.MinimalInfoChannelAvatar.style.display = 'none';
-					}
-				}
-
-				if (this.MinimalInfoChannelText) {
-					var profile = channel.Profile || {};
-					this.MinimalInfoChannelText.textContent =
-						channel.Name || profile.Name || '';
-
-					if (profile.URL) {
-						this.MinimalInfoChannelText.setAttribute('href', profile.URL);
-						this.MinimalInfoChannelText.setAttribute('target', profile.Target || '_self');
-					}
-					else {
-						this.MinimalInfoChannelText.removeAttribute('href');
-						this.MinimalInfoChannelText.removeAttribute('target');
-					}
-				}
-			}
-		}
+		if (this.TrackCompactOverlayChannel)
+			this.TrackCompactOverlayChannel.style.display = 'none';
 
 		var hasContent = !!(
-			(options.Artwork !== false && artwork) ||
-			(options.Title !== false && title) ||
-			(options.Artist !== false && artist) ||
-			(options.Album !== false && album) ||
-			(
-				this.Player.State.MediaMode !== 'audio' &&
-				options.Channel !== false &&
-				channel
-			)
+			(titleEnabled && title) ||
+			(chapterEnabled && chapterTitle)
 		);
 
-		this.MinimalInfo.classList.toggle('has-content', hasContent);
-		this.UpdateMinimalSubtitlePopup();
+		this.TrackCompactOverlay.classList.toggle('has-content', hasContent);
+		this.UpdateAudioSubtitleOverlay();
 
 		if (showOnUpdate)
-			this.ShowMinimalInfo(true);
+			this.ShowTrackCompactOverlay(true);
 	};
 
-
-
-	AyleUI.prototype.UpdateMinimalInfoSubtitle = function () {
+	AyleUI.prototype.UpdateTrackCompactOverlaySubtitle = function () {
 		/* Backward-compatible method name: subtitle rendering now lives in
 		 * the dedicated minimal subtitle popup. */
-		this.UpdateMinimalSubtitlePopup();
+		this.UpdateAudioSubtitleOverlay();
 	};
 
-	AyleUI.prototype.UpdateMinimalSubtitlePopupPosition = function () {
-		if (!this.MinimalSubtitlePopup)
+	AyleUI.prototype.UpdateAudioSubtitleOverlayPosition = function () {
+		if (!this.AudioSubtitleOverlay)
 			return;
 
-		var options = this.Player.Options.MinimalUI.SubtitlePopup || {};
-		var position = options.Position || 'auto';
-
-		if (position !== 'auto' && position !== 'top' && position !== 'bottom')
-			position = 'auto';
-
-		var resolved = position;
-
-		if (position === 'auto') {
-			var playerRect = this.Element.getBoundingClientRect();
-			var popupHeight = this.MinimalSubtitlePopup.offsetHeight || 28;
-			var viewportHeight =
-				window.innerHeight ||
+		var playerRect = this.Element.getBoundingClientRect();
+		var popupHeight = this.AudioSubtitleOverlay.offsetHeight || 28;
+		var viewportHeight =
+			window.innerHeight ||
 				document.documentElement.clientHeight ||
 				0;
+		var spaceTop = playerRect.top;
+		var spaceBottom = viewportHeight - playerRect.bottom;
+		var resolved;
 
-			var spaceTop = playerRect.top;
-			var spaceBottom = viewportHeight - playerRect.bottom;
+		if (spaceTop >= popupHeight)
+			resolved = 'top';
+		else if (spaceBottom >= popupHeight)
+			resolved = 'bottom';
+		else
+			resolved = spaceBottom > spaceTop ? 'bottom' : 'top';
 
-			if (spaceTop >= popupHeight)
-				resolved = 'top';
-			else if (spaceBottom >= popupHeight)
-				resolved = 'bottom';
-			else
-				resolved = spaceBottom > spaceTop ? 'bottom' : 'top';
-		}
-
-		this.MinimalSubtitlePopup.classList.toggle(
-			'ayle-minimal-subtitle-popup-top',
+		this.AudioSubtitleOverlay.classList.toggle(
+			'ayle-overlay-audio-subtitles-top',
 			resolved === 'top'
 		);
 
-		this.MinimalSubtitlePopup.classList.toggle(
-			'ayle-minimal-subtitle-popup-bottom',
+		this.AudioSubtitleOverlay.classList.toggle(
+			'ayle-overlay-audio-subtitles-bottom',
 			resolved === 'bottom'
 		);
 
-		this.MinimalSubtitlePopup.setAttribute(
-			'data-ayle-minimal-subtitle-position',
+		this.AudioSubtitleOverlay.setAttribute(
+			'data-ayle-overlay-audio-subtitles-position',
 			resolved
 		);
 	};
 
-	AyleUI.prototype.UpdateMinimalSubtitlePopup = function () {
-		if (!this.MinimalSubtitlePopup)
+	AyleUI.prototype.UpdateAudioSubtitleOverlay = function () {
+		if (!this.AudioSubtitleOverlay)
 			return;
 
-		var options = this.Player.Options.MinimalUI.SubtitlePopup || {};
-		var minimal = this.Player.Options.UIMode === 'minimal';
 		var track = this.Player.State.SubtitleTrack;
 		var enabled = !!(
-			minimal &&
+			this._hasOverlayItem('subtitles') &&
 			this.Player.State.MediaMode === 'audio' &&
-			options.Enabled !== false &&
 			track
 		);
-
 		var cues = enabled ? this.GetActiveSubtitleCues() : [];
 		var text = enabled ? this.GetActiveSubtitleText() : '';
-		var persistent = options.Persistent === true;
-		var visible = !!(
-			enabled &&
-			(
-				text ||
-				persistent
-			)
-		);
+		var visible = !!(enabled && text);
 
-		if (this.MinimalSubtitlePopupText) {
-			this.MinimalSubtitlePopupText.innerHTML = '';
+		if (this.AudioSubtitleOverlayText) {
+			this.AudioSubtitleOverlayText.innerHTML = '';
 
 			var cueIndex = 0;
 			while (cueIndex < cues.length) {
 				if (cueIndex > 0)
-					this.MinimalSubtitlePopupText.appendChild(document.createElement('br'));
+					this.AudioSubtitleOverlayText.appendChild(document.createElement('br'));
 
 				this.AppendSubtitleCue(
-					this.MinimalSubtitlePopupText,
+					this.AudioSubtitleOverlayText,
 					cues[cueIndex]
 				);
 
@@ -7413,191 +7200,155 @@ function Ayle (driver, options) {
 			}
 		}
 
-		this.MinimalSubtitlePopup.classList.toggle('has-text', !!text);
-		this.MinimalSubtitlePopup.classList.toggle('is-visible', visible);
-		this.MinimalSubtitlePopup.setAttribute(
-			'data-ayle-minimal-subtitle-state',
-			text ? 'active' : (visible ? 'idle' : 'hidden')
+		this.AudioSubtitleOverlay.classList.toggle('has-text', !!text);
+		this.AudioSubtitleOverlay.classList.toggle('is-visible', visible);
+		this.AudioSubtitleOverlay.setAttribute(
+			'data-ayle-overlay-audio-subtitles-state',
+			text ? 'active' : 'hidden'
 		);
 
-		this.UpdateMinimalSubtitlePopupPosition();
+		this.UpdateAudioSubtitleOverlayPosition();
 
-		if (this.MinimalInfoSubtitle)
-			this.MinimalInfoSubtitle.style.display = 'none';
+		if (this.TrackCompactOverlaySubtitle)
+			this.TrackCompactOverlaySubtitle.style.display = 'none';
 	};
 
-	AyleUI.prototype.UpdateMinimalInfoPosition = function () {
-		if (!this.MinimalInfo)
+	AyleUI.prototype.UpdateTrackCompactOverlayPosition = function () {
+		if (!this.TrackCompactOverlay)
 			return;
 
-		var options = this.Player.Options.MinimalUI.Info || {};
-		var position = options.Position || 'auto';
-
-		if (position !== 'auto' && position !== 'top' && position !== 'bottom')
-			position = 'auto';
-
-		var resolved = position;
-
-		if (position === 'auto') {
-			var playerRect = this.Element.getBoundingClientRect();
-			var popupHeight = this.MinimalInfo.offsetHeight || 80;
-			var gap = 8;
-			var viewportHeight =
-				window.innerHeight ||
+		var playerRect = this.Element.getBoundingClientRect();
+		var popupHeight = this.TrackCompactOverlay.offsetHeight || 80;
+		var gap = 8;
+		var viewportHeight =
+			window.innerHeight ||
 				document.documentElement.clientHeight ||
 				0;
+		var spaceTop = playerRect.top;
+		var spaceBottom = viewportHeight - playerRect.bottom;
+		var resolved;
 
-			var spaceTop = playerRect.top;
-			var spaceBottom = viewportHeight - playerRect.bottom;
+		if (spaceTop >= popupHeight + gap)
+			resolved = 'top';
+		else if (spaceBottom >= popupHeight + gap)
+			resolved = 'bottom';
+		else
+			resolved = spaceBottom > spaceTop ? 'bottom' : 'top';
 
-			if (spaceTop >= popupHeight + gap)
-				resolved = 'top';
-			else if (spaceBottom >= popupHeight + gap)
-				resolved = 'bottom';
-			else
-				resolved = spaceBottom > spaceTop ? 'bottom' : 'top';
-		}
-
-		this.MinimalInfo.classList.toggle(
-			'ayle-minimal-info-top',
+		this.TrackCompactOverlay.classList.toggle(
+			'ayle-overlay-track-compact-top',
 			resolved === 'top'
 		);
 
-		this.MinimalInfo.classList.toggle(
-			'ayle-minimal-info-bottom',
+		this.TrackCompactOverlay.classList.toggle(
+			'ayle-overlay-track-compact-bottom',
 			resolved === 'bottom'
 		);
 
-		this.MinimalInfo.setAttribute(
-			'data-ayle-minimal-info-position',
+		this.TrackCompactOverlay.setAttribute(
+			'data-ayle-overlay-track-compact-position',
 			resolved
 		);
 
-		this.UpdateMinimalSubtitlePopupPosition();
+		this.UpdateAudioSubtitleOverlayPosition();
 	};
 
-	AyleUI.prototype.ShowMinimalInfo = function (automatic) {
-		if (!this.MinimalInfo)
+	AyleUI.prototype.ShowTrackCompactOverlay = function (automatic) {
+		if (!this.TrackCompactOverlay)
 			return;
-
-		var minimal = this.Player.Options.UIMode === 'minimal';
-		var options = this.Player.Options.MinimalUI.Info || {};
-		var mode = options.Mode || 'auto';
 
 		if (
-			!minimal ||
-			options.Enabled === false ||
-			mode === 'hidden' ||
-			!this.MinimalInfo.classList.contains('has-content')
+			!this._hasOverlayItem('track:compact') ||
+			!this.TrackCompactOverlay.classList.contains('has-content')
 		) {
-			this.HideMinimalInfo(true);
+			this.HideTrackCompactOverlay(true);
 			return;
 		}
 
-		if (automatic && mode === 'hover')
-			return;
+		this.UpdateTrackCompactOverlayPosition();
 
-		this.UpdateMinimalInfoPosition();
-
-		if (this._minimalInfoHideTimer) {
-			clearTimeout(this._minimalInfoHideTimer);
-			this._minimalInfoHideTimer = null;
+		if (this._trackCompactOverlayHideTimer) {
+			clearTimeout(this._trackCompactOverlayHideTimer);
+			this._trackCompactOverlayHideTimer = null;
 		}
 
-		this.MinimalInfo.classList.add('is-visible');
-		this.UpdateMinimalSubtitlePopupPosition();
+		this.TrackCompactOverlay.classList.add('is-visible');
+		this.UpdateAudioSubtitleOverlayPosition();
 
-		if (this._minimalInfoTimer) {
-			clearTimeout(this._minimalInfoTimer);
-			this._minimalInfoTimer = null;
+		if (this._trackCompactOverlayTimer) {
+			clearTimeout(this._trackCompactOverlayTimer);
+			this._trackCompactOverlayTimer = null;
 		}
 
-		if (mode === 'auto' && automatic && !this._minimalInfoHover) {
+		if (automatic && !this._trackCompactOverlayHover) {
 			var self = this;
-			var delay = Math.max(0, Number(options.AutoHideDelay) || 0);
+			this._trackCompactOverlayTimer = setTimeout(function () {
+				self._trackCompactOverlayTimer = null;
 
-			if (delay)
-				this._minimalInfoTimer = setTimeout(function () {
-					self._minimalInfoTimer = null;
-
-					if (!self._minimalInfoHover)
-						self.HideMinimalInfo();
-				}, delay);
+				if (!self._trackCompactOverlayHover)
+					self.HideTrackCompactOverlay();
+			}, 3500);
 		}
 	};
 
-
-	AyleUI.prototype.ScheduleMinimalInfoHide = function (delay) {
+	AyleUI.prototype.ScheduleTrackCompactOverlayHide = function (delay) {
 		var self = this;
 
-		if (this._minimalInfoHideTimer) {
-			clearTimeout(this._minimalInfoHideTimer);
-			this._minimalInfoHideTimer = null;
+		if (this._trackCompactOverlayHideTimer) {
+			clearTimeout(this._trackCompactOverlayHideTimer);
+			this._trackCompactOverlayHideTimer = null;
 		}
 
 		delay = delay !== undefined ? Math.max(0, Number(delay) || 0) : 120;
 
-		this._minimalInfoHideTimer = setTimeout(function () {
-			self._minimalInfoHideTimer = null;
+		this._trackCompactOverlayHideTimer = setTimeout(function () {
+			self._trackCompactOverlayHideTimer = null;
 
-			if (!self._minimalInfoHover)
-				self.HideMinimalInfo();
+			if (!self._trackCompactOverlayHover)
+				self.HideTrackCompactOverlay();
 		}, delay);
 	};
 
-	AyleUI.prototype.HideMinimalInfo = function (force) {
-		if (!this.MinimalInfo)
+	AyleUI.prototype.HideTrackCompactOverlay = function (force) {
+		if (!this.TrackCompactOverlay)
 			return;
 
-		var options = this.Player.Options.MinimalUI.Info || {};
-
-		if (!force && options.Mode === 'always')
+		if (!force && this._trackCompactOverlayHover)
 			return;
 
-		if (!force && this._minimalInfoHover)
-			return;
-
-		if (this._minimalInfoTimer) {
-			clearTimeout(this._minimalInfoTimer);
-			this._minimalInfoTimer = null;
+		if (this._trackCompactOverlayTimer) {
+			clearTimeout(this._trackCompactOverlayTimer);
+			this._trackCompactOverlayTimer = null;
 		}
 
-		if (this._minimalInfoHideTimer) {
-			clearTimeout(this._minimalInfoHideTimer);
-			this._minimalInfoHideTimer = null;
+		if (this._trackCompactOverlayHideTimer) {
+			clearTimeout(this._trackCompactOverlayHideTimer);
+			this._trackCompactOverlayHideTimer = null;
 		}
 
-		this.MinimalInfo.classList.remove('is-visible');
-		this.UpdateMinimalSubtitlePopupPosition();
+		this.TrackCompactOverlay.classList.remove('is-visible');
+		this.UpdateAudioSubtitleOverlayPosition();
 	};
 
-	AyleUI.prototype.ApplyMinimalInfoMode = function (showOnUpdate) {
-		if (!this.MinimalInfo)
+	AyleUI.prototype.ApplyTrackCompactOverlayMode = function (showOnUpdate) {
+		if (!this.TrackCompactOverlay)
 			return;
 
-		var options = this.Player.Options.MinimalUI.Info || {};
-		var minimal = this.Player.Options.UIMode === 'minimal';
-		var mode = options.Mode || 'auto';
+		var enabled = this._hasOverlayItem('track:compact');
 
-		this.MinimalInfo.classList.toggle(
-			'is-enabled',
-			minimal && options.Enabled !== false && mode !== 'hidden'
-		);
+		this.TrackCompactOverlay.classList.toggle('is-enabled', enabled);
+		this.UpdateTrackCompactOverlay(false);
+		this.UpdateTrackCompactOverlayPosition();
 
-		this.UpdateMinimalInfo(false);
-		this.UpdateMinimalInfoPosition();
-
-		if (!minimal || options.Enabled === false || mode === 'hidden') {
-			this.HideMinimalInfo(true);
+		if (!enabled) {
+			this.HideTrackCompactOverlay(true);
 			return;
 		}
 
-		if (mode === 'always')
-			this.ShowMinimalInfo(false);
-		else if (showOnUpdate && mode === 'auto')
-			this.ShowMinimalInfo(true);
-		else if (mode !== 'hover')
-			this.HideMinimalInfo();
+		if (showOnUpdate)
+			this.ShowTrackCompactOverlay(true);
+		else
+			this.HideTrackCompactOverlay();
 	};
 
 	AyleUI.prototype.ApplyUIMode = function () {
@@ -7606,46 +7357,12 @@ function Ayle (driver, options) {
 		this.Element.classList.toggle('ayle-ui-minimal', minimal);
 		this.Element.classList.toggle('ayle-ui-normal', !minimal);
 
-		if (!minimal) {
-			var hidden = this.Element.querySelectorAll('.ayle-minimal-hidden');
-			var i = 0;
-
-			while (i < hidden.length) {
-				hidden[i].classList.remove('ayle-minimal-hidden');
-				i++;
-			}
-
-			this.ApplyMediaMode();
-			this.ApplyMinimalInfoMode(false);
-			return;
-		}
-
-		this._setVisible(this.PlayButton, this._minimalVisible('Play', true));
-		this._setVisible(this.Timeline, this._minimalVisible('Timeline', true));
-		this._setVisible(this.Time, this._minimalVisible('Time', true));
-
-		var volumeControl = this.Mute ? this.Mute.parentNode : null;
-		this._setVisible(volumeControl, this._minimalVisible('Volume', true));
-
-		this._setVisible(this.SettingsControl, this._minimalVisible('Settings', false));
-		this._setVisible(this.ChaptersControl, this._minimalVisible('Chapters', false));
-		this._setVisible(this.QualityControl, this._minimalVisible('Quality', false));
-		this._setVisible(this.PictureInPicture, this._minimalVisible('PictureInPicture', false));
-		this._setVisible(this.Fullscreen, this._minimalVisible('Fullscreen', false));
-		this._setVisible(this.Header, this._minimalVisible('Header', false));
-		this._setVisible(this.Hints, this._minimalVisible('Hints', false));
-		this._setVisible(this.Loading, this._minimalVisible('Loading', true));
-
-		/* Audio/subtitle selectors live inside Settings; when Settings is enabled,
-		 * the submenu visibility can still be restricted independently. */
-		this._setVisible(this.AudioSubmenuButton, this._minimalVisible('Audio', false));
-		this._setVisible(this.SubtitlesSubmenuButton, this._minimalVisible('Subtitles', false));
-
 		if (this.CenterPlayButton)
-			this.CenterPlayButton.classList.add('ayle-minimal-hidden');
+			this.CenterPlayButton.classList.toggle('ayle-minimal-hidden', minimal);
 
 		this.ApplyMediaMode();
-		this.ApplyMinimalInfoMode(false);
+		this.ApplyTrackCompactOverlayMode(false);
+		this.UpdateTitle();
 	};
 
 	AyleUI.prototype._toolbarElement = function (name) {
@@ -7944,8 +7661,8 @@ function Ayle (driver, options) {
 			spacerIndex++;
 		}
 
-		var items = this.Player.Options.Toolbar && this.Player.Options.Toolbar.Items instanceof Array ?
-			this.Player.Options.Toolbar.Items.slice(0) : [];
+		var items = this.Player.Options.UI && this.Player.Options.UI.Toolbar && this.Player.Options.UI.Toolbar.Items instanceof Array ?
+			this.Player.Options.UI.Toolbar.Items.slice(0) : [];
 		var injected = this.Player.Options.Integration && this.Player.Options.Integration.Toolbar instanceof Array ?
 			this.Player.Options.Integration.Toolbar : [];
 
@@ -7981,7 +7698,7 @@ function Ayle (driver, options) {
 			i++;
 		}
 
-		var layout = this.Player.Options.Toolbar ? this.Player.Options.Toolbar.Layout : 'inline';
+		var layout = this.Player.Options.UI && this.Player.Options.UI.Toolbar ? this.Player.Options.UI.Toolbar.Layout : 'inline';
 		var hasSpacer = false;
 		i = 0;
 		while (i < items.length) {
@@ -10177,42 +9894,73 @@ function Ayle (driver, options) {
 		var chapter = this.Player.State.Chapter;
 		var integration = this.Player.Options.Integration || {};
 		var channel = integration.Channel || null;
+		var ui = this.Player.Options.UI || {};
+		var headerItems = ui.Header instanceof Array ? ui.Header : [];
+		var trackItems = ui.Track instanceof Array ? ui.Track : [];
+		var channelItems = ui.Channel instanceof Array ? ui.Channel : [];
 		var mediaTitle = source && source.Title ? source.Title : '';
 		var chapterTitle = chapter && chapter.Title ? chapter.Title : '';
-		var hasChannel = !!(channel && (channel.Avatar || channel.Name || channel.Profile));
+		var showTitle = trackItems.indexOf('title') !== -1 && !!mediaTitle;
+		var showChapter = trackItems.indexOf('chapter') !== -1 && !!chapterTitle;
+		var showName = channelItems.indexOf('name') !== -1 && !!(channel && channel.Name);
+		var profile = channel && channel.Profile ? channel.Profile : null;
+		var profileName = profile && profile.Name ? profile.Name : '';
+		var showProfile = channelItems.indexOf('profile') !== -1 && !!profileName;
+		var showAvatar = !!(channel && channel.Avatar);
+		var channelType = '';
+		var headerHasTrack = false;
+		var i = 0;
+
+		while (i < headerItems.length) {
+			var headerItem = String(headerItems[i] || '');
+
+			if (headerItem === 'track')
+				headerHasTrack = true;
+			else if (!channelType && (headerItem === 'channel:card' || headerItem === 'channel:contact'))
+				channelType = headerItem.substring(8);
+
+			i++;
+		}
+
+		var hasTrack = headerHasTrack && (showTitle || showChapter);
+		var hasChannel = !!channelType && (showAvatar || showName || showProfile);
 
 		if (this.MediaTitle) {
 			this.MediaTitle.textContent = mediaTitle;
-			this.MediaTitle.style.display = mediaTitle ? '' : 'none';
+			this.MediaTitle.style.display = showTitle ? '' : 'none';
 		}
 
 		if (this.CurrentChapterTitle) {
 			this.CurrentChapterTitle.textContent = chapterTitle;
-			this.CurrentChapterTitle.style.display = chapterTitle ? '' : 'none';
+			this.CurrentChapterTitle.style.display = showChapter ? '' : 'none';
 		}
 
 		if (this.Title)
-			this.Title.style.display = mediaTitle || chapterTitle ? '' : 'none';
+			this.Title.style.display = hasTrack ? '' : 'none';
 
-		if (this.Channel)
+		if (this.Channel) {
 			this.Channel.classList.toggle('is-visible', hasChannel);
+			this.Channel.classList.toggle('ayle-channel-card', channelType === 'card');
+			this.Channel.classList.toggle('ayle-channel-contact', channelType === 'contact');
+		}
 
 		if (this.ChannelAvatar) {
-			this.ChannelAvatar.src = channel && channel.Avatar ? channel.Avatar : '';
+			this.ChannelAvatar.src = showAvatar ? channel.Avatar : '';
 			this.ChannelAvatar.alt = channel && channel.Name ? channel.Name : '';
-			this.ChannelAvatar.style.display = channel && channel.Avatar ? '' : 'none';
+			this.ChannelAvatar.style.display = showAvatar ? '' : 'none';
 		}
+
+		if (this.ChannelInfo)
+			this.ChannelInfo.style.display = showName || showProfile ? '' : 'none';
 
 		if (this.ChannelName) {
 			this.ChannelName.textContent = channel && channel.Name ? channel.Name : '';
-			this.ChannelName.style.display = channel && channel.Name ? '' : 'none';
+			this.ChannelName.style.display = showName ? '' : 'none';
 		}
 
 		if (this.ChannelProfile) {
-			var profile = channel && channel.Profile ? channel.Profile : null;
-			var profileName = profile && profile.Name ? profile.Name : '';
 			this.ChannelProfile.textContent = profileName;
-			this.ChannelProfile.style.display = profileName ? '' : 'none';
+			this.ChannelProfile.style.display = showProfile ? '' : 'none';
 
 			if (profile && profile.URL) {
 				this.ChannelProfile.setAttribute('href', profile.URL);
@@ -10236,8 +9984,62 @@ function Ayle (driver, options) {
 			}
 		}
 
+		if (this.Title) {
+			i = 0;
+			while (i < trackItems.length) {
+				var trackItem = String(trackItems[i] || '');
+				var trackElement = null;
+
+				if (trackItem === 'title')
+					trackElement = this.MediaTitle;
+				else if (trackItem === 'chapter')
+					trackElement = this.CurrentChapterTitle;
+
+				if (trackElement && trackElement.parentNode === this.Title)
+					this.Title.appendChild(trackElement);
+
+				i++;
+			}
+		}
+
+		if (this.ChannelInfo) {
+			i = 0;
+			while (i < channelItems.length) {
+				var channelItem = String(channelItems[i] || '');
+				var channelElement = null;
+
+				if (channelItem === 'name')
+					channelElement = this.ChannelName;
+				else if (channelItem === 'profile')
+					channelElement = this.ChannelProfile;
+
+				if (channelElement && channelElement.parentNode === this.ChannelInfo)
+					this.ChannelInfo.appendChild(channelElement);
+
+				i++;
+			}
+		}
+
+		if (this.Channel && this.Title && this.Header) {
+			i = 0;
+			while (i < headerItems.length) {
+				var item = String(headerItems[i] || '');
+				var element = null;
+
+				if (item === 'channel:' + channelType && hasChannel)
+					element = this.Channel;
+				else if (item === 'track' && hasTrack)
+					element = this.Title;
+
+				if (element && element.parentNode === this.Header)
+					this.Header.appendChild(element);
+
+				i++;
+			}
+		}
+
 		if (this.Header)
-			this.Header.style.display = mediaTitle || chapterTitle || hasChannel ? '' : 'none';
+			this.Header.style.display = hasTrack || hasChannel ? '' : 'none';
 
 		this.ScheduleSafeAreaUpdate();
 	};
@@ -11421,8 +11223,8 @@ function Ayle (driver, options) {
 			this.Element.clientWidth ||
 			this.Element.getBoundingClientRect().width ||
 			0;
-		var layout = this.Player.Options.Toolbar ?
-			this.Player.Options.Toolbar.Layout : 'inline';
+		var layout = this.Player.Options.UI && this.Player.Options.UI.Toolbar ?
+			this.Player.Options.UI.Toolbar.Layout : 'inline';
 		var narrow = width > 0 && width <= 760;
 		var veryNarrow = width > 0 && width <= 430;
 		var timelineTop =
@@ -11814,8 +11616,8 @@ function Ayle (driver, options) {
 
 		this.Element.addEventListener('pointerdown', function (event) {
 			var target = event.target;
-			var insideMinimalInfo = target && target.closest ?
-				target.closest('.ayle-minimal-info') : null;
+			var insideTrackCompactOverlay = target && target.closest ?
+				target.closest('.ayle-overlay-track-compact') : null;
 
 			/*
 			 * On touch devices the first tap while controls are hidden is a UI
@@ -11838,7 +11640,7 @@ function Ayle (driver, options) {
 			 * pointerdown. Do not do that for the interactive Now Playing popup:
 			 * text selection and channel links must behave like ordinary HTML.
 			 */
-			if (insideMinimalInfo)
+			if (insideTrackCompactOverlay)
 				return;
 
 			self.Element.focus();
@@ -11862,7 +11664,7 @@ function Ayle (driver, options) {
 				target.closest &&
 				target.closest(
 					'.ayle-controls, .ayle-header, .ayle-popover, ' +
-					'.ayle-minimal-info, .ayle-hint, a, input, select, textarea'
+					'.ayle-overlay-track-compact, .ayle-hint, a, input, select, textarea'
 				)
 			) {
 				self._quickTapTime = 0;
@@ -12021,7 +11823,7 @@ function Ayle (driver, options) {
 		player.On('timeUpdate', function () {
 			self.UpdateTime();
 			self.UpdateSubtitleOverlay();
-			self.UpdateMinimalInfoSubtitle();
+			self.UpdateTrackCompactOverlaySubtitle();
 			self.UpdateHints();
 		});
 
@@ -12084,20 +11886,20 @@ function Ayle (driver, options) {
 			player.State.VideoHeight = 0;
 			self._artworkSlideshowPlayed = false;
 			self.ApplyMediaMode();
-			self.UpdateMinimalInfo(true);
+			self.UpdateTrackCompactOverlay(true);
 			self.StartArtworkSlideshow();
 		});
 
 		player.On('uiModeChange', function () {
 			self.ApplyUIMode();
 			self.ApplyToolbar();
-			self.ApplyMinimalInfoMode(true);
+			self.ApplyTrackCompactOverlayMode(true);
 		});
 
-		player.On('minimalUIChange', function () {
+		player.On('uiChange', function () {
 			self.ApplyUIMode();
 			self.ApplyToolbar();
-			self.ApplyMinimalInfoMode(true);
+			self.ApplyTrackCompactOverlayMode(true);
 		});
 
 		player.On('audioVisualChange', function () {
@@ -12234,7 +12036,7 @@ function Ayle (driver, options) {
 			self.UpdateSubtitleMenu();
 			self.UpdateSubtitleTrackBinding();
 			self.UpdateSubtitleOverlay();
-			self.UpdateMinimalInfoSubtitle();
+			self.UpdateTrackCompactOverlaySubtitle();
 			self.ApplyMediaMode();
 		});
 
@@ -12242,19 +12044,19 @@ function Ayle (driver, options) {
 			self.UpdateSubtitleMenu();
 			self.UpdateSubtitleTrackBinding();
 			self.UpdateSubtitleOverlay();
-			self.UpdateMinimalInfoSubtitle();
+			self.UpdateTrackCompactOverlaySubtitle();
 			self.ApplyMediaMode();
 		});
 
 		player.On('subtitleDataChange', function () {
 			self.UpdateSubtitleOverlay();
-			self.UpdateMinimalInfoSubtitle();
+			self.UpdateTrackCompactOverlaySubtitle();
 			self.ApplyMediaMode();
 		});
 
 		player.On('subtitleOffsetChange', function () {
 			self.UpdateSubtitleOverlay();
-			self.UpdateMinimalInfoSubtitle();
+			self.UpdateTrackCompactOverlaySubtitle();
 		});
 
 		player.On('chaptersChange', function () {
@@ -12274,6 +12076,7 @@ function Ayle (driver, options) {
 		player.On('chapterChange', function () {
 			self.UpdateChapterMenu();
 			self.UpdateTitle();
+			self.UpdateTrackCompactOverlay(true);
 		});
 
 		player.On('integrationChange', function () {
@@ -12283,7 +12086,7 @@ function Ayle (driver, options) {
 			self.UpdateTitle();
 			self.ResetHints();
 			self.UpdateIntegrationSettings();
-			self.UpdateMinimalInfo(true);
+			self.UpdateTrackCompactOverlay(true);
 		});
 
 		player.On('subtitleStyleChange', function () {
@@ -12353,19 +12156,19 @@ function Ayle (driver, options) {
 		this.StopArtworkSlideshow('destroy');
 
 		if (this._controlsTimer) clearTimeout(this._controlsTimer);
-		if (this._minimalInfoTimer) clearTimeout(this._minimalInfoTimer);
-		if (this._minimalInfoHideTimer) clearTimeout(this._minimalInfoHideTimer);
+		if (this._trackCompactOverlayTimer) clearTimeout(this._trackCompactOverlayTimer);
+		if (this._trackCompactOverlayHideTimer) clearTimeout(this._trackCompactOverlayHideTimer);
 		if (this._safeAreaUpdateTimer) clearTimeout(this._safeAreaUpdateTimer);
 
 		this._controlsTimer = null;
-		this._minimalInfoTimer = null;
-		this._minimalInfoHideTimer = null;
+		this._trackCompactOverlayTimer = null;
+		this._trackCompactOverlayHideTimer = null;
 		this._safeAreaUpdateTimer = null;
 
-		if (this._minimalInfoPositionHandler) {
-			window.removeEventListener('resize', this._minimalInfoPositionHandler);
-			window.removeEventListener('scroll', this._minimalInfoPositionHandler, true);
-			this._minimalInfoPositionHandler = null;
+		if (this._trackCompactOverlayPositionHandler) {
+			window.removeEventListener('resize', this._trackCompactOverlayPositionHandler);
+			window.removeEventListener('scroll', this._trackCompactOverlayPositionHandler, true);
+			this._trackCompactOverlayPositionHandler = null;
 		}
 
 		if (this._safeAreaResizeHandler) {
