@@ -3649,6 +3649,8 @@
 	var PlayerDefaultLocalization = {
 		'play': 'Play',
 		'pause': 'Pause',
+		'previous': 'Previous',
+		'next': 'Next',
 		'mute': 'Mute',
 		'unmute': 'Unmute',
 		'chapters': 'Chapters',
@@ -3691,6 +3693,8 @@
 	var PlayerRussianLocalization = {
 		'play': 'Воспроизвести',
 		'pause': 'Пауза',
+		'previous': 'Предыдущий',
+		'next': 'Следующий',
 		'mute': 'Выключить звук',
 		'unmute': 'Включить звук',
 		'chapters': 'Главы',
@@ -4399,7 +4403,7 @@
 	};
 
 	function AylePresetCloneValue (value) {
-		if (value instanceof Array) {
+		if (Array.isArray(value)) {
 			var array = [];
 			var i = 0;
 
@@ -4438,8 +4442,8 @@
 				override[key] &&
 				typeof result[key] === 'object' &&
 				typeof override[key] === 'object' &&
-				!(result[key] instanceof Array) &&
-				!(override[key] instanceof Array)
+				!Array.isArray(result[key]) &&
+				!Array.isArray(override[key])
 			)
 				result[key] = AylePresetMerge(result[key], override[key]);
 			else
@@ -4539,7 +4543,7 @@
 			Overlay: ['track:compact'],
 			Toolbar: {
 				Layout: 'inline',
-				Items: ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
+				Items: ['previous', 'play', 'next', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
 			}
 		}
 	});
@@ -4555,7 +4559,7 @@
 			Overlay: ['track:compact', 'subtitles'],
 			Toolbar: {
 				Layout: 'inline',
-				Items: ['play', 'timeline', 'time', 'volume', 'settings']
+				Items: ['previous', 'play', 'next', 'timeline', 'time', 'volume', 'settings']
 			}
 		}
 	});
@@ -4567,6 +4571,7 @@ function Ayle (config, internalOptions) {
 		var assembly = null;
 		var driver = null;
 		var mediaProviderConfig = null;
+		var playlistConfig = null;
 		var explicitOptions;
 		var options;
 
@@ -4591,6 +4596,7 @@ function Ayle (config, internalOptions) {
 			}
 
 			mediaProviderConfig = assembly.MediaProvider || null;
+			playlistConfig = assembly.Playlist || null;
 		}
 		else {
 			/*
@@ -4803,6 +4809,21 @@ function Ayle (config, internalOptions) {
 			this.Options.ArtworkSlideshow.Fit = 'cover';
 
 
+		this._baseDriverConfig = assembly && assembly.Driver ?
+			AylePresetCloneValue(assembly.Driver) : { Type: 'html5' };
+		this._baseMediaProviderConfig = mediaProviderConfig ?
+			AylePresetCloneValue(mediaProviderConfig) : null;
+		this._basePlayerOptions = AylePresetCloneValue(explicitOptions || {});
+		this.Playlist = {
+			AutoAdvance: true,
+			Loop: false,
+			StartIndex: 0,
+			Items: []
+		};
+		this.PlaylistIndex = -1;
+		this.PlaylistItem = null;
+		this._playlistTransition = null;
+
 		this.Driver = driver;
 		this.Driver.SetEventTarget(this, 'driver:');
 		this.MediaProvider = null;
@@ -4850,14 +4871,40 @@ function Ayle (config, internalOptions) {
 			SubtitleTrack: null,
 			Chapters: [],
 			Chapter: null,
-			ActiveHints: []
+			ActiveHints: [],
+			PlaylistIndex: -1,
+			PlaylistItem: null,
+			HasPrevious: false,
+			HasNext: false
 		};
 
 		this._switch = null;
 		this._restartPlayPending = false;
 		this._bindDriver();
 
-		if (mediaProviderConfig)
+		if (playlistConfig) {
+			var initialItems = Array.isArray(playlistConfig.Items) ?
+				AylePresetCloneValue(playlistConfig.Items) :
+				(Array.isArray(playlistConfig) ? AylePresetCloneValue(playlistConfig) : []);
+			var initialStartIndex = Number(playlistConfig.StartIndex);
+			if (!isFinite(initialStartIndex))
+				initialStartIndex = 0;
+			initialStartIndex = Math.max(0, Math.floor(initialStartIndex));
+			if (initialItems.length && initialStartIndex >= initialItems.length)
+				initialStartIndex = initialItems.length - 1;
+
+			this.Playlist = {
+				AutoAdvance: playlistConfig.AutoAdvance !== false,
+				Loop: playlistConfig.Loop === true,
+				StartIndex: initialStartIndex,
+				Items: initialItems
+			};
+			this.PlaylistIndex = initialItems.length ? initialStartIndex : -1;
+			this.PlaylistItem = this.PlaylistIndex >= 0 ?
+				initialItems[this.PlaylistIndex] : null;
+			this._updatePlaylistState();
+		}
+		else if (mediaProviderConfig)
 			this.SetMediaProvider(mediaProviderConfig);
 	}
 
@@ -4897,6 +4944,408 @@ function Ayle (config, internalOptions) {
 	};
 
 
+
+	Ayle.prototype._normalizePlaylist = function (playlist) {
+		playlist = playlist || {};
+
+		if (Array.isArray(playlist))
+			playlist = { Items: playlist };
+
+		var items = Array.isArray(playlist.Items) ?
+			AylePresetCloneValue(playlist.Items) : [];
+		var startIndex = Number(playlist.StartIndex);
+
+		if (!isFinite(startIndex))
+			startIndex = 0;
+
+		startIndex = Math.floor(startIndex);
+
+		if (startIndex < 0)
+			startIndex = 0;
+
+		if (items.length && startIndex >= items.length)
+			startIndex = items.length - 1;
+
+		return {
+			AutoAdvance: playlist.AutoAdvance !== false,
+			Loop: playlist.Loop === true,
+			StartIndex: startIndex,
+			Items: items
+		};
+	};
+
+	Ayle.prototype._updatePlaylistState = function () {
+		var count = this.Playlist && this.Playlist.Items ?
+			this.Playlist.Items.length : 0;
+
+		this.State.PlaylistIndex = this.PlaylistIndex;
+		this.State.PlaylistItem = this.PlaylistItem;
+		this.State.HasPrevious = count > 1 && (
+			this.Playlist.Loop || this.PlaylistIndex > 0
+		);
+		this.State.HasNext = count > 1 && (
+			this.Playlist.Loop || this.PlaylistIndex < count - 1
+		);
+
+		return this;
+	};
+
+	Ayle.prototype.SetPlaylist = function (playlist, initialize) {
+		this.Playlist = this._normalizePlaylist(playlist);
+		this.PlaylistIndex = this.Playlist.Items.length ?
+			this.Playlist.StartIndex : -1;
+		this.PlaylistItem = this.PlaylistIndex >= 0 ?
+			this.Playlist.Items[this.PlaylistIndex] : null;
+
+		if (this.State)
+			this._updatePlaylistState();
+
+		if (!initialize)
+			this.Emit('playlistChange', this.Playlist);
+
+		return this;
+	};
+
+	Ayle.prototype.HasPrevious = function () {
+		return !!(
+			this.Playlist &&
+			this.Playlist.Items.length > 1 &&
+			(this.Playlist.Loop || this.PlaylistIndex > 0)
+		);
+	};
+
+	Ayle.prototype.HasNext = function () {
+		return !!(
+			this.Playlist &&
+			this.Playlist.Items.length > 1 &&
+			(
+				this.Playlist.Loop ||
+				this.PlaylistIndex < this.Playlist.Items.length - 1
+			)
+		);
+	};
+
+	Ayle.prototype._playlistDriverConfig = function (item) {
+		var base = AylePresetCloneValue(this._baseDriverConfig || {});
+		var override = item && item.Driver ? item.Driver : null;
+
+		if (!override)
+			return base;
+
+		return AylePresetMerge(base, override);
+	};
+
+	Ayle.prototype._playlistMediaProviderConfig = function (item) {
+		var base = this._baseMediaProviderConfig ?
+			AylePresetCloneValue(this._baseMediaProviderConfig) : {};
+		var override = item && item.MediaProvider ?
+			AylePresetCloneValue(item.MediaProvider) : {};
+
+		if (
+			base.Type &&
+			override.Type &&
+			String(base.Type).toLowerCase() !== String(override.Type).toLowerCase()
+		)
+			return override;
+
+		return AylePresetMerge(base, override);
+	};
+
+	Ayle.prototype._playlistPlayerOptions = function (item) {
+		return AylePresetMerge(
+			this._basePlayerOptions || {},
+			item && item.Player ? item.Player : {}
+		);
+	};
+
+	Ayle.prototype._sameDriverConfig = function (a, b) {
+		try {
+			return JSON.stringify(a || {}) === JSON.stringify(b || {});
+		}
+		catch (error) {
+			return false;
+		}
+	};
+
+	Ayle.prototype._applyPlaylistPlayerOptions = function (options) {
+		options = options || {};
+		var base = this._basePlayerOptions || {};
+		var mediaMode = options.MediaMode !== undefined ?
+			options.MediaMode :
+			(base.MediaMode !== undefined ? base.MediaMode : 'auto');
+
+		this.Options.MediaMode = mediaMode;
+		this.Options.AutoPlay = options.AutoPlay !== undefined ?
+			!!options.AutoPlay : !!base.AutoPlay;
+		this.Options.AutoPlayMode = options.AutoPlayMode !== undefined ?
+			options.AutoPlayMode : (base.AutoPlayMode || 'audible');
+
+		var explicitUI = options.UI || {};
+		this._uiExplicit.Header = explicitUI.Header instanceof Array;
+		this._uiExplicit.Track = explicitUI.Track instanceof Array;
+		this._uiExplicit.Channel = explicitUI.Channel instanceof Array;
+		this._uiExplicit.Overlay = explicitUI.Overlay instanceof Array;
+		this._uiExplicit.ToolbarLayout = !!(
+			explicitUI.Toolbar &&
+			explicitUI.Toolbar.Layout !== undefined
+		);
+		this._uiExplicit.ToolbarItems = !!(
+			explicitUI.Toolbar &&
+			explicitUI.Toolbar.Items instanceof Array
+		);
+
+		var resolvedMode = mediaMode === 'audio' ? 'audio' : 'video';
+		var preset = this._getEffectivePreset(resolvedMode);
+		var presetUI = preset.UI || {};
+		var presetToolbar = presetUI.Toolbar || {};
+		var itemUI =
+			options.UI && options.UI !== base.UI ?
+				options.UI : explicitUI;
+		explicitUI = itemUI || {};
+
+		this.Options.UI.Header = explicitUI.Header instanceof Array ?
+			explicitUI.Header.slice(0) :
+			(presetUI.Header instanceof Array ? presetUI.Header.slice(0) : []);
+		this.Options.UI.Track = explicitUI.Track instanceof Array ?
+			explicitUI.Track.slice(0) :
+			(presetUI.Track instanceof Array ? presetUI.Track.slice(0) : []);
+		this.Options.UI.Channel = explicitUI.Channel instanceof Array ?
+			explicitUI.Channel.slice(0) :
+			(presetUI.Channel instanceof Array ? presetUI.Channel.slice(0) : []);
+		this.Options.UI.Overlay = explicitUI.Overlay instanceof Array ?
+			explicitUI.Overlay.slice(0) :
+			(presetUI.Overlay instanceof Array ? presetUI.Overlay.slice(0) : []);
+		this.Options.UI.Toolbar.Layout =
+			explicitUI.Toolbar && explicitUI.Toolbar.Layout !== undefined ?
+				String(explicitUI.Toolbar.Layout).toLowerCase() :
+				(presetToolbar.Layout || 'inline');
+		this.Options.UI.Toolbar.Items =
+			explicitUI.Toolbar && explicitUI.Toolbar.Items instanceof Array ?
+				explicitUI.Toolbar.Items.slice(0) :
+				(
+					presetToolbar.Items instanceof Array ?
+						presetToolbar.Items.slice(0) : []
+				);
+
+		var visual = options.AudioVisual || {};
+		var baseVisual = base.AudioVisual || {};
+		this.Options.AudioVisual.Type = visual.Type !== undefined ?
+			visual.Type : (baseVisual.Type || 'auto');
+		this.Options.AudioVisual.Image = visual.Image !== undefined ?
+			(visual.Image || '') : (baseVisual.Image || '');
+		this.Options.AudioVisual.Subtitles = visual.Subtitles !== undefined ?
+			!!visual.Subtitles : baseVisual.Subtitles !== false;
+		this.Options.AudioVisual.MinHeight = visual.MinHeight !== undefined ?
+			Math.max(0, Number(visual.MinHeight) || 0) :
+			(
+				baseVisual.MinHeight !== undefined ?
+					Math.max(0, Number(baseVisual.MinHeight) || 0) : 240
+			);
+
+		var previousMode = this.State.MediaMode;
+		var resolved = this.ResolveMediaMode(this.State.Source);
+
+		if (previousMode !== resolved) {
+			this.State.MediaMode = resolved;
+			this.Emit('mediaModeChange', resolved);
+		}
+
+		this.Emit('uiChange', this.Options.UI);
+		this.Emit('audioVisualChange', this.Options.AudioVisual);
+		return this;
+	};
+
+	Ayle.prototype._ensureMediaElementForMode = function (mode) {
+		if (!this.UI || !this.MediaElement)
+			return this;
+
+		var desired = mode === 'audio' ? 'audio' : 'video';
+		var current = String(this.MediaElement.tagName || '').toLowerCase();
+
+		if (current === desired)
+			return this;
+
+		var oldElement = this.MediaElement;
+		var media = document.createElement(desired);
+		media.className = 'ayle-media ' + (
+			desired === 'audio' ? 'ayle-audio' : 'ayle-video'
+		);
+		media.preload = 'metadata';
+
+		if (oldElement.parentNode)
+			oldElement.parentNode.replaceChild(media, oldElement);
+
+		this.UI.MediaElement = media;
+		this.MediaElement = media;
+
+		if (this.Driver && typeof this.Driver.SetUI === 'function') {
+			if (this.Driver.UI)
+				this.Driver.SetUI(null);
+
+			this.Driver.SetUI(this.UI);
+		}
+
+		return this;
+	};
+
+	Ayle.prototype._activatePlaylistItem = function (index, reason, playAfterLoad, callback) {
+		var items = this.Playlist.Items;
+		var count = items.length;
+
+		if (!count)
+			return false;
+
+		if (index < 0 || index >= count) {
+			if (!this.Playlist.Loop)
+				return false;
+
+			index = index < 0 ? count - 1 : 0;
+		}
+
+		var previousIndex = this.PlaylistIndex;
+		var previousItem = this.PlaylistItem;
+		var item = items[index];
+		var context = {
+			PreviousIndex: previousIndex,
+			Index: index,
+			PreviousItem: previousItem,
+			Item: item,
+			Reason: reason || 'index'
+		};
+
+		this.Emit('playlistItemChanging', context);
+
+		var driverConfig = this._playlistDriverConfig(item);
+		var currentDriverConfig = this._activePlaylistDriverConfig ||
+			this._baseDriverConfig || {};
+		var replaceDriver = !this._sameDriverConfig(
+			currentDriverConfig,
+			driverConfig
+		);
+
+		if (replaceDriver && this.Driver && typeof this.Driver.SetUI === 'function')
+			this.Driver.SetUI(null);
+
+		this._applyPlaylistPlayerOptions(this._playlistPlayerOptions(item));
+		this._ensureMediaElementForMode(
+			this.Options.MediaMode === 'audio' ? 'audio' : 'video'
+		);
+
+		if (replaceDriver) {
+			var driverType = driverConfig.Type || 'html5';
+			var driverOptions = driverConfig.Options || {};
+			this.SetDriver(Ayle.CreateDriver(driverType, driverOptions));
+		}
+
+		this._activePlaylistDriverConfig = AylePresetCloneValue(driverConfig);
+		this.SetMediaProvider(this._playlistMediaProviderConfig(item));
+
+		this.PlaylistIndex = index;
+		this.PlaylistItem = item;
+		this._updatePlaylistState();
+		this._playlistTransition = {
+			Context: context,
+			Play: !!playAfterLoad
+		};
+
+		this.Emit('playlistIndexChange', index);
+		this.Emit('playlistItemChange', context);
+		this.Emit('stateChange', this.State);
+
+		var self = this;
+
+		try {
+			this.LoadMedia(function (error, source, metadata) {
+				if (typeof callback === 'function')
+					callback(error, source, metadata);
+
+				if (error) {
+					self._playlistTransition = null;
+					self.Emit('playlistItemError', {
+						Index: index,
+						Item: item,
+						Error: error
+					});
+					return;
+				}
+
+				var transition = self._playlistTransition;
+				self._playlistTransition = null;
+
+				if (transition && transition.Play)
+					self.Play();
+			});
+		}
+		catch (error) {
+			this._playlistTransition = null;
+			this.Emit('playlistItemError', {
+				Index: index,
+				Item: item,
+				Error: error
+			});
+			throw error;
+		}
+
+		return true;
+	};
+
+	Ayle.prototype.SetPlaylistIndex = function (index, reason) {
+		index = Number(index);
+
+		if (!isFinite(index))
+			return false;
+
+		index = Math.floor(index);
+
+		if (index === this.PlaylistIndex && this.State.Source)
+			return true;
+
+		return this._activatePlaylistItem(
+			index,
+			reason || 'index',
+			!!this.State.Playing
+		);
+	};
+
+	Ayle.prototype.SetPlaylistItemByID = function (id) {
+		var items = this.Playlist.Items;
+		var i = 0;
+
+		while (i < items.length) {
+			if (
+				items[i] &&
+				items[i].ID !== undefined &&
+				String(items[i].ID) === String(id)
+			)
+				return this.SetPlaylistIndex(i, 'id');
+
+			i++;
+		}
+
+		return false;
+	};
+
+	Ayle.prototype.Next = function () {
+		if (!this.HasNext())
+			return false;
+
+		return this._activatePlaylistItem(
+			this.PlaylistIndex + 1,
+			'next',
+			!!this.State.Playing
+		);
+	};
+
+	Ayle.prototype.Previous = function () {
+		if (!this.HasPrevious())
+			return false;
+
+		return this._activatePlaylistItem(
+			this.PlaylistIndex - 1,
+			'previous',
+			!!this.State.Playing
+		);
+	};
 
 	Ayle.prototype.HasPlayableSource = function () {
 		var source = this.State.Source;
@@ -5157,6 +5606,17 @@ function Ayle (config, internalOptions) {
 			});
 			self.Emit('ended');
 			self.Emit('stateChange', self.State);
+
+			if (
+				self.Playlist &&
+				self.Playlist.AutoAdvance &&
+				self.HasNext()
+			)
+				self._activatePlaylistItem(
+					self.PlaylistIndex + 1,
+					'ended',
+					true
+				);
 		});
 
 		this.Driver.On('buffering', function (value) {
@@ -5620,6 +6080,14 @@ function Ayle (config, internalOptions) {
 			self.State.Error = error;
 			self.State.Loading = false;
 			self.Emit('error', error);
+
+			if (self.PlaylistItem)
+				self.Emit('playlistItemError', {
+					Index: self.PlaylistIndex,
+					Item: self.PlaylistItem,
+					Error: error
+				});
+
 			self.Emit('stateChange', self.State);
 		});
 
@@ -5627,11 +6095,23 @@ function Ayle (config, internalOptions) {
 	};
 
 	Ayle.prototype.LoadMedia = function (callback) {
-		if (!this.MediaProvider)
-			throw new Error('Ayle media provider is not configured');
-
 		if (!this.UI)
 			throw new Error('Ayle UI is not attached. Call AttachUI() before Load().');
+
+		if (
+			this.Playlist &&
+			this.Playlist.Items.length &&
+			!this.MediaProvider
+		)
+			return this._activatePlaylistItem(
+				this.PlaylistIndex >= 0 ? this.PlaylistIndex : this.Playlist.StartIndex,
+				'initial',
+				false,
+				callback
+			);
+
+		if (!this.MediaProvider)
+			throw new Error('Ayle media provider is not configured');
 
 		return this.MediaProvider.Load(callback);
 	};
@@ -7565,6 +8045,8 @@ function Ayle (config, internalOptions) {
 		this._trackCompactOverlayHideTimer = null;
 		this._trackCompactOverlayHover = false;
 		this.PlayButton = element.querySelector('.ayle-play');
+		this.PreviousButton = element.querySelector('.ayle-previous');
+		this.NextButton = element.querySelector('.ayle-next');
 		this.CenterPlayButton = element.querySelector('.ayle-center-play');
 		this.Timeline = element.querySelector('.ayle-timeline');
 		this.TimelineRanges = null;
@@ -7686,6 +8168,7 @@ function Ayle (config, internalOptions) {
 		this.UpdateIntegrationSettings();
 		this.UpdateChapterMenu();
 		this.UpdatePlayButton();
+		this.UpdatePlaylistButtons();
 		this.UpdateVolumeButton();
 		this.UpdateVolumeSlider();
 		this.UpdateFullscreenButton();
@@ -8459,7 +8942,9 @@ function Ayle (config, internalOptions) {
 
 	AyleUI.prototype._toolbarElement = function (name) {
 		switch (name) {
+			case 'previous': return this.PreviousButton;
 			case 'play': return this.PlayButton;
+			case 'next': return this.NextButton;
 			case 'timeline': return this.Timeline;
 			case 'time': return this.Time;
 			case 'volume': return this.Volume ? this.Volume.parentNode : null;
@@ -8825,7 +9310,7 @@ function Ayle (config, internalOptions) {
 			items.splice(spacerAt, 0, '');
 		}
 
-		var builtInNames = ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'settings', 'pip', 'fullscreen'];
+		var builtInNames = ['previous', 'play', 'next', 'timeline', 'time', 'volume', 'chapters', 'quality', 'settings', 'pip', 'fullscreen'];
 		i = 0;
 		while (i < builtInNames.length) {
 			var builtIn = this._toolbarElement(builtInNames[i]);
@@ -8887,6 +9372,7 @@ function Ayle (config, internalOptions) {
 		this.UpdateChapterMenu();
 		this.UpdateQualityMenu();
 
+		this.UpdatePlaylistButtons();
 		return this;
 	};
 
@@ -9080,6 +9566,8 @@ function Ayle (config, internalOptions) {
 			var actions = {
 				play: function () { self.Player.Play(); },
 				pause: function () { self.Player.Pause(); },
+				previoustrack: function () { self.Player.Previous(); },
+				nexttrack: function () { self.Player.Next(); },
 				stop: function () { self.Player.Pause(); self.Player.Seek(0); },
 				seekbackward: function (details) {
 					self.Player.Seek(Math.max(0, self.Player.State.Position - (details.seekOffset || 10)));
@@ -9296,6 +9784,25 @@ function Ayle (config, internalOptions) {
 		this.UpdateQualityMenu();
 		this.UpdateAudioMenu();
 		this.UpdateSubtitleMenu();
+	};
+
+	AyleUI.prototype.UpdatePlaylistButtons = function () {
+		var count =
+			this.Player.Playlist && this.Player.Playlist.Items ?
+				this.Player.Playlist.Items.length : 0;
+		var visible = count > 1;
+
+		if (this.PreviousButton) {
+			this.PreviousButton.style.display = visible ? '' : 'none';
+			this.PreviousButton.disabled = visible && !this.Player.HasPrevious();
+		}
+
+		if (this.NextButton) {
+			this.NextButton.style.display = visible ? '' : 'none';
+			this.NextButton.disabled = visible && !this.Player.HasNext();
+		}
+
+		return this;
 	};
 
 	AyleUI.prototype.UpdatePlayButton = function () {
@@ -12459,10 +12966,24 @@ function Ayle (config, internalOptions) {
 			}, 0);
 		}, true);
 
+		if (this.PreviousButton) {
+			this.PreviousButton.onclick = function (event) {
+				event.stopPropagation();
+				player.Previous();
+			};
+		}
+
 		if (this.PlayButton) {
 			this.PlayButton.onclick = function (event) {
 				event.stopPropagation();
 				player.Toggle();
+			};
+		}
+
+		if (this.NextButton) {
+			this.NextButton.onclick = function (event) {
+				event.stopPropagation();
+				player.Next();
 			};
 		}
 
@@ -13042,6 +13563,18 @@ function Ayle (config, internalOptions) {
 			self.ApplyUIComposition();
 			self.ApplyToolbar();
 			self.ApplyTrackCompactOverlayMode(true);
+		});
+
+		this._onPlayer(player, 'playlistChange', function () {
+			self.ApplyToolbar();
+			self.UpdatePlaylistButtons();
+			self.UpdateMediaSession();
+		});
+
+		this._onPlayer(player, 'playlistItemChange', function () {
+			self.ApplyToolbar();
+			self.UpdatePlaylistButtons();
+			self.UpdateMediaSession();
 		});
 
 		this._onPlayer(player, 'audioVisualChange', function () {

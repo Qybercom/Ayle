@@ -855,7 +855,7 @@ content and `['track:compact', 'subtitles']` overlay; compact audio may use the
 timeline loading treatment instead. The built-in `video` toolbar is:
 
 ```js
-['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
+['previous', 'play', 'next', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
 ```
 
 `chapters` and `quality` are present in the layout but hide themselves when
@@ -866,7 +866,7 @@ default video preset and can be added explicitly.
 The built-in `audio` toolbar remains:
 
 ```js
-['play', 'timeline', 'time', 'volume', 'settings']
+['previous', 'play', 'next', 'timeline', 'time', 'volume', 'settings']
 ```
 
 `settings` is therefore available by default, but it is still only a layout
@@ -890,7 +890,7 @@ Ayle.RegisterPreset('podcast', {
 		Track: ['artwork', 'title', 'artist', 'album'],
 		Overlay: ['track:compact'],
 		Toolbar: {
-			Items: ['play', 'timeline', 'time', 'volume', 'settings']
+			Items: ['previous', 'play', 'next', 'timeline', 'time', 'volume', 'settings']
 		}
 	}
 });
@@ -1288,6 +1288,123 @@ MediaProvider
 
 The provider owns acquisition/resolution. The driver owns playback of the
 resolved `AyleSource`.
+
+## Playlists
+
+Ayle can own a sequence of media items at the same orchestration level as its
+Driver, MediaProvider and UI:
+
+```js
+var player = new Ayle({
+	Driver: {
+		Type: 'html5'
+	},
+
+	Player: {
+		MediaMode: 'audio'
+	},
+
+	Playlist: {
+		AutoAdvance: true,
+		Loop: false,
+		StartIndex: 0,
+
+		Items: [
+			{
+				ID: 'one',
+				MediaProvider: {
+					File: 'one.mp3'
+				}
+			},
+			{
+				ID: 'two',
+				MediaProvider: {
+					File: 'two.mp3'
+				}
+			},
+			{
+				ID: 'video',
+				Driver: {
+					Type: 'mse'
+				},
+				MediaProvider: {
+					File: 'video.mkv',
+					MetadataURL: '/metadata.php?file={file}',
+					TrackURL: '/track.php?file={file}&type={kind}&track={track}&start={time}'
+				},
+				Player: {
+					MediaMode: 'video'
+				}
+			}
+		]
+	}
+});
+
+player.AttachUI('#player');
+player.Load();
+```
+
+Top-level `Driver`, `MediaProvider` and `Player` are the base descriptors.
+Each playlist item can override them. Effective item configuration is rebuilt
+from those base descriptors for every transition, so one item's provider,
+driver or player overrides do not leak into the next item. Changing provider
+`Type` isolates provider-specific options just like the normal provider
+assembly path.
+
+Playlist API:
+
+```js
+player.SetPlaylist(playlist);
+player.SetPlaylistIndex(1);
+player.SetPlaylistItemByID('two');
+
+player.Next();
+player.Previous();
+
+player.HasNext();
+player.HasPrevious();
+```
+
+Runtime state is available through:
+
+```text
+player.Playlist
+player.PlaylistIndex
+player.PlaylistItem
+
+player.State.PlaylistIndex
+player.State.PlaylistItem
+player.State.HasPrevious
+player.State.HasNext
+```
+
+`AutoAdvance` defaults to `true`; `Loop` defaults to `false`; `StartIndex`
+defaults to `0`. On natural `ended`, AutoAdvance loads and starts the next item.
+`Next()` / `Previous()` preserve the logical playback state: a transition made
+while playing starts the new item, while a transition made while paused only
+loads it. `Previous()` always means the previous item; restarting the current
+item remains an explicit `Seek(0)`.
+
+Events:
+
+```text
+playlistChange
+playlistItemChanging
+playlistItemChange
+playlistIndexChange
+playlistItemError
+```
+
+`playlistItemChanging` and `playlistItemChange` receive
+`PreviousIndex`, `Index`, `PreviousItem`, `Item` and `Reason`. Reasons include
+`initial`, `next`, `previous`, `index`, `id` and `ended`.
+
+The built-in `previous` and `next` toolbar controls are part of the default
+audio/video toolbars but are hidden when the playlist has fewer than two items.
+At a non-looping boundary the corresponding button stays visible and disabled.
+Media Session `previoustrack` and `nexttrack` actions use the same core API.
+
+Single-file configuration remains unchanged; `Playlist` is optional.
 
 ## Media providers
 

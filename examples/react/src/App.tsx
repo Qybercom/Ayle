@@ -125,8 +125,8 @@ function fullPlayer (mediaMode: 'video' | 'audio') {
 			Toolbar: {
 				Layout: mediaMode === 'video' ? 'timeline-top' : 'inline',
 				Items: mediaMode === 'audio' ?
-					['play', 'timeline', 'time', 'volume', 'settings'] :
-					['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
+					['previous', 'play', 'next', 'timeline', 'time', 'volume', 'settings'] :
+					['previous', 'play', 'next', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
 			}
 		},
 		AudioVisual: {

@@ -76,9 +76,17 @@
 	</div>
 
 		<div class="ayle-controls">
+		<button class="ayle-icon-button ayle-previous" type="button" data-ayle-i18n-label="previous" aria-label="Previous" title="Previous">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-previous"></use></svg>
+		</button>
+
 		<button class="ayle-icon-button ayle-play" type="button" data-ayle-i18n-label="play" aria-label="Play" title="Play">
 			<svg class="ayle-icon ayle-icon-play" aria-hidden="true"><use href="../ayle-icons.svg#icon-play"></use></svg>
 			<svg class="ayle-icon ayle-icon-pause" aria-hidden="true"><use href="../ayle-icons.svg#icon-pause"></use></svg>
+		</button>
+
+		<button class="ayle-icon-button ayle-next" type="button" data-ayle-i18n-label="next" aria-label="Next" title="Next">
+			<svg class="ayle-icon" aria-hidden="true"><use href="../ayle-icons.svg#icon-next"></use></svg>
 		</button>
 
 		<div class="ayle-timeline">
@@ -921,7 +929,7 @@ var player = new Ayle({
 			Overlay: ['track:compact'],
 			Toolbar: {
 				Layout: 'timeline-top',
-				Items: ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
+				Items: ['previous', 'play', 'next', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
 			}
 		},
 		AudioVisual: {
@@ -1487,7 +1495,7 @@ var player = new Ayle({
 			Overlay: ['track:compact', 'subtitles'],
 			Toolbar: {
 				Layout: 'inline',
-				Items: ['play', 'timeline', 'time', 'volume', 'settings']
+				Items: ['previous', 'play', 'next', 'timeline', 'time', 'volume', 'settings']
 			}
 		},
 		AudioVisual: {
@@ -1974,7 +1982,7 @@ var player = new Ayle({
 			Overlay: ['track:compact'],
 			Toolbar: {
 				Layout: 'timeline-top',
-				Items: ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
+				Items: ['previous', 'play', 'next', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']
 			}
 		},
 		AudioVisual: {
@@ -2289,7 +2297,7 @@ var player = new Ayle({
 			Overlay: ['track:compact', 'subtitles'],
 			Toolbar: {
 				Layout: 'inline',
-				Items: ['play', 'timeline', 'time', 'volume', 'settings']
+				Items: ['previous', 'play', 'next', 'timeline', 'time', 'volume', 'settings']
 			}
 		},
 		AudioVisual: {

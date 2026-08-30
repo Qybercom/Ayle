@@ -116,3 +116,26 @@ application-defined event names remain supported by the string index.
 The binding passes the complete Ayle configuration object through to the core, so core features such as Toolbar layouts/custom menus, Timeline Ranges, Media Session, Hints, Settings integrations, localization, subtitles, variants, and driver options remain available without binding-specific wrappers.
 
 The initialization shortcuts `volume`, `start`, and `muted` are also exposed directly by the binding and map to the core `data-ayle-volume`, `data-ayle-start`, and `data-ayle-muted` initialization behavior. Core events are forwarded by the binding, including `toolbarMenuAction` and `toolbarMenuSelect`; dynamic integration-specific event names can also be subscribed to through the binding event API.
+
+### Playlist
+
+Playlist configuration is passed at the Ayle assembly level. Each item may
+override `Driver`, `MediaProvider` and `Player`:
+
+```js
+{
+	Playlist: {
+		AutoAdvance: true,
+		Loop: false,
+		StartIndex: 0,
+		Items: [
+			{ ID: 'one', MediaProvider: { File: 'one.mp3' } },
+			{ ID: 'two', MediaProvider: { File: 'two.mp3' } }
+		]
+	}
+}
+```
+
+Use `Player.Next()`, `Player.Previous()`, `Player.SetPlaylistIndex(index)` and
+`Player.SetPlaylistItemByID(id)` for navigation. Playlist lifecycle events are
+forwarded through the binding's generic event API.

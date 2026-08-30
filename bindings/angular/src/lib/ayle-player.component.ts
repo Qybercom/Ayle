@@ -40,6 +40,7 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 	@Input() mediaConfig?: Record<string, any>;
 	@Input() player?: Record<string, any>;
 	@Input() mediaProvider?: Record<string, any>;
+	@Input() playlist?: Record<string, any>;
 	@Input() driver?: 'mse' | 'html5' | string;
 	@Input() driverOptions?: Record<string, any>;
 	@Input() localization?: string | Record<string, string> | null;
@@ -129,6 +130,9 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 
 		if (this.player !== undefined)
 			config.Player = AyleBootstrap.Merge(config.Player || {}, this.player);
+
+		if (this.playlist !== undefined)
+			config.Playlist = AyleBootstrap.Clone(this.playlist);
 
 		if (this.mediaProvider !== undefined)
 			config.MediaProvider = AyleBootstrap.Merge(
@@ -280,6 +284,8 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 		const allEvents: Array<keyof AyleEventMap> = [
 			'ready', 'play', 'playing', 'pause', 'ended', 'error', 'buffering',
 			'progress', 'timeUpdate', 'seeking', 'seeked', 'sourceChange',
+			'playlistChange', 'playlistItemChanging', 'playlistItemChange',
+			'playlistIndexChange', 'playlistItemError',
 			'variantChange', 'variantSwitched', 'variantSwitchError', 'variantsChange',
 			'audioTrackChange', 'audioTracksChange', 'subtitleTrackChange',
 			'subtitleTracksChange', 'subtitleData', 'subtitleDataChange',

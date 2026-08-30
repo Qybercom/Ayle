@@ -11,6 +11,8 @@ import {
 export const AYLE_EVENTS = [
 	'ready', 'play', 'playing', 'pause', 'ended', 'error', 'buffering',
 	'progress', 'timeUpdate', 'seeking', 'seeked', 'sourceChange',
+	'playlistChange', 'playlistItemChanging', 'playlistItemChange',
+	'playlistIndexChange', 'playlistItemError',
 	'variantChange', 'variantSwitched', 'variantSwitchError', 'variantsChange',
 	'audioTrackChange', 'audioTracksChange', 'subtitleTrackChange',
 	'subtitleTracksChange', 'subtitleData', 'subtitleDataChange',
@@ -53,6 +55,9 @@ function buildConfig (props) {
 
 	if (props.player !== undefined)
 		config.Player = AyleBootstrap.Merge(config.Player || {}, props.player);
+
+	if (props.playlist !== undefined)
+		config.Playlist = cloneConfig(props.playlist);
 
 	if (props.mediaProvider !== undefined)
 		config.MediaProvider = AyleBootstrap.Merge(

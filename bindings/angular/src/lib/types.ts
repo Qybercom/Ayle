@@ -197,6 +197,35 @@ export interface AyleSource {
 	[key: string]: any;
 }
 
+export interface AylePlaylistItem {
+	ID?: string | number;
+	Driver?: Record<string, any>;
+	MediaProvider?: Record<string, any>;
+	Player?: Record<string, any>;
+	[key: string]: any;
+}
+
+export interface AylePlaylist {
+	AutoAdvance?: boolean;
+	Loop?: boolean;
+	StartIndex?: number;
+	Items: AylePlaylistItem[];
+}
+
+export interface AylePlaylistItemChangeEvent {
+	PreviousIndex: number;
+	Index: number;
+	PreviousItem: AylePlaylistItem | null;
+	Item: AylePlaylistItem;
+	Reason: 'initial' | 'next' | 'previous' | 'index' | 'id' | 'ended' | string;
+}
+
+export interface AylePlaylistItemErrorEvent {
+	Index: number;
+	Item: AylePlaylistItem;
+	Error: Error | MediaError | null;
+}
+
 export interface AyleState {
 	Source: AyleSource | null;
 	Ready: boolean;
@@ -224,6 +253,10 @@ export interface AyleState {
 	PlaybackRate: number;
 	PictureInPicture: boolean;
 	MediaMode: string;
+	PlaylistIndex: number;
+	PlaylistItem: AylePlaylistItem | null;
+	HasPrevious: boolean;
+	HasNext: boolean;
 	[key: string]: any;
 }
 
@@ -236,12 +269,22 @@ export interface AylePlayerCore {
 	MediaProvider: AyleMediaProvider | null;
 	MediaProviderOptions: Record<string, any> | null;
 	UI: AyleUI | null;
+	Playlist: AylePlaylist;
+	PlaylistIndex: number;
+	PlaylistItem: AylePlaylistItem | null;
 	Load(): any;
 	Load(callback: (error?: Error | null, source?: AyleSource | null, metadata?: Record<string, any> | null) => void): any;
 	Load(source: AyleSource): boolean;
 	LoadMedia(callback?: (error?: Error | null, source?: AyleSource | null, metadata?: Record<string, any> | null) => void): any;
 	SetDriver(driver: AyleDriver): this;
 	SetMediaProvider(provider: AyleMediaProvider | Record<string, any> | null): this;
+	SetPlaylist(playlist: AylePlaylist | AylePlaylistItem[]): this;
+	SetPlaylistIndex(index: number, reason?: string): boolean;
+	SetPlaylistItemByID(id: string | number): boolean;
+	Next(): boolean;
+	Previous(): boolean;
+	HasNext(): boolean;
+	HasPrevious(): boolean;
 	AttachUI(target: string | Element): this;
 	DetachUI(): this;
 	Destroy(): this;
@@ -466,6 +509,11 @@ export interface AyleEventMap {
 	seeking: boolean;
 	seeked: void;
 	sourceChange: AyleSource;
+	playlistChange: AylePlaylist;
+	playlistItemChanging: AylePlaylistItemChangeEvent;
+	playlistItemChange: AylePlaylistItemChangeEvent;
+	playlistIndexChange: number;
+	playlistItemError: AylePlaylistItemErrorEvent;
 	variantChange: AyleMediaVariant;
 	variantSwitched: AyleMediaVariant;
 	variantSwitchError: AyleVariantSwitchErrorEvent;

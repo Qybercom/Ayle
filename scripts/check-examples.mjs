@@ -661,10 +661,30 @@ if (
 	throw new Error('Core preset registry API is incomplete');
 
 if (
-	core.indexOf("Items: ['play', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']") === -1 ||
-	core.indexOf("Items: ['play', 'timeline', 'time', 'volume', 'settings']") === -1
+	core.indexOf("Items: ['previous', 'play', 'next', 'timeline', 'time', 'volume', 'chapters', 'quality', 'fullscreen', 'settings']") === -1 ||
+	core.indexOf("Items: ['previous', 'play', 'next', 'timeline', 'time', 'volume', 'settings']") === -1
 )
 	throw new Error('Built-in video/audio preset toolbar defaults are incomplete');
+
+
+if (
+	core.indexOf('Ayle.prototype.SetPlaylist = function') === -1 ||
+	core.indexOf('Ayle.prototype.SetPlaylistIndex = function') === -1 ||
+	core.indexOf('Ayle.prototype.SetPlaylistItemByID = function') === -1 ||
+	core.indexOf('Ayle.prototype.Next = function') === -1 ||
+	core.indexOf('Ayle.prototype.Previous = function') === -1 ||
+	core.indexOf("self.Emit('playlistItemError'") === -1
+)
+	throw new Error('Core playlist API/lifecycle is incomplete');
+
+if (
+	core.indexOf("case 'previous': return this.PreviousButton;") === -1 ||
+	core.indexOf("case 'next': return this.NextButton;") === -1 ||
+	core.indexOf('AyleUI.prototype.UpdatePlaylistButtons = function') === -1 ||
+	bootstrap.indexOf('ayle-previous') === -1 ||
+	bootstrap.indexOf('ayle-next') === -1
+)
+	throw new Error('Playlist Previous/Next toolbar controls are incomplete');
 
 if (
 	core.indexOf("var visible = count > 1 || this.Player.Options.ForceShowQualityList;") === -1 ||

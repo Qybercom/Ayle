@@ -306,8 +306,16 @@
 	order: 3;
 }
 
+.ayle-primary-left > .ayle-previous {
+	order: -1;
+}
+
 .ayle-primary-left > .ayle-play {
 	order: 0;
+}
+
+.ayle-primary-left > .ayle-next {
+	order: 1;
 }
 
 .ayle-controls > .ayle-timeline {
