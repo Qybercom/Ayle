@@ -236,6 +236,10 @@ export interface AyleState {
 export interface AylePlayerCore {
 	State: AyleState;
 	Options: Record<string, any>;
+	Element: HTMLElement | null;
+	MediaElement: HTMLMediaElement | null;
+	Driver: AyleDriver;
+	UI: AyleUI | null;
 	Play(): boolean | Promise<any>;
 	Pause(): any;
 	Seek(position: number): boolean;

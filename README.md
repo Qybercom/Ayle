@@ -54,6 +54,40 @@ The minimal variants demonstrate the smallest practical configuration for each m
 
 `data-ayle` is the instance ID. A page may contain multiple instances.
 
+### Imperative initialization
+
+For normal imperative use, `Ayle.Init()` is the assembly entry point. It accepts either a CSS selector or the player root DOM element, resolves the media element internally, creates the driver, player and UI, and returns the `Ayle` instance:
+
+```js
+var player = Ayle.Init('#player-minimal-audio', AyleMSEMediaDriver, {
+	AutoPlay: false,
+	AutoFocus: true,
+	MediaMode: 'audio',
+	UIMode: 'minimal',
+	UI: {
+		Header: [],
+		Track: ['title', 'chapter'],
+		Channel: ['name', 'profile'],
+		Overlay: ['track:compact', 'subtitles'],
+		Toolbar: {
+			Layout: 'inline',
+			Items: ['play', 'timeline', 'time', 'volume']
+		}
+	}
+});
+```
+
+The same call accepts a DOM element directly:
+
+```js
+var element = document.getElementById('player-minimal-audio');
+var player = Ayle.Init(element, AyleMSEMediaDriver, options);
+```
+
+An instance created this way exposes the assembled runtime objects as `player.Element`, `player.MediaElement`, `player.Driver`, and `player.UI`. An optional fourth argument is forwarded to the driver constructor for custom/future driver options.
+
+The explicit low-level construction (`new Driver(...)`, `new Ayle(...)`, `new AyleUI(...)`) remains available as an escape hatch and is intentionally demonstrated by `examples/low-level.html`.
+
 ## Loader attributes
 
 The table below is a quick overview. See **Configuration reference → `data-ayle*` attribute reference** for the complete attribute documentation.

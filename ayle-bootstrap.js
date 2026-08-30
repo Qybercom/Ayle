@@ -1114,13 +1114,20 @@
 			);
 
 		var type = String(driverConfig.Type).toLowerCase();
-		var driver;
-		if (type === 'html5') driver = new global.AyleHTML5MediaDriver(video, driverConfig.Options || {});
-		else if (type === 'mse') driver = new global.AyleMSEMediaDriver(video, driverConfig.Options || {});
+		var Driver;
+		if (type === 'html5') Driver = global.AyleHTML5MediaDriver;
+		else if (type === 'mse') Driver = global.AyleMSEMediaDriver;
 		else throw new Error('Unknown player driver type: ' + driverConfig.Type);
 
-		var player = new global.Ayle(driver, playerOptions);
-		var ui = new global.AyleUI(element, player);
+		var player = global.Ayle.Init(
+			element,
+			Driver,
+			playerOptions,
+			driverConfig.Options || {}
+		);
+		var driver = player.Driver;
+		var ui = player.UI;
+		video = player.MediaElement;
 		var http = null;
 		var instance = {
 			ID: id,

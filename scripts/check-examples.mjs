@@ -153,4 +153,23 @@ if (
 )
 	throw new Error('Legacy MinimalInfo configuration remains after Overlay migration');
 
+const initCore = await fs.readFile(path.join(root, 'ayle.js'), 'utf8');
+const initBootstrap = await fs.readFile(path.join(root, 'ayle-bootstrap.js'), 'utf8');
+
+for (const token of [
+	'Ayle.Init = function (target, Driver, options, driverOptions)',
+	"document.querySelector(target)",
+	"element.querySelector('.ayle-media, .ayle-video, .ayle-audio')",
+	'player.Element = element;',
+	'player.MediaElement = mediaElement;',
+	'player.Driver = driver;',
+	'player.UI = ui;'
+]) {
+	if (initCore.indexOf(token) === -1)
+		throw new Error('Ayle.Init regression: missing token ' + token);
+}
+
+if (initBootstrap.indexOf('global.Ayle.Init(') === -1)
+	throw new Error('Bootstrap must assemble runtime instances through Ayle.Init');
+
 console.log('Ayle canonical examples validation passed: 4 APIs × 4 variants.');

@@ -4243,6 +4243,9 @@ function Ayle (driver, options) {
 
 
 		this.Driver = driver;
+		this.Element = null;
+		this.MediaElement = driver && driver.Element ? driver.Element : null;
+		this.UI = null;
 		this.Driver.SetDebug(this.Options.Debug);
 		this.Driver.SetDebugMP4(this.Options.DebugMP4);
 		this._autoPlayPending = false;
@@ -6539,7 +6542,15 @@ function Ayle (driver, options) {
 	function AyleUI (element, player) {
 		this.Element = element;
 		this.Player = player;
+
+		if (player) {
+			player.Element = element;
+			player.UI = this;
+		}
 		this.MediaElement = element.querySelector('.ayle-media, .ayle-video, .ayle-audio');
+
+		if (player)
+			player.MediaElement = this.MediaElement || (player.Driver ? player.Driver.Element : null);
 		this.AudioCover = element.querySelector('.ayle-audio-cover');
 		this.ArtworkSlideshow = element.querySelector('.ayle-artwork-slideshow');
 		this.ArtworkSlideA = element.querySelector('.ayle-artwork-slide-a');
@@ -12204,7 +12215,40 @@ function Ayle (driver, options) {
 		if (this.Surface)
 			this.Surface.onclick = null;
 
+		if (this.Player && this.Player.UI === this)
+			this.Player.UI = null;
+
 		return this;
+	};
+
+
+	Ayle.Init = function (target, Driver, options, driverOptions) {
+		var element = target;
+
+		if (typeof target === 'string')
+			element = document.querySelector(target);
+
+		if (!element || typeof element.querySelector !== 'function')
+			throw new Error('Ayle target element was not found');
+
+		if (typeof Driver !== 'function')
+			throw new Error('Ayle driver constructor is required');
+
+		var mediaElement = element.querySelector('.ayle-media, .ayle-video, .ayle-audio');
+
+		if (!mediaElement)
+			throw new Error('Ayle media element was not found');
+
+		var driver = new Driver(mediaElement, driverOptions || {});
+		var player = new Ayle(driver, options || {});
+		var ui = new AyleUI(element, player);
+
+		player.Element = element;
+		player.MediaElement = mediaElement;
+		player.Driver = driver;
+		player.UI = ui;
+
+		return player;
 	};
 
 	global.Ayle = Ayle;
