@@ -24,6 +24,7 @@ export const AYLE_EVENTS = [
 	'artworkSlideshowChange', 'artworkSlideshowStart', 'artworkSlideshowStop',
 	'localizationChange', 'fontFamilyChange', 'settingsChange',
 	'settingsOrderChange', 'settingsAction', 'integrationSettingsAction',
+	'toolbarMenuAction', 'toolbarMenuSelect',
 	'shortcutChange', 'shortcutSettingsChange', 'keyboardArrowSeekStepChange',
 	'keyboardAngleSeekStepChange', 'keyboardFrameRateFallbackChange',
 	'debugChange', 'debugMP4Change', 'debugSettingsChange',
@@ -78,6 +79,32 @@ function buildConfig (props) {
 	return config;
 }
 
+function setDataAttribute (element, name, value, booleanAttribute) {
+	if (value === undefined || value === null || value === false && booleanAttribute) {
+		element.removeAttribute(name);
+		return;
+	}
+
+	if (booleanAttribute) {
+		if (value)
+			element.setAttribute(name, '');
+		else
+			element.removeAttribute(name);
+		return;
+	}
+
+	element.setAttribute(name, String(value));
+}
+
+function applyDataAttributes (element, props) {
+	setDataAttribute(element, 'data-ayle', props.id);
+	setDataAttribute(element, 'data-ayle-settings', props.settings);
+	setDataAttribute(element, 'data-ayle-volume', props.volume);
+	setDataAttribute(element, 'data-ayle-start', props.start);
+	setDataAttribute(element, 'data-ayle-muted', props.muted, true);
+	setDataAttribute(element, 'data-ayle-debug', props.debug, true);
+}
+
 function bindEvents (instance, props) {
 	var player = instance.Player;
 	var subscriptions = [];
@@ -130,6 +157,9 @@ export const AylePlayer = forwardRef(function AylePlayer (props, ref) {
 	var elementRef = useRef(null);
 	var instanceRef = useRef(null);
 	var bootstrapRef = useRef(null);
+	var unbindRef = useRef(null);
+	var propsRef = useRef(props);
+	propsRef.current = props;
 
 	useImperativeHandle(ref, function () {
 		return {
@@ -139,16 +169,35 @@ export const AylePlayer = forwardRef(function AylePlayer (props, ref) {
 			get UI () { return instanceRef.current ? instanceRef.current.UI : null; },
 			get HTTP () { return instanceRef.current ? instanceRef.current.HTTP : null; },
 			Reload: function () {
-				if (!bootstrapRef.current || !instanceRef.current)
+				if (!bootstrapRef.current || !instanceRef.current || !elementRef.current)
 					return false;
 
-				bootstrapRef.current.Destroy(instanceRef.current);
-				instanceRef.current = bootstrapRef.current.Init(
+				var currentProps = propsRef.current;
+				var oldInstance = instanceRef.current;
+
+				if (unbindRef.current) {
+					unbindRef.current();
+					unbindRef.current = null;
+				}
+
+				if (typeof currentProps.onDestroy === 'function')
+					currentProps.onDestroy(oldInstance);
+
+				bootstrapRef.current.Destroy(oldInstance);
+				applyDataAttributes(elementRef.current, currentProps);
+
+				var instance = bootstrapRef.current.Init(
 					elementRef.current,
-					buildConfig(props)
+					buildConfig(currentProps)
 				);
 
-				return instanceRef.current;
+				instanceRef.current = instance;
+				unbindRef.current = bindEvents(instance, currentProps);
+
+				if (typeof currentProps.onReady === 'function')
+					currentProps.onReady(instance);
+
+				return instance;
 			}
 		};
 	});
@@ -160,32 +209,32 @@ export const AylePlayer = forwardRef(function AylePlayer (props, ref) {
 		var bootstrap = new AyleBootstrap({ AutoInit: false });
 		bootstrapRef.current = bootstrap;
 
-		if (props.settings !== undefined) {
-			element.setAttribute(
-				'data-ayle-settings',
-				props.settings === null || props.settings === false ? '' : String(props.settings)
-			);
-		}
-
-		if (props.debug)
-			element.setAttribute('data-ayle-debug', '');
+		applyDataAttributes(element, props);
 
 		var instance = bootstrap.Init(element, buildConfig(props));
 		instanceRef.current = instance;
 		var unbind = bindEvents(instance, props);
+		unbindRef.current = unbind;
 
 		if (typeof props.onReady === 'function')
 			props.onReady(instance);
 
 		return function () {
-			unbind();
+			if (unbindRef.current === unbind) {
+				unbindRef.current();
+				unbindRef.current = null;
+			}
 
 			if (typeof props.onDestroy === 'function')
 				props.onDestroy(instance);
 
 			bootstrap.Destroy(instance);
-			instanceRef.current = null;
-			bootstrapRef.current = null;
+
+			if (instanceRef.current === instance)
+				instanceRef.current = null;
+
+			if (bootstrapRef.current === bootstrap)
+				bootstrapRef.current = null;
 		};
 	}, [props.reloadKey]);
 

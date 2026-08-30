@@ -30,6 +30,22 @@ const reactPackage = JSON.parse(
 delete reactPackage.scripts;
 delete reactPackage.devDependencies;
 
+reactPackage.files = [
+	'index.js',
+	'index.d.ts',
+	'README.md',
+	'LICENSE'
+];
+reactPackage.types = './index.d.ts';
+reactPackage.exports = {
+	'.': {
+		types: './index.d.ts',
+		import: './index.js',
+		default: './index.js'
+	},
+	'./package.json': './package.json'
+};
+
 await fs.writeFile(
 	path.join(root, 'bindings/react/dist/package.json'),
 	JSON.stringify(reactPackage, null, '\t')

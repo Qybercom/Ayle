@@ -109,3 +109,9 @@ specific payload types.
 Known event properties are declared explicitly in `AyleEventHandlers`, which
 lets TypeScript contextually type inline `events={{ ... }}` callbacks. Dynamic
 application-defined event names remain supported by the string index.
+
+## Core feature parity
+
+The binding passes the complete Ayle configuration object through to the core, so core features such as Toolbar layouts/custom menus, Timeline Ranges, Media Session, Hints, Settings integrations, localization, subtitles, variants, and driver options remain available without binding-specific wrappers.
+
+The initialization shortcuts `volume`, `start`, and `muted` are also exposed directly by the binding and map to the core `data-ayle-volume`, `data-ayle-start`, and `data-ayle-muted` initialization behavior. Core events are forwarded by the binding, including `toolbarMenuAction` and `toolbarMenuSelect`; dynamic integration-specific event names can also be subscribed to through the binding event API.

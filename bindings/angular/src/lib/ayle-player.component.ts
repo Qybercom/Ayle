@@ -44,6 +44,10 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 	@Input() driverOptions?: Record<string, any>;
 	@Input() localization?: string | Record<string, string> | null;
 	@Input() settings?: 'localStorage' | 'sessionStorage' | 'cookie' | '' | null | false;
+	@Input() volume?: number;
+	@Input() start?: number;
+	@Input() muted?: boolean;
+	@Input() events?: Record<string, (data: any, instance: AyleInstance) => void>;
 	@Input() debug = false;
 	@Input() reloadKey?: string | number;
 
@@ -57,6 +61,8 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 	@Output() timeUpdate = new EventEmitter<AyleEventMap['timeUpdate']>();
 	@Output() volumeChange = new EventEmitter<AyleEventMap['volumeChange']>();
 	@Output() sourceChange = new EventEmitter<AyleEventMap['sourceChange']>();
+	@Output() toolbarMenuAction = new EventEmitter<AyleEventMap['toolbarMenuAction']>();
+	@Output() toolbarMenuSelect = new EventEmitter<AyleEventMap['toolbarMenuSelect']>();
 	@Output() ayleEvent = new EventEmitter<AyleAnyAngularEvent>();
 
 	private Bootstrap: AyleBootstrap | null = null;
@@ -157,23 +163,41 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 		return config;
 	}
 
+	private SetDataAttribute (
+		name: string,
+		value: string | number | boolean | null | undefined,
+		booleanAttribute = false
+	): void {
+		const element = this.Host.nativeElement;
+
+		if (value === undefined || value === null || booleanAttribute && value === false) {
+			element.removeAttribute(name);
+			return;
+		}
+
+		if (booleanAttribute) {
+			element.setAttribute(name, '');
+			return;
+		}
+
+		element.setAttribute(name, String(value));
+	}
+
+	private ApplyDataAttributes (): void {
+		this.SetDataAttribute('data-ayle', this.id);
+		this.SetDataAttribute('data-ayle-settings', this.settings);
+		this.SetDataAttribute('data-ayle-volume', this.volume);
+		this.SetDataAttribute('data-ayle-start', this.start);
+		this.SetDataAttribute('data-ayle-muted', this.muted, true);
+		this.SetDataAttribute('data-ayle-debug', this.debug, true);
+	}
+
 	private Create (): AyleInstance | false {
 		const element = this.Host.nativeElement;
 
 		this.Bootstrap = new AyleBootstrap({ AutoInit: false });
 
-		if (this.id !== undefined)
-			element.setAttribute('data-ayle', String(this.id));
-
-		if (this.settings !== undefined) {
-			element.setAttribute(
-				'data-ayle-settings',
-				this.settings === null || this.settings === false ? '' : String(this.settings)
-			);
-		}
-
-		if (this.debug)
-			element.setAttribute('data-ayle-debug', '');
+		this.ApplyDataAttributes();
 
 		const instance = this.Bootstrap.Init(element, this.BuildConfig());
 
@@ -236,6 +260,8 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 		bind('timeUpdate', this.timeUpdate);
 		bind('volumeChange', this.volumeChange);
 		bind('sourceChange', this.sourceChange);
+		bind('toolbarMenuAction', this.toolbarMenuAction);
+		bind('toolbarMenuSelect', this.toolbarMenuSelect);
 
 		const known = new Set(subscriptions.map(function (item) {
 			return item.Name;
@@ -257,6 +283,7 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 			'artworkSlideshowChange', 'artworkSlideshowStart', 'artworkSlideshowStop',
 			'localizationChange', 'fontFamilyChange', 'settingsChange',
 			'settingsOrderChange', 'settingsAction', 'integrationSettingsAction',
+			'toolbarMenuAction', 'toolbarMenuSelect',
 			'shortcutChange', 'shortcutSettingsChange', 'keyboardArrowSeekStepChange',
 			'keyboardAngleSeekStepChange', 'keyboardFrameRateFallbackChange',
 			'debugChange', 'debugMP4Change', 'debugSettingsChange',
@@ -274,6 +301,38 @@ export class AylePlayerComponent implements AfterViewInit, OnChanges, OnDestroy 
 				bind(name);
 
 			i++;
+		}
+
+		if (this.events) {
+			const eventNames = Object.keys(this.events);
+			i = 0;
+
+			while (i < eventNames.length) {
+				const name = eventNames[i];
+				const customHandler = this.events[name];
+
+				if (customHandler && !known.has(name)) {
+					const handler = (data: any): void => {
+						customHandler(data, instance);
+
+						this.ayleEvent.emit({
+							Type: name,
+							Data: data,
+							Player: instance.Player,
+							Instance: instance,
+							Element: instance.Element
+						});
+					};
+
+					instance.Player.On(name, handler);
+					subscriptions.push({
+						Name: name,
+						Handler: handler
+					});
+				}
+
+				i++;
+			}
 		}
 
 		return function (): void {

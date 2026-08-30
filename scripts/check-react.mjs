@@ -102,6 +102,17 @@ const publishedLicense = await fs.readFile(path.join(root, 'bindings/react/dist/
 if (publishedPackage.license !== 'LGPL-3.0-only')
 	throw new Error('Ayle React binding package license must be LGPL-3.0-only');
 
+if (publishedPackage.types !== './index.d.ts')
+	throw new Error('Published React package must expose ./index.d.ts through "types"');
+
+if (
+	!publishedPackage.exports ||
+	!publishedPackage.exports['.'] ||
+	publishedPackage.exports['.'].types !== './index.d.ts' ||
+	publishedPackage.exports['.'].import !== './index.js'
+)
+	throw new Error('Published React package root export paths must be relative to the dist publish root');
+
 if (!publishedLicense.equals(licenseReference))
 	throw new Error('Ayle React binding LICENSE mismatch');
 

@@ -377,6 +377,18 @@ export interface AyleIntegrationSettingsActionEvent extends AyleSettingsActionEv
 	Result: any;
 }
 
+export interface AyleToolbarMenuActionEvent {
+	Player: AylePlayerCore;
+	UI: AyleUI;
+	ToolbarItem: AyleToolbarButton;
+	Item: AyleToolbarMenuItem;
+	Event: Event | null;
+}
+
+export interface AyleToolbarMenuSelectEvent extends AyleToolbarMenuActionEvent {
+	Result: any;
+}
+
 export interface AyleSettingsChangeEvent {
 	Name: string;
 	Value: any;
@@ -454,6 +466,8 @@ export interface AyleEventMap {
 	settingsOrderChange: string[];
 	settingsAction: AyleSettingsActionEvent;
 	integrationSettingsAction: AyleIntegrationSettingsActionEvent;
+	toolbarMenuAction: AyleToolbarMenuActionEvent;
+	toolbarMenuSelect: AyleToolbarMenuSelectEvent;
 	shortcutChange: AyleShortcutChangeEvent;
 	shortcutSettingsChange: AyleSettingsChangeEvent;
 	keyboardArrowSeekStepChange: number;
